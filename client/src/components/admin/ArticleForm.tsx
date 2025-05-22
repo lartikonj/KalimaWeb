@@ -114,7 +114,7 @@ export function ArticleForm({
 
   // Create field array for content paragraphs
   const { fields, append, remove } = useFieldArray({
-    name: `translations.${activeLanguage}.content`,
+    name: `translations.${activeLanguage}.content` as any,
     control: form.control,
   });
 

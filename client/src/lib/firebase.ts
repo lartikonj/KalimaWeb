@@ -236,15 +236,9 @@ export async function getArticles(options?: {
       articlesQuery = query(articlesQuery, where("draft", "==", options.draft));
     }
     
-    // Add category filter if specified
-    if (options?.category) {
-      articlesQuery = query(articlesQuery, where("category", "==", options.category));
-    }
-    
-    // Add subcategory filter if specified
-    if (options?.subcategory) {
-      articlesQuery = query(articlesQuery, where("subcategory", "==", options.subcategory));
-    }
+    // For filtering by category/subcategory we need to look at translations
+    // We'll get all articles and filter them in memory since Firestore doesn't allow
+    // querying nested fields directly in the way we need
     
     const articlesSnapshot = await getDocs(articlesQuery);
     
@@ -255,6 +249,22 @@ export async function getArticles(options?: {
         if (options?.language && article.availableLanguages && 
             !article.availableLanguages.includes(options.language)) {
           return false;
+        }
+
+        // Filter by category if specified
+        if (options?.category) {
+          const hasCategory = Object.values(article.translations || {}).some((translation: any) => 
+            translation.category === options.category
+          );
+          if (!hasCategory) return false;
+        }
+        
+        // Filter by subcategory if specified
+        if (options?.subcategory) {
+          const hasSubcategory = Object.values(article.translations || {}).some((translation: any) => 
+            translation.subcategory === options.subcategory
+          );
+          if (!hasSubcategory) return false;
         }
         
         return true;

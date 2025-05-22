@@ -111,7 +111,7 @@ export function ArticleCard({
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <div className="relative">
-        <Link href={`/article/${slug}`}>
+        <Link href={`/categories/${category}/${subcategory}/${slug}`}>
           <img
             src={imageUrl || 'https://source.unsplash.com/featured/?education'}
             alt={title}
@@ -136,7 +136,7 @@ export function ArticleCard({
           <span className="text-xs text-neutral-500 dark:text-neutral-400">{formattedDate}</span>
         </div>
         
-        <Link href={`/article/${slug}`}>
+        <Link href={`/categories/${category}/${subcategory}/${slug}`}>
           <h3 className="text-lg font-bold mb-2 text-neutral-800 dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 line-clamp-2">
             {title}
           </h3>
@@ -148,7 +148,7 @@ export function ArticleCard({
       </CardContent>
       
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
-        <Link href={`/article/${slug}`}>
+        <Link href={`/categories/${category}/${subcategory}/${slug}`}>
           <Button variant="link" className="p-0 h-auto text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
             {t("article.readMore")}
           </Button>
