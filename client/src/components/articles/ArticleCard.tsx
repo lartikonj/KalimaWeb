@@ -13,26 +13,28 @@ import { LanguageBadge } from "./LanguageBadge";
 interface ArticleCardProps {
   id: string;
   slug: string;
-  title: string;
-  summary: string;
-  imageUrl: string;
   category: string;
   subcategory: string;
-  date: string; // ISO string
+  imageUrl: string;
   availableLanguages: string[];
+  translations: Record<string, {
+    title: string;
+    summary: string;
+    content: Array<{type: string; text: string}>;
+  }>;
+  createdAt: any; // Firestore timestamp
   isFavorite?: boolean;
 }
 
 export function ArticleCard({
   id,
   slug,
-  title,
-  summary,
-  imageUrl,
   category,
   subcategory,
-  date,
+  imageUrl,
   availableLanguages,
+  translations,
+  createdAt,
   isFavorite = false,
 }: ArticleCardProps) {
   const { t, language } = useLanguage();
@@ -41,8 +43,16 @@ export function ArticleCard({
   const [favorite, setFavorite] = useState(isFavorite);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Get the translation for the current language or fall back to English
+  const currentTranslation = translations[language] || translations.en || Object.values(translations)[0];
+  const title = currentTranslation?.title || '';
+  const summary = currentTranslation?.summary || '';
+  
+  // Convert Firestore timestamp to Date
+  const date = createdAt?.toDate?.() ? createdAt.toDate() : new Date();
+  
   // Format date based on current language
-  const formattedDate = new Date(date).toLocaleDateString(
+  const formattedDate = date.toLocaleDateString(
     language === "en" ? "en-US" : 
     language === "fr" ? "fr-FR" : 
     language === "es" ? "es-ES" : 
@@ -93,12 +103,17 @@ export function ArticleCard({
     }
   };
 
+  // Check if we have valid data
+  if (!translations || Object.keys(translations).length === 0) {
+    return null;
+  }
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <div className="relative">
         <Link href={`/article/${slug}`}>
           <img
-            src={imageUrl}
+            src={imageUrl || 'https://source.unsplash.com/featured/?education'}
             alt={title}
             className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
           />
@@ -106,9 +121,9 @@ export function ArticleCard({
         
         {/* Language Badges */}
         <div className="absolute top-0 right-0 flex space-x-1 rtl:space-x-reverse p-2">
-          {availableLanguages.map(lang => (
+          {availableLanguages?.map(lang => (
             <LanguageBadge key={lang} language={lang} />
-          ))}
+          )) || []}
         </div>
       </div>
       

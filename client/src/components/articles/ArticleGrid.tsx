@@ -6,13 +6,14 @@ import { useAuth } from "@/contexts/AuthContext";
 interface Article {
   id: string;
   slug: string;
+  category: string;
+  subcategory: string;
+  availableLanguages: string[];
   translations: Record<string, {
     title: string;
     summary: string;
-    category: string;
-    subcategory: string;
+    content: Array<{type: string; text: string}>;
   }>;
-  availableLanguages: string[];
   createdAt: any; // Firestore timestamp
   imageUrl: string;
 }

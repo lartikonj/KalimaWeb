@@ -262,15 +262,23 @@ export async function getArticlesByCategory(category: string, language?: string)
 }
 
 export async function createArticle(
-  slug: string, 
+  slug: string,
+  category: string,
+  subcategory: string, 
   availableLanguages: string[], 
-  translations: Record<string, ArticleTranslation>, 
+  translations: Record<string, {
+    title: string;
+    summary: string;
+    content: Array<{type: string; text: string}>;
+  }>, 
   draft: boolean,
   imageUrl?: string
 ) {
   try {
     const articleData = {
       slug,
+      category,
+      subcategory,
       availableLanguages,
       translations,
       draft,
@@ -287,15 +295,23 @@ export async function createArticle(
 
 export async function updateArticle(
   articleId: string,
-  slug: string, 
+  slug: string,
+  category: string,
+  subcategory: string, 
   availableLanguages: string[], 
-  translations: Record<string, ArticleTranslation>, 
+  translations: Record<string, {
+    title: string;
+    summary: string;
+    content: Array<{type: string; text: string}>;
+  }>, 
   draft: boolean,
   imageUrl?: string
 ) {
   try {
     const articleData = {
       slug,
+      category,
+      subcategory,
       availableLanguages,
       translations,
       draft,
