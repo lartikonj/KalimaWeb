@@ -120,9 +120,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router>
-          <AuthProvider>
-            <RouterContent />
-          </AuthProvider>
+          <RouterContent />
         </Router>
       </TooltipProvider>
     </QueryClientProvider>
