@@ -229,9 +229,13 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
     try {
       setIsFetchingImage(true);
       
+      // Get all form values and access the nested properties safely
+      const formValues = form.getValues();
+      const activeTitle = formValues.translations?.[activeLanguage]?.title || '';
+      const englishTitle = formValues.translations?.en?.title || '';
+      
       // Use the title in the active language or fallback to English for better search results
-      const titleField = `translations.${activeLanguage}.title`;
-      const title = form.getValues(titleField) || form.getValues("translations.en.title") || "";
+      const title = activeTitle || englishTitle || "";
       
       const categoryName = categories.find(cat => cat.slug === watchCategory)?.titles?.en || "";
       

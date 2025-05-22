@@ -309,7 +309,7 @@ export default function ArticlesAdmin() {
         {/* Articles Table */}
         <div className="border rounded-md">
           <Table>
-            <TableCaption>{t("admin.managingTotalArticles", { count: filteredArticles.length })}</TableCaption>
+            <TableCaption>{t("admin.managingTotalArticles")}</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("admin.title")}</TableHead>
@@ -404,7 +404,7 @@ export default function ArticlesAdmin() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>{t("admin.confirmDelete")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                {t("admin.deleteArticleConfirmation", { title: getArticleTitle(article) })}
+                                {t("admin.deleteArticleConfirmation")}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

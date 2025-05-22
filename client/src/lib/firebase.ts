@@ -259,7 +259,7 @@ export async function getArticles(options?: {
   try {
     let articlesQuery = query(collection(db, "articles"));
     
-    // Add filters if specified
+    // Add filters if specified - only add when values are defined
     if (options?.draft !== undefined) {
       articlesQuery = query(articlesQuery, where("draft", "==", options.draft));
     }
@@ -280,15 +280,17 @@ export async function getArticles(options?: {
         }
 
         // Filter by category if specified
-        if (options?.category) {
-          if (article.category !== options?.category) {
+        if (options?.category && options.category !== 'all') {
+          const articleCategory = article.category;
+          if (!articleCategory || articleCategory !== options.category) {
             return false;
           }
         }
         
         // Filter by subcategory if specified
-        if (options?.subcategory) {
-          if (article.subcategory !== options?.subcategory) {
+        if (options?.subcategory && options.subcategory !== 'all') {
+          const articleSubcategory = article.subcategory;
+          if (!articleSubcategory || articleSubcategory !== options.subcategory) {
             return false;
           }
         }
