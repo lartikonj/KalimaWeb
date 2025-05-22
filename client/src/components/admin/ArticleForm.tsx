@@ -328,7 +328,7 @@ export function ArticleForm({
                             </FormControl>
                             <SelectContent>
                                 {categories.map(category => (
-                                  <SelectItem key={category.slug} value={category.slug || "default"}>
+                                  <SelectItem key={category.slug} value={category.slug || "default-category"}>
                                     {t(`categories.${category.slug}`)}
                                   </SelectItem>
                                 ))}
@@ -357,7 +357,7 @@ export function ArticleForm({
                             </FormControl>
                             <SelectContent>
                                 {getSubcategories(selectedCategory).map(subcategory => (
-                                  <SelectItem key={subcategory.slug} value={subcategory.slug || "default"}>
+                                  <SelectItem key={subcategory.slug} value={subcategory.slug || "default-subcategory"}>
                                     {t(`subcategories.${subcategory.slug}`)}
                                   </SelectItem>
                                 ))}

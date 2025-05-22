@@ -46,6 +46,9 @@ function RouterContent() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/categories" component={Categories} />
+          <Route path="/categories/:categorySlug" component={() => <CategoryPage />} />
+          <Route path="/categories/:categorySlug/:subcategorySlug" component={() => <SubcategoryPage />} />
+          <Route path="/categories/:categorySlug/:subcategorySlug/:slug" component={Article} />
           <Route path="/article/:slug" component={Article} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
