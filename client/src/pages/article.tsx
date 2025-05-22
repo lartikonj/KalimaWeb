@@ -6,7 +6,7 @@ import { Article } from "@/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ArticlePage() {
-  const [, params] = useRoute("/article/:slug");
+  const [, params] = useRoute("/:category/:subcategory/:slug");
   const { language } = useLanguage();
   const [article, setArticle] = useState<Article | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
@@ -14,12 +14,17 @@ export default function ArticlePage() {
   
   useEffect(() => {
     const fetchArticle = async () => {
-      if (!params?.slug) return;
+      if (!params?.slug || !params?.category || !params?.subcategory) return;
       
       setIsLoading(true);
       
       try {
         const fetchedArticle = await getArticleBySlug(params.slug);
+        
+        // Verify article belongs to correct category/subcategory
+        if (fetchedArticle && 
+            fetchedArticle.category === params.category &&
+            fetchedArticle.subcategory === params.subcategory) {
         
         if (fetchedArticle && !fetchedArticle.draft) {
           setArticle(fetchedArticle as Article);
