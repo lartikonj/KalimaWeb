@@ -392,25 +392,57 @@ export async function createArticle(articleData: {
   createdAt?: Timestamp;
 }): Promise<FirestoreArticle> {
   try {
-    // If createdAt is not provided, use current timestamp
-    const finalArticleData = {
-      ...articleData,
+    // Validate required fields to prevent "undefined" values
+    if (!articleData.slug) {
+      throw new Error("Article slug is required");
+    }
+    
+    if (!articleData.category) {
+      throw new Error("Article category is required");
+    }
+    
+    if (!articleData.subcategory) {
+      throw new Error("Article subcategory is required");
+    }
+    
+    if (!articleData.availableLanguages || articleData.availableLanguages.length === 0) {
+      throw new Error("At least one language must be available");
+    }
+    
+    if (!articleData.translations || Object.keys(articleData.translations).length === 0) {
+      throw new Error("Article must have at least one translation");
+    }
+    
+    if (!articleData.imageUrl) {
+      throw new Error("Article image URL is required");
+    }
+    
+    // Create a clean copy of the article data with defaults for optional fields
+    const cleanArticleData = {
+      slug: articleData.slug,
+      category: articleData.category,
+      subcategory: articleData.subcategory,
+      author: articleData.author || "",
+      availableLanguages: articleData.availableLanguages,
+      translations: articleData.translations,
+      draft: articleData.draft !== undefined ? articleData.draft : true,
+      imageUrl: articleData.imageUrl,
       createdAt: articleData.createdAt || Timestamp.now()
     };
     
     // Check if slug already exists
-    const existingArticle = await getArticleBySlug(articleData.slug);
+    const existingArticle = await getArticleBySlug(cleanArticleData.slug);
     if (existingArticle) {
-      throw new Error(`Article with slug ${articleData.slug} already exists`);
+      throw new Error(`Article with slug ${cleanArticleData.slug} already exists`);
     }
     
     // Add the article to Firestore
-    const docRef = await addDoc(collection(db, "articles"), finalArticleData);
+    const docRef = await addDoc(collection(db, "articles"), cleanArticleData);
     
     // Return the created article with its ID
     return {
       id: docRef.id,
-      ...finalArticleData
+      ...cleanArticleData
     } as FirestoreArticle;
   } catch (error) {
     console.error("Error creating article:", error);

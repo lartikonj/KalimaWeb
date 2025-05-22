@@ -4,7 +4,9 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
-import { getCategories, createArticle, updateArticle } from "@/lib/firebase";
+import { getCategories, createArticle, updateArticle, getArticleBySlug } from "@/lib/firebase";
+import { Timestamp } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Form,
   FormControl,
@@ -266,6 +268,16 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
     try {
       setIsLoading(true);
       
+      // Ensure we have valid category and subcategory values
+      if (!data.category || !data.subcategory) {
+        throw new Error(t("admin.categorySubcategoryRequired"));
+      }
+      
+      // Ensure imageUrl exists
+      if (!data.imageUrl) {
+        throw new Error(t("admin.imageUrlRequired"));
+      }
+      
       // Add createdAt timestamp if this is a new article
       const articleData = {
         ...data,
@@ -279,7 +291,26 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           description: t("admin.articleUpdatedDescription"),
         });
       } else {
-        await createArticle(articleData);
+        // First check if an article with this slug already exists
+        const existingArticle = await getArticleBySlug(data.slug);
+        if (existingArticle) {
+          throw new Error(t("admin.slugAlreadyExists"));
+        }
+        
+        // Create the article with explicit values to avoid undefined
+        const newArticleData = {
+          slug: data.slug,
+          category: data.category,
+          subcategory: data.subcategory,
+          author: data.author || "",
+          availableLanguages: data.availableLanguages,
+          translations: data.translations,
+          draft: data.draft !== undefined ? data.draft : true,
+          imageUrl: data.imageUrl,
+          createdAt: Timestamp.now(),
+        };
+        
+        await createArticle(newArticleData);
         toast({
           title: t("admin.articleCreated"),
           description: t("admin.articleCreatedDescription"),
