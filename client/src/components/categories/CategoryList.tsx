@@ -27,12 +27,12 @@ export function CategoryList() {
   
   // Get translated category name based on current language
   const getTranslatedName = (category: any) => {
-    if (category.translations && category.translations[language]) {
-      return category.translations[language];
+    if (category.titles && category.titles[language]) {
+      return category.titles[language];
     }
     
-    // Fallback to English or the category name
-    return category.translations?.en || category.name;
+    // Fallback to English or the slug
+    return category.titles?.en || category.slug;
   };
   
   // Transform subcategories to the format expected by CategoryCard
@@ -40,10 +40,10 @@ export function CategoryList() {
     if (!category.subcategories) return [];
     
     return category.subcategories.map((subcategory: any) => ({
-      name: subcategory.translations && subcategory.translations[language] 
-        ? subcategory.translations[language] 
-        : (subcategory.translations?.en || subcategory.key),
-      slug: subcategory.key
+      name: subcategory.titles && subcategory.titles[language] 
+        ? subcategory.titles[language] 
+        : (subcategory.titles?.en || subcategory.slug),
+      slug: subcategory.slug
     }));
   };
   

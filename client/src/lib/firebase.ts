@@ -177,9 +177,19 @@ export async function getArticles(options?: {
   try {
     let articlesQuery = query(collection(db, "articles"));
     
-    // Add additional filters if specified
+    // Add filters if specified
     if (options?.draft !== undefined) {
       articlesQuery = query(articlesQuery, where("draft", "==", options.draft));
+    }
+    
+    // Add category filter if specified
+    if (options?.category) {
+      articlesQuery = query(articlesQuery, where("category", "==", options.category));
+    }
+    
+    // Add subcategory filter if specified
+    if (options?.subcategory) {
+      articlesQuery = query(articlesQuery, where("subcategory", "==", options.subcategory));
     }
     
     const articlesSnapshot = await getDocs(articlesQuery);
@@ -193,25 +203,6 @@ export async function getArticles(options?: {
           return false;
         }
         
-        // Filter by category or subcategory if specified
-        if ((options?.category || options?.subcategory) && article.translations) {
-          for (const lang in article.translations) {
-            const translation = article.translations[lang];
-            
-            if (options?.category && translation.category !== options.category) {
-              continue;
-            }
-            
-            if (options?.subcategory && translation.subcategory !== options.subcategory) {
-              continue;
-            }
-            
-            return true;
-          }
-          
-          return false;
-        }
-        
         return true;
       });
   } catch (error) {
@@ -222,13 +213,14 @@ export async function getArticles(options?: {
 
 export async function getArticleBySlug(slug: string) {
   try {
+    // Try to get the article directly by ID/slug as the document ID
     const articleDoc = await getDoc(doc(db, "articles", slug));
     
     if (articleDoc.exists()) {
       return { id: articleDoc.id, ...articleDoc.data() };
     }
     
-    // If not found by direct ID, try querying by slug field
+    // If not found by direct ID, query by slug field
     const articlesRef = collection(db, "articles");
     const q = query(articlesRef, where("slug", "==", slug));
     const articles = await getDocs(q);
@@ -247,7 +239,10 @@ export async function getArticleBySlug(slug: string) {
 
 export async function getArticlesByCategory(category: string, language?: string) {
   try {
-    const articlesSnapshot = await getDocs(collection(db, "articles"));
+    // Directly filter by category using Firestore query
+    const articlesRef = collection(db, "articles");
+    const q = query(articlesRef, where("category", "==", category));
+    const articlesSnapshot = await getDocs(q);
     
     return articlesSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
@@ -258,16 +253,7 @@ export async function getArticlesByCategory(category: string, language?: string)
           return false;
         }
         
-        // Check if any translation has the specified category
-        if (article.translations) {
-          for (const lang in article.translations) {
-            if (article.translations[lang].category === category) {
-              return true;
-            }
-          }
-        }
-        
-        return false;
+        return true;
       });
   } catch (error) {
     console.error("Error getting articles by category:", error);

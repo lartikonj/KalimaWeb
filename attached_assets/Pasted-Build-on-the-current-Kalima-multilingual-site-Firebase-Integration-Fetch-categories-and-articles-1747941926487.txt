@@ -1,0 +1,84 @@
+Build on the current Kalima multilingual site.
+
+Firebase Integration:
+
+Fetch categories and articles from Firestore using the following structure:
+
+categories collection: each document includes:
+
+slug: string
+
+titles: map of strings by language code
+
+subcategories: array of maps, each with:
+
+slug: string
+
+titles: map of strings
+
+articles collection: each document includes:
+
+category: string (slug)
+
+subcategory: string (slug)
+
+availableLanguages: array of strings (["en", "fr", "ar", "es", "de"])
+
+translations: map, with one entry per language:
+
+Example key: "en" with value:
+
+json
+Copier
+Modifier
+{
+  "title": "Photosynthesis Basics",
+  "summary": "A short summary about how plants make food.",
+  "content": [
+    { "type": "heading", "text": "What is Photosynthesis?" },
+    { "type": "paragraph", "text": "Photosynthesis is the process by which green plants make their food..." }
+  ]
+}
+draft: boolean
+
+createdAt: timestamp
+
+Frontend Functionality:
+
+Display categories and subcategories in a sidebar or dropdown, based on the user's selected language.
+
+Show a list of articles under selected category/subcategory.
+
+When clicking an article, display the content in the currently selected language.
+
+If translation is not available for that article, show a message like: "Translation not available in this language."
+
+Add a language toggle (already exists), and a theme switch (light/dark).
+
+Admin Panel:
+
+If the logged-in user is an admin (isAdmin: true field in their user doc), show an Admin button in the navigation.
+
+Admin panel should allow:
+
+Creating a new category with its slug and titles in all 5 languages.
+
+Adding/modifying subcategories within a selected category.
+
+Creating and editing articles:
+
+Select category and subcategory
+
+Choose available languages
+
+For each language: title, summary, and content (simple blocks: headings, paragraphs)
+
+Toggle draft or publish
+
+All writes should sync directly with Firestore.
+
+User Permissions:
+
+Only admins should access the admin panel.
+
+Users can view content and suggest articles (already in place).
