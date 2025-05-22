@@ -22,7 +22,7 @@ import EditArticle from "@/pages/admin/edit-article";
 import CreateArticle from "@/pages/admin/create-article";
 import Profile from "@/pages/profile";
 import UserSuggestions from "@/pages/suggestions";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, AuthProvider } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import { initializeFirestore } from "@/lib/firestoreInit";
 
@@ -120,7 +120,9 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router>
-          <RouterContent />
+          <AuthProvider>
+            <RouterContent />
+          </AuthProvider>
         </Router>
       </TooltipProvider>
     </QueryClientProvider>

@@ -265,17 +265,17 @@ export async function getArticles(options?: {
     const articlesSnapshot = await getDocs(articlesQuery);
     
     return articlesSnapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .map(doc => ({ id: doc.id, ...doc.data() } as FirestoreArticle))
       .filter(article => {
         // Filter by language if specified
-        if (options?.language && article.availableLanguages && 
+        if (options?.language && 
             !article.availableLanguages.includes(options.language)) {
           return false;
         }
 
         // Filter by category if specified
         if (options?.category) {
-          const hasCategory = Object.values(article.translations || {}).some((translation: any) => 
+          const hasCategory = Object.values(article.translations || {}).some((translation) => 
             translation.category === options.category
           );
           if (!hasCategory) return false;
@@ -283,7 +283,7 @@ export async function getArticles(options?: {
         
         // Filter by subcategory if specified
         if (options?.subcategory) {
-          const hasSubcategory = Object.values(article.translations || {}).some((translation: any) => 
+          const hasSubcategory = Object.values(article.translations || {}).some((translation) => 
             translation.subcategory === options.subcategory
           );
           if (!hasSubcategory) return false;
@@ -297,13 +297,13 @@ export async function getArticles(options?: {
   }
 }
 
-export async function getArticleBySlug(slug: string) {
+export async function getArticleBySlug(slug: string): Promise<FirestoreArticle | null> {
   try {
     // Try to get the article directly by ID/slug as the document ID
     const articleDoc = await getDoc(doc(db, "articles", slug));
     
     if (articleDoc.exists()) {
-      return { id: articleDoc.id, ...articleDoc.data() };
+      return { id: articleDoc.id, ...articleDoc.data() } as FirestoreArticle;
     }
     
     // If not found by direct ID, query by slug field
@@ -316,7 +316,7 @@ export async function getArticleBySlug(slug: string) {
     }
     
     const foundArticle = articles.docs[0];
-    return { id: foundArticle.id, ...foundArticle.data() };
+    return { id: foundArticle.id, ...foundArticle.data() } as FirestoreArticle;
   } catch (error) {
     console.error("Error getting article by slug:", error);
     throw error;
