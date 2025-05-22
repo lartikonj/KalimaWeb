@@ -1,0 +1,108 @@
+Now that Firebase authentication works, please implement Firestore integration for:
+
+🗂️ Categories Collection (categories)
+Create a categories collection in Firestore. Each document should include:
+
+name (string) — Category name in English
+
+translations (map): { "en": "Science", "fr": "Science", "ar": "العلوم", "es": "Ciencia", "de": "Wissenschaft" }
+
+subcategories (array of maps), each with:
+
+key (string) — slug for subcategory
+
+translations (map) — like above
+
+➕ Add the following categories and subcategories:
+
+1. Language Learning
+Vocabulary
+
+Grammar
+
+Phrases
+
+2. Culture
+History
+
+Food
+
+Travel
+
+3. Science
+Nature
+
+Technology
+
+Health
+
+4. Stories
+Short Stories
+
+Fairy Tales
+
+5. Tips & Lifestyle
+Productivity
+
+Study Tips
+
+Motivation
+
+📄 Articles Collection (articles)
+Each document should include:
+
+slug (string)
+
+availableLanguages (array of strings)
+
+imageUrl (string) — fetch from Unsplash
+
+translations (map keyed by language code), each with:
+
+title (string)
+
+summary (string)
+
+content (array of strings)
+
+category (string — slug)
+
+subcategory (string — slug)
+
+draft (boolean)
+
+createdAt (timestamp)
+
+➕ Add 2 sample articles to Firestore:
+
+Example 1 — Category: Language Learning / Vocabulary
+Slug: common-words-for-travel
+Available Languages: ["en", "fr", "ar"]
+Translations:
+
+en: Title: "50 Common Words for Travel", Summary: "Useful vocabulary for travelers.", Content: [array of 4–5 sample paragraphs]
+
+fr: "50 mots courants pour voyager", "Vocabulaire utile pour les voyageurs."
+
+ar: "٥٠ كلمة شائعة للسفر", "مفردات مفيدة للمسافرين"
+
+Example 2 — Category: Science / Nature
+Slug: amazing-facts-about-nature
+Languages: ["en", "es", "de"]
+
+en: "10 Amazing Facts About Nature", "Nature is full of wonders."
+
+es: "10 hechos sorprendentes sobre la naturaleza", "La naturaleza está llena de maravillas."
+
+de: "10 erstaunliche Fakten über die Natur", "Die Natur ist voller Wunder."
+
+🔄 Sync Behavior
+When an article or category is created, edited, or deleted via the frontend, update Firestore.
+
+When categories/articles are added directly to Firestore, show them in the UI.
+
+💡 Continue using Firebase secrets from Replit environment variables.
+Use Unsplash for imageUrl like this:
+https://source.unsplash.com/featured/?<category-name>
+
+Please also display articles grouped by category and subcategory.

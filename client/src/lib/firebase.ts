@@ -140,6 +140,33 @@ export async function addSuggestion(uid: string, suggestion: SuggestedArticle) {
   }
 }
 
+// Category related functions
+export async function getCategories() {
+  try {
+    const categoriesSnapshot = await getDocs(collection(db, "categories"));
+    return categoriesSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error getting categories:", error);
+    throw error;
+  }
+}
+
+export async function getCategoryBySlug(slug: string) {
+  try {
+    const categoryDoc = await getDoc(doc(db, "categories", slug));
+    if (categoryDoc.exists()) {
+      return { id: categoryDoc.id, ...categoryDoc.data() };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting category by slug:", error);
+    throw error;
+  }
+}
+
 // Article related functions
 export async function getArticles(options?: { 
   category?: string; 
@@ -150,23 +177,24 @@ export async function getArticles(options?: {
   try {
     let articlesQuery = query(collection(db, "articles"));
     
-    const articles = await getDocs(articlesQuery);
+    // Add additional filters if specified
+    if (options?.draft !== undefined) {
+      articlesQuery = query(articlesQuery, where("draft", "==", options.draft));
+    }
     
-    return articles.docs
+    const articlesSnapshot = await getDocs(articlesQuery);
+    
+    return articlesSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .filter(article => {
-        // Filter by draft status if specified
-        if (options?.draft !== undefined && article.draft !== options.draft) {
-          return false;
-        }
-        
         // Filter by language if specified
-        if (options?.language && !article.availableLanguages.includes(options.language)) {
+        if (options?.language && article.availableLanguages && 
+            !article.availableLanguages.includes(options.language)) {
           return false;
         }
         
         // Filter by category or subcategory if specified
-        if (options?.category || options?.subcategory) {
+        if ((options?.category || options?.subcategory) && article.translations) {
           for (const lang in article.translations) {
             const translation = article.translations[lang];
             
@@ -194,6 +222,13 @@ export async function getArticles(options?: {
 
 export async function getArticleBySlug(slug: string) {
   try {
+    const articleDoc = await getDoc(doc(db, "articles", slug));
+    
+    if (articleDoc.exists()) {
+      return { id: articleDoc.id, ...articleDoc.data() };
+    }
+    
+    // If not found by direct ID, try querying by slug field
     const articlesRef = collection(db, "articles");
     const q = query(articlesRef, where("slug", "==", slug));
     const articles = await getDocs(q);
@@ -202,10 +237,40 @@ export async function getArticleBySlug(slug: string) {
       return null;
     }
     
-    const articleDoc = articles.docs[0];
-    return { id: articleDoc.id, ...articleDoc.data() };
+    const foundArticle = articles.docs[0];
+    return { id: foundArticle.id, ...foundArticle.data() };
   } catch (error) {
     console.error("Error getting article by slug:", error);
+    throw error;
+  }
+}
+
+export async function getArticlesByCategory(category: string, language?: string) {
+  try {
+    const articlesSnapshot = await getDocs(collection(db, "articles"));
+    
+    return articlesSnapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(article => {
+        // Filter by language if specified
+        if (language && article.availableLanguages && 
+            !article.availableLanguages.includes(language)) {
+          return false;
+        }
+        
+        // Check if any translation has the specified category
+        if (article.translations) {
+          for (const lang in article.translations) {
+            if (article.translations[lang].category === category) {
+              return true;
+            }
+          }
+        }
+        
+        return false;
+      });
+  } catch (error) {
+    console.error("Error getting articles by category:", error);
     throw error;
   }
 }

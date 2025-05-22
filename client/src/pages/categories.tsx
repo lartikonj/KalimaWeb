@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArticleGrid } from "@/components/articles/ArticleGrid";
 import { CategoryList } from "@/components/categories/CategoryList";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getArticles } from "@/lib/firebase";
+import { getArticles, getCategoryBySlug, getCategories } from "@/lib/firebase";
 import { Article } from "@/types";
-import categories from "@/data/categories";
 import { ChevronLeft } from "lucide-react";
 
 export default function Categories() {

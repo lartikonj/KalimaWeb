@@ -20,6 +20,8 @@ import CreateArticle from "@/pages/admin/create-article";
 import Profile from "@/pages/profile";
 import UserSuggestions from "@/pages/suggestions";
 import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
+import { initializeFirestore } from "@/lib/firestoreInit";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -95,6 +97,13 @@ function RouterContent() {
 }
 
 function App() {
+  // Initialize Firestore collections when the app loads
+  useEffect(() => {
+    initializeFirestore()
+      .then(() => console.log('Firestore initialized successfully'))
+      .catch(error => console.error('Failed to initialize Firestore:', error));
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
