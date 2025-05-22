@@ -319,7 +319,7 @@ export function ArticleForm({
                           <FormLabel>{t("admin.article.category")}</FormLabel>
                           <Select 
                             onValueChange={field.onChange} 
-                            defaultValue={field.value}
+                            value={field.value || categories[0]?.slug || ""}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -328,7 +328,7 @@ export function ArticleForm({
                             </FormControl>
                             <SelectContent>
                                 {categories.map(category => (
-                                  <SelectItem key={category.slug} value={category.slug}>
+                                  <SelectItem key={category.slug} value={category.slug || "default"}>
                                     {t(`categories.${category.slug}`)}
                                   </SelectItem>
                                 ))}
@@ -346,8 +346,8 @@ export function ArticleForm({
                         <FormItem>
                           <FormLabel>{t("admin.article.subcategory")}</FormLabel>
                           <Select 
-                            onValueChange={field.onChange} 
-                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            value={field.value || getSubcategories(selectedCategory)[0]?.slug || ""}
                             disabled={!selectedCategory}
                           >
                             <FormControl>
@@ -357,7 +357,7 @@ export function ArticleForm({
                             </FormControl>
                             <SelectContent>
                                 {getSubcategories(selectedCategory).map(subcategory => (
-                                  <SelectItem key={subcategory.slug} value={subcategory.slug}>
+                                  <SelectItem key={subcategory.slug} value={subcategory.slug || "default"}>
                                     {t(`subcategories.${subcategory.slug}`)}
                                   </SelectItem>
                                 ))}
