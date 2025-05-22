@@ -1,326 +1,305 @@
-import { useState, useEffect } from "react";
-import { Link } from "wouter";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { 
-  Chart,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer 
-} from "recharts";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  Settings,
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "wouter";
+import { getArticles, getCategories, getStaticPages } from "@/lib/firebase";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  FilePenLine,
+  FolderTree,
+  FileText,
+  Lightbulb,
+  PlusCircle,
   Languages,
-  PenSquare,
   Archive,
-  UserCheck,
-  FilePlus2,
-  FileQuestion
+  CheckCircle,
+  BarChart
 } from "lucide-react";
-import { getArticles } from "@/lib/firebase";
-import { Article } from "@/types";
 
 export default function Dashboard() {
-  const { t, language } = useLanguage();
-  const [articles, setArticles] = useState<Article[]>([]);
+  const { t } = useLanguage();
+  const { user, userData } = useAuth();
+  const [stats, setStats] = useState({
+    articles: 0,
+    publishedArticles: 0,
+    draftArticles: 0,
+    categories: 0,
+    staticPages: 0,
+    suggestions: 0,
+    languageCount: 0
+  });
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchStats = async () => {
       setIsLoading(true);
       try {
-        // Get all articles, including drafts
-        const fetchedArticles = await getArticles();
-        setArticles(fetchedArticles as Article[]);
+        // Fetch statistics concurrently
+        const [articles, categories, staticPages] = await Promise.all([
+          getArticles(),
+          getCategories(),
+          getStaticPages()
+        ]);
+        
+        // Count languages across all articles
+        const allLanguages = new Set<string>();
+        articles.forEach(article => {
+          article.availableLanguages.forEach(lang => allLanguages.add(lang));
+        });
+        
+        // Count published vs. draft articles
+        const publishedArticles = articles.filter(article => !article.draft).length;
+        const draftArticles = articles.filter(article => article.draft).length;
+        
+        // Calculate suggestions count (if user data is available)
+        const suggestionsCount = userData?.suggestedArticles?.length || 0;
+        
+        setStats({
+          articles: articles.length,
+          publishedArticles,
+          draftArticles,
+          categories: categories.length,
+          staticPages: staticPages.length,
+          suggestions: suggestionsCount,
+          languageCount: allLanguages.size
+        });
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        console.error("Error fetching stats:", error);
       } finally {
         setIsLoading(false);
       }
     };
     
-    fetchArticles();
-  }, []);
-  
-  // Count statistics
-  const totalArticles = articles.length;
-  const publishedArticles = articles.filter(article => !article.draft).length;
-  const drafts = articles.filter(article => article.draft).length;
-  
-  // Count languages
-  const languageCounts = articles.reduce((acc, article) => {
-    article.availableLanguages.forEach(lang => {
-      acc[lang] = (acc[lang] || 0) + 1;
-    });
-    return acc;
-  }, {} as Record<string, number>);
-  
-  // Prepare language data for chart
-  const languageData = Object.entries(languageCounts).map(([lang, count]) => ({
-    language: lang.toUpperCase(),
-    count
-  }));
-  
-  // Calculate monthly article data
-  const monthlyArticlesData = articles.reduce((acc, article) => {
-    const date = article.createdAt?.toDate();
-    if (date) {
-      const month = date.toLocaleString('en-US', { month: 'short' });
-      acc[month] = (acc[month] || 0) + 1;
+    fetchStats();
+  }, [userData]);
+
+  const adminSections = [
+    {
+      title: t("admin.articlesManagement"),
+      description: t("admin.articlesManagementDescription"),
+      icon: <FilePenLine className="h-6 w-6" />,
+      stats: stats.articles,
+      statLabel: t("admin.articlesTotal"),
+      href: "/admin/articles",
+      buttonText: t("admin.manageArticles"),
+      createHref: "/admin/articles/create",
+      createText: t("admin.createArticle")
+    },
+    {
+      title: t("admin.categoriesManagement"),
+      description: t("admin.categoriesManagementDescription"),
+      icon: <FolderTree className="h-6 w-6" />,
+      stats: stats.categories,
+      statLabel: t("admin.categoriesTotal"),
+      href: "/admin/categories",
+      buttonText: t("admin.manageCategories")
+    },
+    {
+      title: t("admin.staticPages"),
+      description: t("admin.staticPagesDescription"),
+      icon: <FileText className="h-6 w-6" />,
+      stats: stats.staticPages,
+      statLabel: t("admin.pagesTotal"),
+      href: "/admin/static-pages",
+      buttonText: t("admin.managePages")
+    },
+    {
+      title: t("admin.suggestions"),
+      description: t("admin.suggestionsDescription"),
+      icon: <Lightbulb className="h-6 w-6" />,
+      stats: stats.suggestions,
+      statLabel: t("admin.suggestionsTotal"),
+      href: "/admin/suggestions",
+      buttonText: t("admin.manageSuggestions")
     }
-    return acc;
-  }, {} as Record<string, number>);
+  ];
 
-  const monthlyData = Object.entries(monthlyArticlesData).map(([name, articles]) => ({
-    name,
-    articles
-  }));
-
-  // Calculate category distribution
-  const categoryData = articles.reduce((acc, article) => {
-    const firstTranslation = article.translations[article.availableLanguages[0]];
-    if (firstTranslation?.category) {
-      const categoryName = t(`categories.${firstTranslation.category}`);
-      acc[categoryName] = (acc[categoryName] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
-
-  const categoryChartData = Object.entries(categoryData).map(([name, articles]) => ({
-    name,
-    articles
-  }));
-  
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
-          {t("admin.dashboard")}
-        </h1>
-        
-        <Button asChild>
-          <Link href="/admin/articles/create">
-            <PenSquare className="mr-2 h-4 w-4" />
-            {t("admin.createArticle")}
-          </Link>
-        </Button>
-      </div>
-      
-      {/* Admin navigation tabs */}
-      <Tabs defaultValue="overview" className="space-y-8">
-        <TabsList className="grid grid-cols-4 md:w-[600px]">
-          <TabsTrigger value="overview" className="flex items-center">
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("admin.overview")}</span>
-          </TabsTrigger>
-          <TabsTrigger value="articles" className="flex items-center" asChild>
-            <Link href="/admin/articles">
-              <FileText className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.articles")}</span>
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="suggestions" className="flex items-center" asChild>
-            <Link href="/admin/suggestions">
-              <FileQuestion className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.suggestions")}</span>
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center">
-            <Settings className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("admin.settings")}</span>
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview" className="space-y-8">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium">
-                  {t("admin.stats.totalArticles")}
-                </CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{totalArticles}</div>
-                <p className="text-xs text-muted-foreground">
-                  {t("admin.dashboard.articlesInSystem")}
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium">
-                  {t("admin.stats.publishedArticles")}
-                </CardTitle>
-                <FilePlus2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{publishedArticles}</div>
-                <p className="text-xs text-muted-foreground">
-                  {t("admin.dashboard.visibleToUsers")}
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium">
-                  {t("admin.stats.drafts")}
-                </CardTitle>
-                <Archive className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{drafts}</div>
-                <p className="text-xs text-muted-foreground">
-                  {t("admin.dashboard.pendingPublication")}
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                <CardTitle className="text-sm font-medium">
-                  {t("admin.stats.languages")}
-                </CardTitle>
-                <Languages className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{Object.keys(languageCounts).length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {t("admin.dashboard.supportedLanguages")}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="col-span-1">
-              <CardHeader>
-                <CardTitle>{t("admin.dashboard.monthlyArticles")}</CardTitle>
-                <CardDescription>
-                  {t("admin.dashboard.articlesByMonth")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={monthlyArticlesData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="articles" 
-                      stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      activeDot={{ r: 8 }} 
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            <Card className="col-span-1">
-              <CardHeader>
-                <CardTitle>{t("admin.dashboard.articlesByCategory")}</CardTitle>
-                <CardDescription>
-                  {t("admin.dashboard.categoryDistribution")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={categoryChartData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                    layout="vertical"
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis type="category" dataKey="name" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar 
-                      dataKey="articles" 
-                      fill="hsl(var(--primary))" 
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Language Distribution */}
+    <AdminLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
+            {t("admin.dashboard")}
+          </h1>
+          <p className="text-neutral-500 dark:text-neutral-400 mt-2">
+            {t("admin.welcomeMessage")} {user?.displayName || ""}
+          </p>
+        </div>
+
+        {/* Key Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
-            <CardHeader>
-              <CardTitle>{t("admin.dashboard.languageDistribution")}</CardTitle>
-              <CardDescription>
-                {t("admin.dashboard.articlesPerLanguage")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={languageData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="language" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar 
-                    dataKey="count" 
-                    name={t("admin.dashboard.articles")}
-                    fill="hsl(var(--accent))" 
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("admin.settings")}</CardTitle>
-              <CardDescription>
-                {t("admin.settingsDescription")}
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">
+                {t("admin.stats.totalArticles")}
+              </CardTitle>
+              <FilePenLine className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <p className="text-center py-8 text-muted-foreground">
-                {t("admin.settingsPlaceholder")}
+              {isLoading ? (
+                <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+              ) : (
+                <div className="text-3xl font-bold">{stats.articles}</div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("admin.stats.articlesDescription")}
               </p>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">
+                {t("admin.stats.publishedArticles")}
+              </CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+              ) : (
+                <div className="text-3xl font-bold">{stats.publishedArticles}</div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("admin.stats.publishedDescription")}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">
+                {t("admin.stats.draftArticles")}
+              </CardTitle>
+              <Archive className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+              ) : (
+                <div className="text-3xl font-bold">{stats.draftArticles}</div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("admin.stats.draftsDescription")}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium">
+                {t("admin.stats.languages")}
+              </CardTitle>
+              <Languages className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 animate-pulse rounded" />
+              ) : (
+                <div className="text-3xl font-bold">{stats.languageCount}</div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("admin.stats.languagesDescription")}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Admin Content Management Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {adminSections.map((section) => (
+            <Card key={section.title} className="overflow-hidden">
+              <CardHeader className="pb-2">
+                <div className="flex items-center mb-2">
+                  <div className="p-2 bg-primary/10 rounded-full text-primary mr-3">
+                    {section.icon}
+                  </div>
+                  <CardTitle>{section.title}</CardTitle>
+                </div>
+                <CardDescription>{section.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <div className="text-3xl font-bold mr-2">
+                    {isLoading ? (
+                      <div className="w-12 h-10 bg-neutral-200 dark:bg-neutral-700 animate-pulse rounded" />
+                    ) : (
+                      section.stats
+                    )}
+                  </div>
+                  <div className="text-neutral-500 dark:text-neutral-400">
+                    {section.statLabel}
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between border-t pt-4">
+                <Link href={section.href}>
+                  <Button variant="outline">
+                    {section.buttonText}
+                  </Button>
+                </Link>
+                
+                {section.createHref && (
+                  <Link href={section.createHref}>
+                    <Button>
+                      <PlusCircle className="h-4 w-4 mr-2" />
+                      {section.createText}
+                    </Button>
+                  </Link>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+
+        {/* Quick Tips */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("admin.tips.title")}</CardTitle>
+            <CardDescription>{t("admin.tips.description")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-2">
+                <div className="p-1 bg-primary/10 rounded-full text-primary mt-0.5">
+                  <BarChart className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">{t("admin.tips.multilingualContent")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("admin.tips.multilingualDescription")}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="p-1 bg-primary/10 rounded-full text-primary mt-0.5">
+                  <BarChart className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">{t("admin.tips.drafts")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("admin.tips.draftsDescription")}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="p-1 bg-primary/10 rounded-full text-primary mt-0.5">
+                  <BarChart className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium">{t("admin.tips.organization")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("admin.tips.organizationDescription")}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </AdminLayout>
   );
 }
