@@ -1,0 +1,158 @@
+import { Link } from "wouter";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { BookmarkIcon, BookmarkPlusIcon } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+import { addFavorite, removeFavorite } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { LanguageBadge } from "./LanguageBadge";
+
+interface ArticleCardProps {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  imageUrl: string;
+  category: string;
+  subcategory: string;
+  date: string; // ISO string
+  availableLanguages: string[];
+  isFavorite?: boolean;
+}
+
+export function ArticleCard({
+  id,
+  slug,
+  title,
+  summary,
+  imageUrl,
+  category,
+  subcategory,
+  date,
+  availableLanguages,
+  isFavorite = false,
+}: ArticleCardProps) {
+  const { t, language } = useLanguage();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [favorite, setFavorite] = useState(isFavorite);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Format date based on current language
+  const formattedDate = new Date(date).toLocaleDateString(
+    language === "en" ? "en-US" : 
+    language === "fr" ? "fr-FR" : 
+    language === "es" ? "es-ES" : 
+    language === "de" ? "de-DE" : 
+    "ar-SA", 
+    { year: 'numeric', month: 'long', day: 'numeric' }
+  );
+
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast({
+        title: t("favorites.loginRequired"),
+        description: t("favorites.loginToSave"),
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsUpdating(true);
+    
+    try {
+      if (favorite) {
+        await removeFavorite(user.uid, id);
+        setFavorite(false);
+        toast({
+          title: t("favorites.removed"),
+          description: t("favorites.articleRemoved"),
+        });
+      } else {
+        await addFavorite(user.uid, id);
+        setFavorite(true);
+        toast({
+          title: t("favorites.added"),
+          description: t("favorites.articleSaved"),
+        });
+      }
+    } catch (error) {
+      toast({
+        title: t("error.title"),
+        description: t("error.savingFailed"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return (
+    <Card className="overflow-hidden transition-all hover:shadow-md">
+      <div className="relative">
+        <Link href={`/article/${slug}`}>
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+          />
+        </Link>
+        
+        {/* Language Badges */}
+        <div className="absolute top-0 right-0 flex space-x-1 rtl:space-x-reverse p-2">
+          {availableLanguages.map(lang => (
+            <LanguageBadge key={lang} language={lang} />
+          ))}
+        </div>
+      </div>
+      
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <Badge variant="outline" className="text-xs bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
+            {category}
+            {subcategory && ` > ${subcategory}`}
+          </Badge>
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">{formattedDate}</span>
+        </div>
+        
+        <Link href={`/article/${slug}`}>
+          <h3 className="text-lg font-bold mb-2 text-neutral-800 dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 line-clamp-2">
+            {title}
+          </h3>
+        </Link>
+        
+        <p className="text-neutral-600 dark:text-neutral-300 mb-4 text-sm line-clamp-3">
+          {summary}
+        </p>
+      </CardContent>
+      
+      <CardFooter className="p-4 pt-0 flex justify-between items-center">
+        <Link href={`/article/${slug}`}>
+          <Button variant="link" className="p-0 h-auto text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+            {t("article.readMore")}
+          </Button>
+        </Link>
+        
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled={isUpdating}
+          onClick={handleFavoriteToggle}
+          className={favorite ? "text-accent-500" : "text-neutral-400 hover:text-accent-500"}
+        >
+          {favorite ? (
+            <BookmarkIcon className="h-5 w-5" />
+          ) : (
+            <BookmarkPlusIcon className="h-5 w-5" />
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}

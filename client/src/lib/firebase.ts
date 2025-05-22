@@ -1,0 +1,269 @@
+import { initializeApp } from "firebase/app";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged, 
+  User as FirebaseUser,
+  updateProfile 
+} from "firebase/auth";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  query, 
+  where, 
+  getDocs, 
+  arrayUnion, 
+  arrayRemove,
+  Timestamp,
+  addDoc 
+} from "firebase/firestore";
+import { ArticleTranslation, SuggestedArticle } from "@shared/schema";
+
+// Firebase configuration from environment variables
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
+
+// Verify required Firebase config values exist
+const missingConfigs = Object.entries({
+  apiKey: firebaseConfig.apiKey,
+  projectId: firebaseConfig.projectId,
+  appId: firebaseConfig.appId,
+  messagingSenderId: firebaseConfig.messagingSenderId
+}).filter(([_, value]) => !value).map(([key]) => key);
+
+if (missingConfigs.length > 0) {
+  console.error(`Missing required Firebase config: ${missingConfigs.join(', ')}`);
+}
+
+console.log("Firebase configuration loaded successfully");
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// User related functions
+export async function registerUser(email: string, password: string, displayName: string) {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    
+    // Update profile to add display name
+    await updateProfile(userCredential.user, { displayName });
+    
+    // Create user document in Firestore
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      uid: userCredential.user.uid,
+      displayName,
+      email,
+      favorites: [],
+      suggestedArticles: []
+    });
+    
+    return userCredential.user;
+  } catch (error) {
+    console.error("Error registering user:", error);
+    throw error;
+  }
+}
+
+export async function loginUser(email: string, password: string) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return userCredential.user;
+  } catch (error) {
+    console.error("Error logging in:", error);
+    throw error;
+  }
+}
+
+export async function logoutUser() {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Error signing out:", error);
+    throw error;
+  }
+}
+
+export function onAuthChange(callback: (user: FirebaseUser | null) => void) {
+  return onAuthStateChanged(auth, callback);
+}
+
+// User data functions
+export async function getUserData(uid: string) {
+  try {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (userDoc.exists()) {
+      return userDoc.data();
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting user data:", error);
+    throw error;
+  }
+}
+
+export async function addFavorite(uid: string, articleId: string) {
+  try {
+    await updateDoc(doc(db, "users", uid), {
+      favorites: arrayUnion(articleId)
+    });
+  } catch (error) {
+    console.error("Error adding favorite:", error);
+    throw error;
+  }
+}
+
+export async function removeFavorite(uid: string, articleId: string) {
+  try {
+    await updateDoc(doc(db, "users", uid), {
+      favorites: arrayRemove(articleId)
+    });
+  } catch (error) {
+    console.error("Error removing favorite:", error);
+    throw error;
+  }
+}
+
+export async function addSuggestion(uid: string, suggestion: SuggestedArticle) {
+  try {
+    await updateDoc(doc(db, "users", uid), {
+      suggestedArticles: arrayUnion(suggestion)
+    });
+  } catch (error) {
+    console.error("Error adding suggestion:", error);
+    throw error;
+  }
+}
+
+// Article related functions
+export async function getArticles(options?: { 
+  category?: string; 
+  subcategory?: string; 
+  language?: string;
+  draft?: boolean;
+}) {
+  try {
+    let articlesQuery = query(collection(db, "articles"));
+    
+    const articles = await getDocs(articlesQuery);
+    
+    return articles.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(article => {
+        // Filter by draft status if specified
+        if (options?.draft !== undefined && article.draft !== options.draft) {
+          return false;
+        }
+        
+        // Filter by language if specified
+        if (options?.language && !article.availableLanguages.includes(options.language)) {
+          return false;
+        }
+        
+        // Filter by category or subcategory if specified
+        if (options?.category || options?.subcategory) {
+          for (const lang in article.translations) {
+            const translation = article.translations[lang];
+            
+            if (options?.category && translation.category !== options.category) {
+              continue;
+            }
+            
+            if (options?.subcategory && translation.subcategory !== options.subcategory) {
+              continue;
+            }
+            
+            return true;
+          }
+          
+          return false;
+        }
+        
+        return true;
+      });
+  } catch (error) {
+    console.error("Error getting articles:", error);
+    throw error;
+  }
+}
+
+export async function getArticleBySlug(slug: string) {
+  try {
+    const articlesRef = collection(db, "articles");
+    const q = query(articlesRef, where("slug", "==", slug));
+    const articles = await getDocs(q);
+    
+    if (articles.empty) {
+      return null;
+    }
+    
+    const articleDoc = articles.docs[0];
+    return { id: articleDoc.id, ...articleDoc.data() };
+  } catch (error) {
+    console.error("Error getting article by slug:", error);
+    throw error;
+  }
+}
+
+export async function createArticle(
+  slug: string, 
+  availableLanguages: string[], 
+  translations: Record<string, ArticleTranslation>, 
+  draft: boolean,
+  imageUrl?: string
+) {
+  try {
+    const articleData = {
+      slug,
+      availableLanguages,
+      translations,
+      draft,
+      imageUrl: imageUrl || "",
+      createdAt: Timestamp.now()
+    };
+    
+    await addDoc(collection(db, "articles"), articleData);
+  } catch (error) {
+    console.error("Error creating article:", error);
+    throw error;
+  }
+}
+
+export async function updateArticle(
+  articleId: string,
+  slug: string, 
+  availableLanguages: string[], 
+  translations: Record<string, ArticleTranslation>, 
+  draft: boolean,
+  imageUrl?: string
+) {
+  try {
+    const articleData = {
+      slug,
+      availableLanguages,
+      translations,
+      draft,
+      imageUrl: imageUrl || ""
+    };
+    
+    await updateDoc(doc(db, "articles", articleId), articleData);
+  } catch (error) {
+    console.error("Error updating article:", error);
+    throw error;
+  }
+}
+
+export { app, auth, db };
