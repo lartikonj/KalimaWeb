@@ -50,8 +50,11 @@ export default function SubcategoryPage() {
         
         // Filter articles for this subcategory
         const subcategoryArticles = fetchedArticles.filter((article: any) => {
-          const translation = article.translations?.[language];
-          return translation?.subcategory === subcategorySlug;
+          // Check all translations for this subcategory
+          return Object.values(article.translations || {}).some((translation: any) => {
+            return translation.category === categorySlug && 
+                   translation.subcategory === subcategorySlug;
+          });
         });
         
         setArticles(subcategoryArticles);

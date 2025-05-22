@@ -169,9 +169,11 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
   };
   
   const handleLanguageChange = (lang: string) => {
-    setActiveLanguage(lang);
-    // You can also update the UI language if needed
-    setLanguage(lang as any);
+    setActiveLanguage(lang as any);
+    // Also update the UI language if needed
+    if (lang === "en" || lang === "ar" || lang === "fr" || lang === "es" || lang === "de") {
+      setLanguage(lang);
+    }
   };
   
   const handleShare = async () => {

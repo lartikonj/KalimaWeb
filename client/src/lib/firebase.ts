@@ -24,6 +24,28 @@ import {
   addDoc 
 } from "firebase/firestore";
 import { ArticleTranslation, SuggestedArticle } from "@shared/schema";
+import { Language } from "@/contexts/LanguageContext";
+
+// Define our Firestore document types
+interface FirestoreArticle {
+  id: string;
+  slug: string;
+  availableLanguages: string[];
+  translations: Record<string, ArticleTranslation>;
+  createdAt: Timestamp;
+  draft: boolean;
+  imageUrl: string;
+}
+
+interface FirestoreCategory {
+  id: string;
+  slug: string;
+  titles: Record<string, string>;
+  subcategories: Array<{
+    slug: string;
+    titles: Record<string, string>;
+  }>;
+}
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
