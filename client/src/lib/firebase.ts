@@ -347,6 +347,28 @@ export async function getArticlesByCategory(category: string, language?: string)
   }
 }
 
+export async function deleteArticle(slug: string) {
+  try {
+    // Find the article by slug
+    const articlesRef = collection(db, "articles");
+    const q = query(articlesRef, where("slug", "==", slug));
+    const articles = await getDocs(q);
+    
+    if (articles.empty) {
+      throw new Error(`Article with slug ${slug} not found`);
+    }
+    
+    // Delete the article document
+    const articleDoc = articles.docs[0];
+    await deleteDoc(doc(db, "articles", articleDoc.id));
+    
+    return true;
+  } catch (error) {
+    console.error("Error deleting article:", error);
+    throw error;
+  }
+}
+
 export async function createArticle(
   slug: string,
   languages: string[],
