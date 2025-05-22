@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
 import { getArticleBySlug, getArticles } from "@/lib/firebase";
@@ -21,35 +22,26 @@ export default function ArticlePage() {
       try {
         const fetchedArticle = await getArticleBySlug(params.slug);
         
-        // Verify article belongs to correct category/subcategory
         if (fetchedArticle && 
-            fetchedArticle.category === params.category &&
-            fetchedArticle.subcategory === params.subcategory) {
-        
-        if (fetchedArticle && !fetchedArticle.draft) {
+            fetchedArticle.translations[language]?.category === params.category && 
+            fetchedArticle.translations[language]?.subcategory === params.subcategory && 
+            !fetchedArticle.draft) {
+          
           setArticle(fetchedArticle as Article);
           
-          // Get the category and subcategory to fetch related articles
-          const translation = 
-            fetchedArticle.translations[language] || 
-            fetchedArticle.translations["en"] || 
-            fetchedArticle.translations[fetchedArticle.availableLanguages[0]];
+          // Get related articles
+          const related = await getArticles({
+            category: params.category,
+            language,
+            draft: false
+          });
           
-          if (translation) {
-            // Fetch related articles with the same category
-            const related = await getArticles({
-              category: translation.category,
-              language,
-              draft: false
-            });
-            
-            // Filter out the current article and limit to 3 related articles
-            const filteredRelated = related
-              .filter(art => art.id !== fetchedArticle.id)
-              .slice(0, 3);
-            
-            setRelatedArticles(filteredRelated as Article[]);
-          }
+          // Filter out current article and limit to 3
+          const filteredRelated = related
+            .filter(art => art.id !== fetchedArticle.id)
+            .slice(0, 3);
+          
+          setRelatedArticles(filteredRelated as Article[]);
         } else {
           setArticle(null);
         }
@@ -62,7 +54,7 @@ export default function ArticlePage() {
     };
     
     fetchArticle();
-  }, [params?.slug, language]);
+  }, [params?.slug, params?.category, params?.subcategory, language]);
   
   return (
     <div className="container mx-auto px-4 py-8">
