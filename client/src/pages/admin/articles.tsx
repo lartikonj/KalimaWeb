@@ -64,7 +64,7 @@ export default function AdminArticles() {
   const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedLanguage, setSelectedLanguage] = useState<Language | "">("");
   const [showDrafts, setShowDrafts] = useState<boolean | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -248,7 +248,7 @@ export default function AdminArticles() {
                 <SelectValue placeholder={t("admin.filterByCategory")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value="all">
                   {t("admin.allCategories")}
                 </SelectItem>
                 {categories.map(category => (
