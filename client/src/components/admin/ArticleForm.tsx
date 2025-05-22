@@ -327,7 +327,6 @@ export function ArticleForm({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                <SelectItem value="none">{t("admin.article.selectCategory")}</SelectItem>
                                 {categories.map(category => (
                                   <SelectItem key={category.slug} value={category.slug}>
                                     {t(`categories.${category.slug}`)}
@@ -357,7 +356,6 @@ export function ArticleForm({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                <SelectItem value="none">{t("admin.article.selectSubcategory")}</SelectItem>
                                 {getSubcategories(selectedCategory).map(subcategory => (
                                   <SelectItem key={subcategory.slug} value={subcategory.slug}>
                                     {t(`subcategories.${subcategory.slug}`)}
