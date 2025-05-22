@@ -79,21 +79,6 @@ export default function Header() {
                 </Button>
               </Link>
             )}
-
-            {/* Admin Button (Only shown for admin users) */}
-            {user && isAdmin && (
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className={`${isRTL ? 'mr-2' : 'ml-2'}`}
-              >
-                <Link href="/admin/dashboard">
-                  <LayoutDashboard className="h-4 w-4 mr-2" />
-                  {t("nav.admin")}
-                </Link>
-              </Button>
-            )}
             
             {/* User Menu */}
             {user ? (
