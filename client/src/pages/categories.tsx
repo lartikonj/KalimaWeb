@@ -20,10 +20,9 @@ export default function Categories() {
   const [categoryData, setCategoryData] = useState<any>(null);
   const [categoryLoading, setCategoryLoading] = useState(false);
   
-  // Check routes for different levels
-  const [isCategoriesMatch] = useRoute("/categories");
-  const [isCategoryMatch, categoryParams] = useRoute("/:category");
-  const [isSubcategoryMatch, subcategoryParams] = useRoute("/:category/:subcategory");
+  // Check if we're on a specific category or subcategory route
+  const [isCategoryMatch, categoryParams] = useRoute("/categories/:category");
+  const [isSubcategoryMatch, subcategoryParams] = useRoute("/categories/:category/:subcategory");
   
   // Set current category and subcategory based on route
   useEffect(() => {

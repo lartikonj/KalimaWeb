@@ -8,7 +8,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
-import ArticlePage from "@/pages/article";
+import Article from "@/pages/article";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Favorites from "@/pages/favorites";
@@ -26,15 +26,15 @@ import { initializeFirestore } from "@/lib/firestoreInit";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
-
+  
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
-
+  
   if (!user) {
     return <Login />;
   }
-
+  
   return <>{children}</>;
 }
 
@@ -46,9 +46,7 @@ function RouterContent() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/categories" component={Categories} />
-          <Route path="/:category" component={Categories} />
-          <Route path="/:category/:subcategory" component={Categories} />
-          <Route path="/:category/:subcategory/:slug" component={ArticlePage} />
+          <Route path="/article/:slug" component={Article} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/favorites">
@@ -66,12 +64,7 @@ function RouterContent() {
               <UserSuggestions />
             </ProtectedRoute>
           </Route>
-          <Route path="/admin" >
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/dashboard">
+          <Route path="/admin">
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
