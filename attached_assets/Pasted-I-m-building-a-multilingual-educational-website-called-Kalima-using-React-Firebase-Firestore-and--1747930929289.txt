@@ -1,0 +1,132 @@
+I’m building a multilingual educational website called Kalima using React + Firebase (Firestore and Authentication only — no Firebase Storage). The goal is to let users read and enjoy educational articles in 5 languages: Arabic, English, French, Spanish, and German. Please structure the app with the following features:
+
+🔐 Authentication
+Firebase Authentication with email/password login
+
+Users stored in Firestore with:
+
+uid (string)
+
+displayName (string)
+
+email (string)
+
+favorites (array of article IDs)
+
+suggestedArticles (array of maps):
+
+title (string)
+
+language (string)
+
+content (array of strings)
+
+📄 Articles Collection (articles)
+slug (string) — unique for URLs
+
+availableLanguages (array of strings) — e.g., ["en", "fr", "ar"]
+
+translations (map):
+
+Keyed by language code ("en", "fr", etc.), each contains:
+
+title (string)
+
+summary (string)
+
+category (string)
+
+subcategory (string)
+
+content (array of strings or paragraphs)
+
+createdAt (timestamp)
+
+draft (boolean)
+
+imageUrl (string) — use Unsplash API to fetch relevant royalty-free images based on title or category
+
+🗂️ Categories & Subcategories (hardcoded in app)
+Example structure:
+
+Language Learning
+
+Vocabulary
+
+Grammar
+
+Phrases
+
+Culture
+
+History
+
+Food
+
+Travel
+
+Science
+
+Nature
+
+Technology
+
+Health
+
+Stories
+
+Short Stories
+
+Fairy Tales
+
+Tips & Lifestyle
+
+Productivity
+
+Study Tips
+
+Motivation
+
+🌍 Multilingual Features
+Language switcher (top of every page)
+
+Show which languages are available per article
+
+Translations shown based on selected language
+
+🌗 Themes & UI
+Dark/light theme toggle
+
+Responsive UI
+
+Articles listed by category → subcategory
+
+Show related articles by category
+
+Use Context Providers for auth, theme, and language
+
+🧑‍💻 Admin Panel
+Auth-protected route for admin:
+
+Create/edit articles in any language
+
+Add article slugs, summaries, and content
+
+Choose categories/subcategories
+
+See and manage user article suggestions
+
+🔍 Optional Improvements
+Basic search by title
+
+Bookmark (favorites) support
+
+Show Unsplash image based on article category using API
+
+Please initialize the project using:
+
+Firebase Authentication + Firestore (no Firebase Storage)
+
+Replit secrets for Firebase config
+
+Placeholder or mock data to start
