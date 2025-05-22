@@ -17,12 +17,15 @@ import Favorites from "@/pages/favorites";
 import Dashboard from "@/pages/admin/dashboard";
 import AdminArticles from "@/pages/admin/articles";
 import AdminCategories from "@/pages/admin/categories";
+import AdminStaticPages from "@/pages/admin/static-pages";
 import Suggestions from "@/pages/admin/suggestions";
 import EditArticle from "@/pages/admin/edit-article";
 import CreateArticle from "@/pages/admin/create-article";
 import Profile from "@/pages/profile";
 import UserSuggestions from "@/pages/suggestions";
 import { useAuth, AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useEffect } from "react";
 import { initializeFirestore } from "@/lib/firestoreInit";
 
@@ -84,6 +87,11 @@ function RouterContent() {
               <AdminCategories />
             </ProtectedRoute>
           </Route>
+          <Route path="/admin/static-pages">
+            <ProtectedRoute>
+              <AdminStaticPages />
+            </ProtectedRoute>
+          </Route>
           <Route path="/admin/suggestions">
             <ProtectedRoute>
               <Suggestions />
@@ -117,12 +125,18 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router>
-          <RouterContent />
-        </Router>
-      </TooltipProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router>
+                <RouterContent />
+              </Router>
+            </TooltipProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
