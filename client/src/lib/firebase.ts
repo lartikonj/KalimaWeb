@@ -21,7 +21,8 @@ import {
   arrayUnion, 
   arrayRemove,
   Timestamp,
-  addDoc 
+  addDoc,
+  deleteDoc
 } from "firebase/firestore";
 import { ArticleTranslation, SuggestedArticle } from "@shared/schema";
 import { Language } from "@/contexts/LanguageContext";
@@ -30,8 +31,19 @@ import { Language } from "@/contexts/LanguageContext";
 interface FirestoreArticle {
   id: string;
   slug: string;
+  category: string;
+  subcategory: string;
+  author?: string;
   availableLanguages: string[];
-  translations: Record<string, ArticleTranslation>;
+  translations: Record<string, {
+    title: string;
+    summary: string;
+    content: Array<{
+      title: string;
+      paragraph: string;
+      references?: string[];
+    }>;
+  }>;
   createdAt: Timestamp;
   draft: boolean;
   imageUrl: string;
@@ -45,6 +57,12 @@ interface FirestoreCategory {
     slug: string;
     titles: Record<string, string>;
   }>;
+}
+
+interface FirestoreStaticPage {
+  id: string;
+  slug: string;
+  translations: Record<string, string>;
 }
 
 // Firebase configuration from environment variables
@@ -369,27 +387,30 @@ export async function deleteArticle(slug: string) {
   }
 }
 
-export async function createArticle(
-  slug: string,
-  languages: string[],
+export async function createArticle(articleData: {
+  slug: string;
+  category: string;
+  subcategory: string;
+  author?: string;
+  availableLanguages: string[];
   translations: Record<string, {
     title: string;
     summary: string;
-    category: string;
-    subcategory: string;
-    content: string[];
-  }>,
-  draft: boolean,
-  imageUrl?: string
-) {
+    content: Array<{
+      title: string;
+      paragraph: string;
+      references?: string[];
+    }>;
+  }>;
+  draft: boolean;
+  imageUrl: string;
+  createdAt?: Timestamp;
+}) {
   try {
-    const articleData = {
-      slug,
-      availableLanguages: languages,
-      translations,
-      draft,
-      imageUrl: imageUrl || "",
-      createdAt: Timestamp.now()
+    // If createdAt is not provided, use current timestamp
+    const finalArticleData = {
+      ...articleData,
+      createdAt: articleData.createdAt || Timestamp.now()
     };
     
     await addDoc(collection(db, "articles"), articleData);
