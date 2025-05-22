@@ -80,6 +80,21 @@ export default function Header() {
               </Link>
             )}
 
+            {/* Admin Button (Only shown for admin users) */}
+            {user && isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className={`${isRTL ? 'mr-2' : 'ml-2'}`}
+              >
+                <Link href="/admin/dashboard">
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  {t("nav.admin")}
+                </Link>
+              </Button>
+            )}
+            
             {/* User Menu */}
             {user ? (
               <div className={`relative flex-shrink-0 ${isRTL ? 'mr-4' : 'ml-4'}`}>
@@ -101,6 +116,14 @@ export default function Header() {
                     <DropdownMenuItem asChild>
                       <Link href="/suggestions">{t("nav.suggestions")}</Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin/dashboard">{t("nav.admin")}</Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       {t("auth.logout")}

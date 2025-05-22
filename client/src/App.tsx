@@ -8,6 +8,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
+import CategoryPage from "@/pages/category";
+import SubcategoryPage from "@/pages/subcategory";
 import Article from "@/pages/article";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
