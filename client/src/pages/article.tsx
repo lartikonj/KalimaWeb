@@ -22,10 +22,14 @@ export default function ArticlePage() {
       try {
         const fetchedArticle = await getArticleBySlug(params.slug);
         
-        if (fetchedArticle && 
-            fetchedArticle.translations[language]?.category === params.category && 
-            fetchedArticle.translations[language]?.subcategory === params.subcategory && 
-            !fetchedArticle.draft) {
+        if (fetchedArticle) {
+          // Get the current translation or fallback to first available
+          const currentTranslation = fetchedArticle.translations[language] || 
+            fetchedArticle.translations[fetchedArticle.availableLanguages[0]];
+
+          if (currentTranslation?.category === params.category && 
+              currentTranslation?.subcategory === params.subcategory && 
+              !fetchedArticle.draft) {
           
           setArticle(fetchedArticle as Article);
           
@@ -42,6 +46,9 @@ export default function ArticlePage() {
             .slice(0, 3);
           
           setRelatedArticles(filteredRelated as Article[]);
+          } else {
+            setArticle(null);
+          }
         } else {
           setArticle(null);
         }
