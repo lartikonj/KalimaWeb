@@ -317,23 +317,21 @@ export async function getArticlesByCategory(category: string, language?: string)
 
 export async function createArticle(
   slug: string,
-  category: string,
-  subcategory: string, 
-  availableLanguages: string[], 
+  languages: string[],
   translations: Record<string, {
     title: string;
     summary: string;
-    content: Array<{type: string; text: string}>;
-  }>, 
+    category: string;
+    subcategory: string;
+    content: string[];
+  }>,
   draft: boolean,
   imageUrl?: string
 ) {
   try {
     const articleData = {
       slug,
-      category,
-      subcategory,
-      availableLanguages,
+      availableLanguages: languages,
       translations,
       draft,
       imageUrl: imageUrl || "",
