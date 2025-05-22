@@ -69,13 +69,13 @@ export function ArticleForm({
   const [selectedCategory, setSelectedCategory] = useState<string>(
     initialData?.translations[activeLanguage]?.category || ""
   );
-  
+
   // Get subcategories based on selected category
   const getSubcategories = (categorySlug: string) => {
     const category = categories.find(cat => cat.slug === categorySlug);
     return category ? category.subcategories : [];
   };
-  
+
   // Default form values
   const defaultValues: ArticleFormValues = {
     slug: "",
@@ -92,13 +92,13 @@ export function ArticleForm({
     draft: true,
     imageUrl: "",
   };
-  
+
   // Form instance
   const form = useForm<ArticleFormValues>({
     resolver: zodResolver(articleFormSchema),
     defaultValues: initialData || defaultValues,
   });
-  
+
   // Update subcategory options when category changes
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
@@ -111,13 +111,13 @@ export function ArticleForm({
     });
     return () => subscription.unsubscribe();
   }, [form, activeLanguage]);
-  
+
   // Create field array for content paragraphs
   const { fields, append, remove } = useFieldArray({
     name: `translations.${activeLanguage}.content`,
     control: form.control,
   });
-  
+
   // Handle image search
   const handleImageSearch = async () => {
     if (!imageSearchTerm.trim()) {
@@ -128,9 +128,9 @@ export function ArticleForm({
       });
       return;
     }
-    
+
     setIsSearchingImages(true);
-    
+
     try {
       const results = await searchPhotos(imageSearchTerm, 6);
       setSearchedImages(results);
@@ -144,29 +144,29 @@ export function ArticleForm({
       setIsSearchingImages(false);
     }
   };
-  
+
   // Handle image selection
   const handleSelectImage = (imageUrl: string) => {
     form.setValue("imageUrl", imageUrl);
   };
-  
+
   // Handle adding/removing languages
   const toggleLanguage = (lang: Language) => {
     const currentLanguages = form.getValues().languages;
-    
+
     if (currentLanguages.includes(lang)) {
       // If removing a language that is currently active, switch to another language
       if (activeLanguage === lang) {
         const nextLang = currentLanguages.find(l => l !== lang) || "en";
         setActiveLanguage(nextLang as Language);
       }
-      
+
       // Remove the language
       form.setValue(
         "languages",
         currentLanguages.filter(l => l !== lang)
       );
-      
+
       // Remove translations for this language
       const translations = form.getValues().translations;
       delete translations[lang];
@@ -174,7 +174,7 @@ export function ArticleForm({
     } else {
       // Add the language
       form.setValue("languages", [...currentLanguages, lang]);
-      
+
       // Initialize translations for this language
       if (!form.getValues().translations[lang]) {
         // Copy from active language if possible
@@ -187,17 +187,17 @@ export function ArticleForm({
           content: [""]
         });
       }
-      
+
       // Switch to this language
       setActiveLanguage(lang);
     }
   };
-  
+
   // Handle form submission
   const handleSubmit = async (data: ArticleFormValues) => {
     await onSubmit(data);
   };
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -220,7 +220,7 @@ export function ArticleForm({
                 </FormItem>
               )}
             />
-            
+
             {/* Available Languages */}
             <div>
               <h3 className="text-lg font-medium mb-2">{t("admin.article.availableLanguages")}</h3>
@@ -262,7 +262,7 @@ export function ArticleForm({
                 />
               </div>
             </div>
-            
+
             {/* Language Tabs for Translations */}
             <Tabs value={activeLanguage} onValueChange={(value) => setActiveLanguage(value as Language)}>
               <TabsList className="mb-4">
@@ -272,7 +272,7 @@ export function ArticleForm({
                   </TabsTrigger>
                 ))}
               </TabsList>
-              
+
               {form.getValues().languages.map(lang => (
                 <TabsContent key={lang} value={lang} className="space-y-4">
                   {/* Title */}
@@ -289,7 +289,7 @@ export function ArticleForm({
                       </FormItem>
                     )}
                   />
-                  
+
                   {/* Summary */}
                   <FormField
                     control={form.control}
@@ -308,7 +308,7 @@ export function ArticleForm({
                       </FormItem>
                     )}
                   />
-                  
+
                   {/* Category and Subcategory */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -327,18 +327,19 @@ export function ArticleForm({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {categories.map(category => (
-                                <SelectItem key={category.slug} value={category.slug}>
-                                  {t(`categories.${category.slug}`)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
+                                <SelectItem value="none">{t("admin.article.selectCategory")}</SelectItem>
+                                {categories.map(category => (
+                                  <SelectItem key={category.slug} value={category.slug}>
+                                    {t(`categories.${category.slug}`)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
                           </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name={`translations.${lang}.subcategory`}
@@ -356,19 +357,20 @@ export function ArticleForm({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {getSubcategories(selectedCategory).map(subcategory => (
-                                <SelectItem key={subcategory.slug} value={subcategory.slug}>
-                                  {t(`subcategories.${subcategory.slug}`)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
+                                <SelectItem value="none">{t("admin.article.selectSubcategory")}</SelectItem>
+                                {getSubcategories(selectedCategory).map(subcategory => (
+                                  <SelectItem key={subcategory.slug} value={subcategory.slug}>
+                                    {t(`subcategories.${subcategory.slug}`)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
                           </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
-                  
+
                   {/* Content Paragraphs */}
                   <div>
                     <FormLabel>{t("admin.article.content")}</FormLabel>
@@ -417,7 +419,7 @@ export function ArticleForm({
               ))}
             </Tabs>
           </div>
-          
+
           <div className="space-y-6">
             {/* Draft Status */}
             <FormField
@@ -442,11 +444,11 @@ export function ArticleForm({
                 </FormItem>
               )}
             />
-            
+
             {/* Featured Image */}
             <div>
               <h3 className="text-lg font-medium mb-2">{t("admin.article.featuredImage")}</h3>
-              
+
               {/* Current image preview */}
               {form.getValues().imageUrl && (
                 <div className="mb-4">
@@ -466,7 +468,7 @@ export function ArticleForm({
                   </Button>
                 </div>
               )}
-              
+
               {/* Image search */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -488,7 +490,7 @@ export function ArticleForm({
                     )}
                   </Button>
                 </div>
-                
+
                 {/* Search results */}
                 {searchedImages.length > 0 && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
@@ -507,7 +509,7 @@ export function ArticleForm({
                     ))}
                   </div>
                 )}
-                
+
                 {/* URL Input */}
                 <FormField
                   control={form.control}
@@ -529,7 +531,7 @@ export function ArticleForm({
             </div>
           </div>
         </div>
-        
+
         {/* Submit buttons */}
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline">
