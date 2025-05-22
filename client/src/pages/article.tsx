@@ -42,26 +42,21 @@ export default function ArticlePage() {
           
           if (translation) {
             // Fetch category data for breadcrumbs
-            if (categorySlug) {
+            // First try to use URL params, then fall back to article data
+            const catSlug = categorySlug || translation.category;
+            if (catSlug) {
               try {
-                const category = await getCategoryBySlug(categorySlug);
+                const category = await getCategoryBySlug(catSlug);
                 setCategoryData(category);
               } catch (err) {
                 console.error("Error fetching category data:", err);
               }
-            } else {
-              // If we're on the old URL pattern, try to fetch category data from the article
-              try {
-                const category = await getCategoryBySlug(translation.category);
-                setCategoryData(category);
-              } catch (err) {
-                console.error("Error fetching category data from article:", err);
-              }
             }
             
-            // Fetch related articles with the same category
+            // Fetch related articles with the same category and subcategory if possible
             const related = await getArticles({
-              category: translation.category,
+              category: categorySlug || translation.category,
+              subcategory: subcategorySlug || translation.subcategory,
               language,
               draft: false
             });
@@ -72,6 +67,13 @@ export default function ArticlePage() {
               .slice(0, 3);
             
             setRelatedArticles(filteredRelated as Article[]);
+            
+            // If we're using the old URL pattern, redirect to the new URL pattern
+            if (!categorySlug && translation.category && translation.subcategory) {
+              // Use window.history to update the URL without reloading the page
+              const newPath = `/categories/${translation.category}/${translation.subcategory}/${slug}`;
+              window.history.replaceState(null, '', newPath);
+            }
           }
         } else {
           setArticle(null);
@@ -87,7 +89,7 @@ export default function ArticlePage() {
     };
     
     fetchArticle();
-  }, [slug, categorySlug, language, t]);
+  }, [slug, categorySlug, subcategorySlug, language, t]);
   
   if (isLoading) {
     return (

@@ -204,12 +204,28 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
           className="w-full h-64 md:h-80 object-cover"
         />
         <div className="absolute top-0 left-0 p-4">
-          <Link href="/">
-            <Button variant="secondary" size="sm" className="rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm">
-              <ChevronLeft className="h-5 w-5 mr-1" />
-              {t("general.back")}
-            </Button>
-          </Link>
+          {article.category && article.subcategory ? (
+            <Link href={`/categories/${article.category}/${article.subcategory}`}>
+              <Button variant="secondary" size="sm" className="rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm">
+                <ChevronLeft className="h-5 w-5 mr-1" />
+                {t("general.backToSubcategory")}
+              </Button>
+            </Link>
+          ) : article.category ? (
+            <Link href={`/categories/${article.category}`}>
+              <Button variant="secondary" size="sm" className="rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm">
+                <ChevronLeft className="h-5 w-5 mr-1" />
+                {t("general.backToCategory")}
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/">
+              <Button variant="secondary" size="sm" className="rounded-full bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm">
+                <ChevronLeft className="h-5 w-5 mr-1" />
+                {t("general.back")}
+              </Button>
+            </Link>
+          )}
         </div>
         <div className="absolute top-0 right-0 flex space-x-1 rtl:space-x-reverse p-4">
           {article.availableLanguages.map(lang => (
