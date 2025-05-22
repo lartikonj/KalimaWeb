@@ -35,19 +35,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Verify required Firebase config values exist
-const missingConfigs = Object.entries({
-  apiKey: firebaseConfig.apiKey,
-  projectId: firebaseConfig.projectId,
-  appId: firebaseConfig.appId,
-  messagingSenderId: firebaseConfig.messagingSenderId
-}).filter(([_, value]) => !value).map(([key]) => key);
-
-if (missingConfigs.length > 0) {
-  console.error(`Missing required Firebase config: ${missingConfigs.join(', ')}`);
-}
-
-console.log("Firebase configuration loaded successfully");
+// Add debug logging but don't expose sensitive info
+console.log("Firebase config loaded with:", {
+  projectId: firebaseConfig.projectId || "missing",
+  authDomain: firebaseConfig.authDomain || "missing"
+});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
