@@ -70,6 +70,16 @@ export default function Header() {
               <ThemeToggle />
             </div>
             
+            {/* Admin Panel Button */}
+            {user && isAdmin && (
+              <Link href="/admin/dashboard" className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
+                <Button variant="outline" size="sm">
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  {t("nav.adminPanel")}
+                </Button>
+              </Link>
+            )}
+
             {/* User Menu */}
             {user ? (
               <div className={`relative flex-shrink-0 ${isRTL ? 'mr-4' : 'ml-4'}`}>
