@@ -33,7 +33,8 @@ export default function SubcategoryPage() {
         setCategory(categoryData);
         
         // Find the subcategory
-        const foundSubcategory = categoryData.subcategories?.find(
+        const subcategories = categoryData.subcategories || [];
+        const foundSubcategory = subcategories.find(
           (sub: any) => sub.slug === subcategorySlug
         );
         
