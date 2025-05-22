@@ -52,13 +52,18 @@ export default function Categories() {
         setCategoryData(data);
       } catch (error) {
         console.error("Error fetching category data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load category data",
+          variant: "destructive"
+        });
       } finally {
         setCategoryLoading(false);
       }
     };
     
     fetchCategoryData();
-  }, [currentCategory]);
+  }, [currentCategory, toast]);
   
   // Fetch articles when category, subcategory or language changes
   useEffect(() => {
@@ -83,13 +88,18 @@ export default function Categories() {
         setArticles(sortedArticles as Article[]);
       } catch (error) {
         console.error("Error fetching articles:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load articles",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchArticles();
-  }, [currentCategory, currentSubcategory, language]);
+  }, [currentCategory, currentSubcategory, language, toast]);
   
   // Helper functions for displaying translated names
   const getTranslatedCategoryName = () => {
@@ -146,19 +156,19 @@ export default function Categories() {
                     href={`/categories/${currentCategory}`} 
                     className="hover:text-primary-600 dark:hover:text-primary-400"
                   >
-                    {getCategoryName()}
+                    {getTranslatedCategoryName()}
                   </Link>
                   <span>/</span>
-                  <span>{getSubcategoryName()}</span>
+                  <span>{getTranslatedSubcategoryName()}</span>
                 </>
               ) : (
-                <span>{getCategoryName()}</span>
+                <span>{getTranslatedCategoryName()}</span>
               )}
             </div>
             
             <div className="flex items-center justify-between">
               <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
-                {currentSubcategory ? getSubcategoryName() : getCategoryName()}
+                {currentSubcategory ? getTranslatedSubcategoryName() : getTranslatedCategoryName()}
               </h1>
               
               <Button 
@@ -172,9 +182,9 @@ export default function Categories() {
             </div>
             
             {/* Show subcategory links if we're on a category page */}
-            {currentCategory && !currentSubcategory && (
+            {currentCategory && !currentSubcategory && !categoryLoading && (
               <div className="flex flex-wrap gap-2 mt-4">
-                {getCurrentSubcategories().map(subcategory => (
+                {getFormattedSubcategories().map(subcategory => (
                   <Button 
                     key={subcategory.slug}
                     variant="outline"
@@ -182,9 +192,17 @@ export default function Categories() {
                     asChild
                   >
                     <Link href={`/categories/${currentCategory}/${subcategory.slug}`}>
-                      {t(`subcategories.${subcategory.slug}`)}
+                      {subcategory.name}
                     </Link>
                   </Button>
+                ))}
+              </div>
+            )}
+            
+            {categoryLoading && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {[1, 2, 3].map(i => (
+                  <Skeleton key={i} className="h-9 w-24" />
                 ))}
               </div>
             )}
@@ -201,7 +219,7 @@ export default function Categories() {
       <div>
         {(currentCategory || currentSubcategory) && (
           <h2 className="text-2xl font-bold mb-6 text-neutral-800 dark:text-neutral-100">
-            {t("categories.latest")} {currentSubcategory ? getSubcategoryName() : getCategoryName()}
+            {t("categories.latest")} {currentSubcategory ? getTranslatedSubcategoryName() : getTranslatedCategoryName()}
           </h2>
         )}
         
