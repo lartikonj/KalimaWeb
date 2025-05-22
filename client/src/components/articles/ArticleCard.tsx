@@ -21,6 +21,8 @@ interface ArticleCardProps {
     title: string;
     summary: string;
     content: Array<{type: string; text: string}>;
+    category: string;
+    subcategory: string;
   }>;
   createdAt: any; // Firestore timestamp
   isFavorite?: boolean;
@@ -47,6 +49,8 @@ export function ArticleCard({
   const currentTranslation = translations[language] || translations.en || Object.values(translations)[0];
   const title = currentTranslation?.title || '';
   const summary = currentTranslation?.summary || '';
+  const translationCategory = currentTranslation?.category || category;
+  const translationSubcategory = currentTranslation?.subcategory || subcategory;
 
   // Convert Firestore timestamp to Date
   const date = createdAt?.toDate?.() ? createdAt.toDate() : new Date();
@@ -111,7 +115,7 @@ export function ArticleCard({
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
       <div className="relative">
-        <Link href={`/${category}/${subcategory}/${slug}`}>
+        <Link href={`/${translationCategory}/${translationSubcategory}/${slug}`}>
           <img
             src={imageUrl || 'https://source.unsplash.com/featured/?education'}
             alt={title}
@@ -136,7 +140,7 @@ export function ArticleCard({
           <span className="text-xs text-neutral-500 dark:text-neutral-400">{formattedDate}</span>
         </div>
 
-        <Link href={`/${category}/${subcategory}/${slug}`}>
+        <Link href={`/${translationCategory}/${translationSubcategory}/${slug}`}>
           <h3 className="text-lg font-bold mb-2 text-neutral-800 dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 line-clamp-2">
             {title}
           </h3>
@@ -148,7 +152,7 @@ export function ArticleCard({
       </CardContent>
 
       <CardFooter className="p-4 pt-0 flex justify-between items-center">
-        <Link href={`/${category}/${subcategory}/${slug}`}>
+        <Link href={`/${translationCategory}/${translationSubcategory}/${slug}`}>
           <Button variant="link" className="p-0 h-auto text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
             {t("article.readMore")}
           </Button>
