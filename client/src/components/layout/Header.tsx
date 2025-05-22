@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
-import { Menu, X, User, BookMarked } from "lucide-react";
+import { Menu, X, User, BookMarked, LayoutDashboard } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -17,7 +17,7 @@ import {
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t, isRTL } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [location] = useLocation();
 
   const isActive = (path: string) => {

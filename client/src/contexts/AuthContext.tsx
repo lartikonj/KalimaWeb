@@ -12,6 +12,7 @@ import {
 interface AuthContextType {
   user: FirebaseUser | null;
   userData: any | null;
+  isAdmin: boolean;
   isLoading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<any | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,11 +37,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const userDataResult = await getUserData(firebaseUser.uid);
           setUserData(userDataResult);
+          
+          // Check if user is admin
+          setIsAdmin(userDataResult?.isAdmin === true);
         } catch (err) {
           console.error("Error fetching user data:", err);
+          setIsAdmin(false);
         }
       } else {
         setUserData(null);
+        setIsAdmin(false);
       }
       
       setIsLoading(false);
@@ -87,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     user,
     userData,
+    isAdmin,
     isLoading,
     error,
     login,
