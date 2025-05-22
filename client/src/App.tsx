@@ -14,10 +14,11 @@ import Article from "@/pages/article";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Favorites from "@/pages/favorites";
+// Use existing admin components
 import Dashboard from "@/pages/admin/dashboard";
 import AdminArticles from "@/pages/admin/articles";
 import AdminCategories from "@/pages/admin/categories";
-import AdminStaticPages from "@/pages/admin/static-pages";
+import AdminStaticPages from "@/pages/admin/static-pages/index";
 import Suggestions from "@/pages/admin/suggestions";
 import EditArticle from "@/pages/admin/edit-article";
 import CreateArticle from "@/pages/admin/create-article";
