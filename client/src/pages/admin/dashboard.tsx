@@ -80,29 +80,35 @@ export default function Dashboard() {
     count
   }));
   
-  // Dummy data for charts (in a real app, this would come from the backend)
-  const monthlyArticlesData = [
-    { name: "Jan", articles: 4 },
-    { name: "Feb", articles: 3 },
-    { name: "Mar", articles: 5 },
-    { name: "Apr", articles: 7 },
-    { name: "May", articles: 2 },
-    { name: "Jun", articles: 6 },
-    { name: "Jul", articles: 8 },
-    { name: "Aug", articles: 9 },
-    { name: "Sep", articles: 11 },
-    { name: "Oct", articles: 13 },
-    { name: "Nov", articles: 7 },
-    { name: "Dec", articles: 9 },
-  ];
-  
-  const categoryData = [
-    { name: t("categories.language-learning"), articles: 15 },
-    { name: t("categories.culture"), articles: 10 },
-    { name: t("categories.science"), articles: 8 },
-    { name: t("categories.stories"), articles: 6 },
-    { name: t("categories.tips-lifestyle"), articles: 12 },
-  ];
+  // Calculate monthly article data
+  const monthlyArticlesData = articles.reduce((acc, article) => {
+    const date = article.createdAt?.toDate();
+    if (date) {
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      acc[month] = (acc[month] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  const monthlyData = Object.entries(monthlyArticlesData).map(([name, articles]) => ({
+    name,
+    articles
+  }));
+
+  // Calculate category distribution
+  const categoryData = articles.reduce((acc, article) => {
+    const firstTranslation = article.translations[article.availableLanguages[0]];
+    if (firstTranslation?.category) {
+      const categoryName = t(`categories.${firstTranslation.category}`);
+      acc[categoryName] = (acc[categoryName] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  const categoryChartData = Object.entries(categoryData).map(([name, articles]) => ({
+    name,
+    articles
+  }));
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -250,7 +256,7 @@ export default function Dashboard() {
               <CardContent className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={categoryData}
+                    data={categoryChartData}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     layout="vertical"
                   >
