@@ -14,14 +14,17 @@ import { ArticleCard } from "./ArticleCard";
 interface ArticleTranslation {
   title: string;
   summary: string;
-  category: string;
-  subcategory: string;
-  content: string[];
+  content: Array<{
+    type: string;
+    text: string;
+  }>;
 }
 
 interface Article {
   id: string;
   slug: string;
+  category: string;
+  subcategory: string;
   translations: Record<string, ArticleTranslation>;
   availableLanguages: string[];
   createdAt: any; // Firestore timestamp
@@ -31,11 +34,12 @@ interface Article {
 interface RelatedArticle {
   id: string;
   slug: string;
+  category: string;
+  subcategory: string;
   translations: Record<string, {
     title: string;
     summary: string;
-    category: string;
-    subcategory: string;
+    content: Array<{type: string; text: string}>;
   }>;
   availableLanguages: string[];
   createdAt: any;
@@ -264,9 +268,28 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
         </h1>
         
         <div className="text-neutral-600 dark:text-neutral-300 prose dark:prose-invert max-w-none mb-6">
-          {translation.content.map((paragraph, index) => (
-            <p key={index} className="mb-4">{paragraph}</p>
-          ))}
+          {translation.content.map((block, index) => {
+            if (block.type === 'heading') {
+              return (
+                <h2 key={index} className="text-2xl font-bold mt-6 mb-3 text-neutral-800 dark:text-neutral-100">
+                  {block.text}
+                </h2>
+              );
+            } else if (block.type === 'paragraph') {
+              return (
+                <p key={index} className="mb-4">
+                  {block.text}
+                </p>
+              );
+            } else {
+              // Fallback for any other content type
+              return (
+                <div key={index} className="mb-4">
+                  {block.text}
+                </div>
+              );
+            }
+          })}
         </div>
         
         {/* Article metadata */}
@@ -318,12 +341,11 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
                   key={relatedArticle.id}
                   id={relatedArticle.id}
                   slug={relatedArticle.slug}
-                  title={relatedTranslation.title}
-                  summary={relatedTranslation.summary}
+                  category={relatedArticle.category}
+                  subcategory={relatedArticle.subcategory}
                   imageUrl={relatedArticle.imageUrl}
-                  category={relatedTranslation.category}
-                  subcategory={relatedTranslation.subcategory}
-                  date={createdAt}
+                  translations={relatedArticle.translations}
+                  createdAt={relatedArticle.createdAt}
                   availableLanguages={relatedArticle.availableLanguages}
                   isFavorite={isRelatedFavorite}
                 />

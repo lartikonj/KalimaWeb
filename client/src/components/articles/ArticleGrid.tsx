@@ -51,34 +51,25 @@ export function ArticleGrid({ articles, isLoading = false, emptyMessage }: Artic
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {articles.map((article) => {
-        // Get the translation in current language or fall back to English or the first available language
-        const translation = 
-          article.translations[language] || 
-          article.translations["en"] || 
-          article.translations[article.availableLanguages[0]];
-        
-        if (!translation) return null;
+        // Make sure we have a valid article with proper structure
+        if (!article || !article.translations || Object.keys(article.translations).length === 0) {
+          return null;
+        }
         
         // Check if the article is in user's favorites
         const isFavorite = userData?.favorites?.includes(article.id);
-        
-        // Convert Firestore timestamp to ISO string
-        const createdAt = article.createdAt?.toDate?.() 
-          ? article.createdAt.toDate().toISOString() 
-          : new Date().toISOString();
         
         return (
           <ArticleCard
             key={article.id}
             id={article.id}
             slug={article.slug}
-            title={translation.title}
-            summary={translation.summary}
+            category={article.category}
+            subcategory={article.subcategory}
             imageUrl={article.imageUrl}
-            category={translation.category}
-            subcategory={translation.subcategory}
-            date={createdAt}
             availableLanguages={article.availableLanguages}
+            translations={article.translations}
+            createdAt={article.createdAt}
             isFavorite={isFavorite}
           />
         );
