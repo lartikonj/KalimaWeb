@@ -66,7 +66,12 @@ function RouterContent() {
               <UserSuggestions />
             </ProtectedRoute>
           </Route>
-          <Route path="/admin">
+          <Route path="/admin" >
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/dashboard">
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
