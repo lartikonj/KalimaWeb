@@ -167,6 +167,60 @@ export async function getCategoryBySlug(slug: string) {
   }
 }
 
+export async function createCategory(categoryData: {
+  slug: string;
+  titles: Record<string, string>;
+  subcategories: Array<{
+    slug: string;
+    titles: Record<string, string>;
+  }>;
+}) {
+  try {
+    // Use the slug as the document ID for easy retrieval
+    await setDoc(doc(db, "categories", categoryData.slug), {
+      slug: categoryData.slug,
+      titles: categoryData.titles,
+      subcategories: categoryData.subcategories || []
+    });
+    
+    return {
+      id: categoryData.slug,
+      ...categoryData
+    };
+  } catch (error) {
+    console.error("Error creating category:", error);
+    throw error;
+  }
+}
+
+export async function updateCategory(
+  categoryId: string,
+  categoryData: {
+    slug: string;
+    titles: Record<string, string>;
+    subcategories: Array<{
+      slug: string;
+      titles: Record<string, string>;
+    }>;
+  }
+) {
+  try {
+    // Update the category document
+    await updateDoc(doc(db, "categories", categoryId), {
+      titles: categoryData.titles,
+      subcategories: categoryData.subcategories || []
+    });
+    
+    return {
+      id: categoryId,
+      ...categoryData
+    };
+  } catch (error) {
+    console.error("Error updating category:", error);
+    throw error;
+  }
+}
+
 // Article related functions
 export async function getArticles(options?: { 
   category?: string; 

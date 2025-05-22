@@ -14,6 +14,7 @@ import Register from "@/pages/register";
 import Favorites from "@/pages/favorites";
 import Dashboard from "@/pages/admin/dashboard";
 import AdminArticles from "@/pages/admin/articles";
+import AdminCategories from "@/pages/admin/categories";
 import Suggestions from "@/pages/admin/suggestions";
 import EditArticle from "@/pages/admin/edit-article";
 import CreateArticle from "@/pages/admin/create-article";
@@ -71,6 +72,11 @@ function RouterContent() {
           <Route path="/admin/articles">
             <ProtectedRoute>
               <AdminArticles />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/categories">
+            <ProtectedRoute>
+              <AdminCategories />
             </ProtectedRoute>
           </Route>
           <Route path="/admin/suggestions">

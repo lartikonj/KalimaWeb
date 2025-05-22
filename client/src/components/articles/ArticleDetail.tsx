@@ -229,8 +229,8 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
       <div className="p-6 md:p-8">
         <div className="flex items-center justify-between mb-4">
           <Badge className="text-sm bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
-            {translation.category}
-            {translation.subcategory && ` > ${translation.subcategory}`}
+            {article.category}
+            {article.subcategory && ` > ${article.subcategory}`}
           </Badge>
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
             <Button
