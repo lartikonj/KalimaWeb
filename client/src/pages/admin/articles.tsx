@@ -178,8 +178,8 @@ export default function AdminArticles() {
   // Clear filters
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedCategory("");
-    setSelectedLanguage("");
+    setSelectedCategory("all");
+    setSelectedLanguage("all");
     setShowDrafts(null);
   };
   
@@ -268,7 +268,7 @@ export default function AdminArticles() {
                 <SelectValue placeholder={t("admin.filterByLanguage")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value="all">
                   {t("admin.allLanguages")}
                 </SelectItem>
                 <SelectItem value="en">English</SelectItem>
@@ -294,7 +294,7 @@ export default function AdminArticles() {
                 <SelectValue placeholder={t("admin.filterByStatus")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value="all">
                   {t("admin.allStatus")}
                 </SelectItem>
                 <SelectItem value="published">
