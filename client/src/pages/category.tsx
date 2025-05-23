@@ -92,16 +92,16 @@ export default function CategoryPage() {
           </span>
         </Link>
         <ChevronRight className="h-4 w-4 mx-2 text-neutral-400" />
-        <span className="font-medium">{category.titles?.[language] || category.slug}</span>
+        <span className="font-medium">{t(`categories.${category.slug}`)}</span>
       </div>
 
       {/* Category Title and Description */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100 mb-2">
-          {category.titles?.[language] || category.slug}
+          {t(`categories.${category.slug}`)}
         </h1>
         <p className="text-neutral-600 dark:text-neutral-300">
-          {t("general.exploreCategory")}
+          {t(`categoryDescriptions.${category.slug}`)}
         </p>
       </div>
 
@@ -112,11 +112,9 @@ export default function CategoryPage() {
             <Link key={subcategory.slug} href={`/categories/${category.slug}/${subcategory.slug}`}>
               <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
                 <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-2">
-                    {subcategory.titles?.[language] || subcategory.slug}
-                  </h2>
+                  <h2 className="text-xl font-semibold mb-2">{t(`subcategories.${subcategory.slug}`)}</h2>
                   <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-                    {t("general.exploreSubcategory")}
+                    {t(`subcategoryDescriptions.${subcategory.slug}`)}
                   </p>
                   <div className="text-primary-600 dark:text-primary-400 text-sm flex items-center">
                     {t("general.browseSubcategory")}
