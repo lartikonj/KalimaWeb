@@ -512,21 +512,46 @@ export async function createArticle(inputData: {
       if (!availableLanguages.includes('en')) {
         availableLanguages.push('en');
       }
+    } else {
+      // Use the provided translations as-is, don't overwrite with defaults
+      console.log("Using provided translations:", Object.keys(translations));
     }
     
-    // Make sure every translation has the required fields
+    // Just ensure every translation has the required fields but don't replace content
     Object.keys(translations).forEach(langCode => {
+      // Add keywords array if missing
       if (!translations[langCode].keywords) {
         translations[langCode].keywords = [];
       }
       
-      if (!translations[langCode].content) {
+      // Only add default content if content array is completely missing
+      if (!translations[langCode].content || !Array.isArray(translations[langCode].content) || translations[langCode].content.length === 0) {
+        console.log(`Adding default content for language ${langCode} because it was missing`);
         translations[langCode].content = [{
           title: "Content",
           paragraph: "No content provided.",
           references: []
         }];
       }
+      
+      // Ensure each content item has the required fields
+      translations[langCode].content = translations[langCode].content.map(item => {
+        // Handle the case where item might be a string instead of an object
+        if (typeof item === 'string') {
+          return {
+            title: "Section",
+            paragraph: item,
+            references: []
+          };
+        }
+        
+        // Ensure title and paragraph exist
+        return {
+          title: item.title || "Section",
+          paragraph: item.paragraph || "",
+          references: item.references || []
+        };
+      });
     });
     
     // Set up author information
@@ -581,13 +606,19 @@ export async function createArticle(inputData: {
 }
 
 export async function updateArticle(slug: string, articleData: {
+  title?: string;
   category: string;
   subcategory: string;
-  author?: string;
+  author?: {
+    uid: string;
+    displayName: string;
+    photoURL?: string;
+  };
   availableLanguages: string[];
   translations: Record<string, {
     title: string;
     summary: string;
+    keywords?: string[];
     content: Array<{
       title: string;
       paragraph: string;
@@ -595,7 +626,9 @@ export async function updateArticle(slug: string, articleData: {
     }>;
   }>;
   draft: boolean;
-  imageUrl: string;
+  featured?: boolean;
+  popular?: boolean;
+  imageUrls?: string[];
 }): Promise<FirestoreArticle> {
   try {
     // Find the article by slug

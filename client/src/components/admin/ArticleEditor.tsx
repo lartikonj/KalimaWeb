@@ -70,7 +70,11 @@ const articleFormSchema = z.object({
     }),
   category: z.string().min(1, "Category is required"),
   subcategory: z.string().min(1, "Subcategory is required"),
-  author: z.string().optional(),
+  author: z.object({
+    uid: z.string().optional(),
+    displayName: z.string().min(1, "Author name is required"),
+    photoURL: z.string().optional()
+  }).optional(),
   availableLanguages: z.array(z.string()).min(1, "At least one language is required"),
   translations: z.record(z.object({
     title: z.string().min(1, "Title is required"),
@@ -78,7 +82,10 @@ const articleFormSchema = z.object({
     content: z.array(contentSectionSchema).min(1, "At least one content section is required"),
   })),
   draft: z.boolean().default(true),
-  imageUrl: z.string().min(1, "Image URL is required"),
+  imageUrl: z.string().optional(),
+  imageUrls: z.array(z.string()).optional(),
+  featured: z.boolean().optional().default(false),
+  popular: z.boolean().optional().default(false),
 });
 
 type ArticleFormValues = z.infer<typeof articleFormSchema>;
@@ -104,7 +111,11 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       slug: "",
       category: "",
       subcategory: "",
-      author: "",
+      author: {
+        uid: "system",
+        displayName: "Kalima Author",
+        photoURL: ""
+      },
       availableLanguages: ["en"],
       translations: {
         en: {
