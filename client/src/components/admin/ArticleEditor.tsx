@@ -329,13 +329,20 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         // Create the article with explicit values to avoid undefined
         const newArticleData = {
           slug: data.slug, // Use the slug value we've explicitly set above
+          title: data.title || Object.values(data.translations)[0]?.title || "Untitled Article",
           category: data.category,
           subcategory: data.subcategory,
-          author: data.author || "",
+          author: data.author || {
+            uid: "system",
+            displayName: "Kalima Author",
+            photoURL: ""
+          },
           availableLanguages: data.availableLanguages,
           translations: data.translations,
           draft: data.draft !== undefined ? data.draft : true,
-          imageUrl: data.imageUrl,
+          featured: data.featured !== undefined ? data.featured : false,
+          popular: data.popular !== undefined ? data.popular : false,
+          imageUrls: data.imageUrls || [],
           createdAt: Timestamp.now(),
         };
         
