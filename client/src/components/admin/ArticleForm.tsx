@@ -209,9 +209,12 @@ export function ArticleForm({
         form.setValue(`translations.${lang}`, {
           title: "",
           summary: "",
-          category: existingTranslation?.category || "",
-          subcategory: existingTranslation?.subcategory || "",
-          content: [""]
+          keywords: [],
+          content: [{
+            title: "Introduction",
+            paragraph: "",
+            references: []
+          }]
         });
       }
 
@@ -438,44 +441,71 @@ export function ArticleForm({
                   <div>
                     <FormLabel>{t("admin.article.content")}</FormLabel>
                     {fields.map((field, index) => (
-                      <div key={field.id} className="flex mb-2">
-                        <FormField
-                          control={form.control}
-                          name={`translations.${lang}.content.${index}`}
-                          render={({ field }) => (
-                            <FormItem className="flex-grow">
-                              <FormControl>
-                                <Textarea 
-                                  placeholder={t("admin.article.paragraphPlaceholder")} 
-                                  {...field} 
-                                  rows={3}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => remove(index)}
-                          disabled={fields.length === 1}
-                          className="ml-2 mt-1"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                      <div key={field.id} className="border rounded-md p-4 mb-4">
+                        <div className="mb-3">
+                          <FormField
+                            control={form.control}
+                            name={`translations.${lang}.content.${index}.title`}
+                            render={({ field }) => (
+                              <FormItem className="flex-grow">
+                                <FormLabel>Section Title</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    placeholder="Section title" 
+                                    {...field} 
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className="flex">
+                          <FormField
+                            control={form.control}
+                            name={`translations.${lang}.content.${index}.paragraph`}
+                            render={({ field }) => (
+                              <FormItem className="flex-grow">
+                                <FormLabel>Content</FormLabel>
+                                <FormControl>
+                                  <Textarea 
+                                    placeholder={t("admin.article.paragraphPlaceholder")} 
+                                    {...field} 
+                                    rows={4}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => remove(index)}
+                            disabled={fields.length === 1}
+                            className="ml-2 h-8 mt-8"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => append("")}
+                      onClick={() => append({
+                        title: "New Section",
+                        paragraph: "",
+                        references: []
+                      })}
                       className="mt-2"
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      {t("admin.article.addParagraph")}
+                      {t("admin.article.addParagraph") || "Add Section"}
                     </Button>
                   </div>
                 </TabsContent>
