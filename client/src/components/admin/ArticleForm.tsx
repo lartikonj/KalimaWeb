@@ -39,6 +39,11 @@ const articleFormSchema = z.object({
   languages: z.array(z.string()),
   category: z.string().default("general"),
   subcategory: z.string().default("other"),
+  author: z.object({
+    uid: z.string().optional(),
+    displayName: z.string().min(1, "Author name is required"),
+    photoURL: z.string().url().optional()
+  }).optional(),
   translations: z.record(z.object({
     title: z.string().min(3).max(200),
     summary: z.string().min(10).max(500),
