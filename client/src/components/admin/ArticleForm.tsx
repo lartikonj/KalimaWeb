@@ -92,18 +92,31 @@ export function ArticleForm({
   // Default form values
   const defaultValues: ArticleFormValues = {
     slug: "",
+    title: "",
+    category: "general",
+    subcategory: "other",
     languages: ["en"],
+    author: {
+      uid: "",
+      displayName: "",
+      photoURL: ""
+    },
     translations: {
       en: {
         title: "",
         summary: "",
-        category: "",
-        subcategory: "",
-        content: [""]
+        keywords: [],
+        content: [{
+          title: "Introduction",
+          paragraph: "",
+          references: []
+        }]
       }
     },
     draft: true,
-    imageUrl: "",
+    featured: false,
+    popular: false,
+    imageUrls: [],
   };
 
   // Form instance
@@ -160,7 +173,8 @@ export function ArticleForm({
 
   // Handle image selection
   const handleSelectImage = (imageUrl: string) => {
-    form.setValue("imageUrl", imageUrl);
+    const currentImages = form.getValues().imageUrls || [];
+    form.setValue("imageUrls", [...currentImages, imageUrl]);
   };
 
   // Handle adding/removing languages
@@ -233,6 +247,44 @@ export function ArticleForm({
                 </FormItem>
               )}
             />
+
+            {/* Author information */}
+            <div className="space-y-4 border border-gray-200 dark:border-gray-800 rounded-md p-4 bg-gray-50 dark:bg-gray-900">
+              <h3 className="text-lg font-medium">Author Information</h3>
+              
+              {/* Author Display Name */}
+              <FormField
+                control={form.control}
+                name="author.displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Author Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter author name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Author Photo URL */}
+              <FormField
+                control={form.control}
+                name="author.photoURL"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Author Photo URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/photo.jpg" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      URL to the author's profile photo (optional)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Available Languages */}
             <div>
@@ -460,23 +512,31 @@ export function ArticleForm({
             <div>
               <h3 className="text-lg font-medium mb-2">{t("admin.article.featuredImage")}</h3>
 
-              {/* Current image preview */}
-              {form.getValues().imageUrl && (
-                <div className="mb-4">
-                  <img 
-                    src={form.getValues().imageUrl} 
-                    alt={t("admin.article.preview")}
-                    className="w-full h-40 object-cover rounded-md"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => form.setValue("imageUrl", "")}
-                    className="mt-2"
-                  >
-                    {t("admin.article.removeImage")}
-                  </Button>
+              {/* Current images preview */}
+              {form.getValues().imageUrls?.length > 0 && (
+                <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {form.getValues().imageUrls.map((imageUrl, index) => (
+                    <div key={index} className="relative">
+                      <img 
+                        src={imageUrl} 
+                        alt={`${t("admin.article.preview")} ${index + 1}`}
+                        className="w-full h-40 object-cover rounded-md"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const currentImages = [...form.getValues().imageUrls];
+                          currentImages.splice(index, 1);
+                          form.setValue("imageUrls", currentImages);
+                        }}
+                        className="absolute top-2 right-2 bg-white dark:bg-gray-800"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               )}
 
