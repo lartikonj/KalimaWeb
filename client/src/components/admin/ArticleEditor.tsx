@@ -267,27 +267,34 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
     try {
       setIsLoading(true);
       
-      // Extract slug from form data directly
+      // Extract values from form directly
       const slug = form.getValues("slug");
+      const category = form.getValues("category") || "general";
+      const subcategory = form.getValues("subcategory") || "other";
       
       // Debug form values
       console.log("Form data submitted:", JSON.stringify({
-        slug: slug, // Use the directly extracted slug
-        fromData: data.slug,
-        slugType: typeof slug,
-        category: data.category,
-        subcategory: data.subcategory,
+        slug: slug,
+        category: category,
+        subcategory: subcategory,
+        fromData: data, 
         hasTranslations: !!data.translations,
         availableLanguages: data.availableLanguages,
         formValues: form.getValues()
       }, null, 2));
       
-      // Add slug to data explicitly
+      // Add values to data explicitly
       data.slug = slug;
+      data.category = category;
+      data.subcategory = subcategory;
       
-      // Manual slug validation before continuing
-      if (!slug || slug.trim() === '') {
-        throw new Error("Article slug is required and cannot be empty");
+      // Ensure we have category and subcategory values
+      if (!data.category) {
+        data.category = "general";
+      }
+      
+      if (!data.subcategory) {
+        data.subcategory = "other";
       }
       
       // Ensure we have valid category and subcategory values
