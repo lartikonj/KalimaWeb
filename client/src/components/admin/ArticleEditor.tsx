@@ -267,18 +267,26 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
     try {
       setIsLoading(true);
       
+      // Extract slug from form data directly
+      const slug = form.getValues("slug");
+      
       // Debug form values
       console.log("Form data submitted:", JSON.stringify({
-        slug: data.slug,
-        slugType: typeof data.slug,
+        slug: slug, // Use the directly extracted slug
+        fromData: data.slug,
+        slugType: typeof slug,
         category: data.category,
         subcategory: data.subcategory,
         hasTranslations: !!data.translations,
-        availableLanguages: data.availableLanguages
+        availableLanguages: data.availableLanguages,
+        formValues: form.getValues()
       }, null, 2));
       
+      // Add slug to data explicitly
+      data.slug = slug;
+      
       // Manual slug validation before continuing
-      if (!data.slug || data.slug.trim() === '') {
+      if (!slug || slug.trim() === '') {
         throw new Error("Article slug is required and cannot be empty");
       }
       
@@ -313,7 +321,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         
         // Create the article with explicit values to avoid undefined
         const newArticleData = {
-          slug: data.slug || 'missing-slug-' + Date.now(), // Add fallback to guarantee a slug
+          slug: data.slug, // Use the slug value we've explicitly set above
           category: data.category,
           subcategory: data.subcategory,
           author: data.author || "",
