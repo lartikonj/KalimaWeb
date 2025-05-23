@@ -19,7 +19,8 @@ const translations = {
       submit: "Submit",
       browseSubcategory: "Browse",
       articles: "Articles",
-      noArticlesInSubcategory: "No Articles In This Subcategory"
+      noArticlesInSubcategory: "No Articles In This Subcategory",
+      exploreCategories
     },
 
     // Navigation
