@@ -281,16 +281,38 @@ export async function getArticles(options?: {
 
         // Filter by category if specified
         if (options?.category && options.category !== 'all') {
+          // Check both the top-level category and within translations
           const articleCategory = article.category;
-          if (!articleCategory || articleCategory !== options.category) {
+          let matchesCategory = articleCategory === options.category;
+          
+          // If no match at top level, check inside translations
+          if (!matchesCategory && article.translations) {
+            // Check if any translation has this category
+            matchesCategory = Object.values(article.translations).some(
+              (trans: any) => trans.category === options.category
+            );
+          }
+          
+          if (!matchesCategory) {
             return false;
           }
         }
         
         // Filter by subcategory if specified
         if (options?.subcategory && options.subcategory !== 'all') {
+          // Check both the top-level subcategory and within translations
           const articleSubcategory = article.subcategory;
-          if (!articleSubcategory || articleSubcategory !== options.subcategory) {
+          let matchesSubcategory = articleSubcategory === options.subcategory;
+          
+          // If no match at top level, check inside translations
+          if (!matchesSubcategory && article.translations) {
+            // Check if any translation has this subcategory
+            matchesSubcategory = Object.values(article.translations).some(
+              (trans: any) => trans.subcategory === options.subcategory
+            );
+          }
+          
+          if (!matchesSubcategory) {
             return false;
           }
         }

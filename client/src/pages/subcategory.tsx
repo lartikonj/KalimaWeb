@@ -51,6 +51,11 @@ export default function SubcategoryPage() {
         
         // Filter articles for this subcategory
         const subcategoryArticles = fetchedArticles.filter((article: any) => {
+          // Check if the article has this subcategory at the top level
+          if (article.category === categorySlug && article.subcategory === subcategorySlug) {
+            return true;
+          }
+          
           // Check all translations for this subcategory
           return Object.values(article.translations || {}).some((translation: any) => {
             return translation.category === categorySlug && 
