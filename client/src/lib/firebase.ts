@@ -6,7 +6,12 @@ import {
   signOut, 
   onAuthStateChanged, 
   User as FirebaseUser,
-  updateProfile 
+  updateProfile,
+  GoogleAuthProvider,
+  OAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from "firebase/auth";
 import { 
   getFirestore, 
@@ -91,8 +96,12 @@ console.log("Firebase config loaded with:", {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Set up providers
+export const googleProvider = new GoogleAuthProvider();
+export const appleProvider = new OAuthProvider('apple.com');
 
 // Authentication functions
 export async function registerUser(email: string, password: string, displayName: string) {
@@ -126,6 +135,66 @@ export async function logoutUser() {
 
 export function onAuthChange(callback: (user: FirebaseUser | null) => void) {
   return onAuthStateChanged(auth, callback);
+}
+
+// Google sign-in
+export async function signInWithGoogle() {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const user = result.user;
+    
+    // Check if user exists in our database, if not create a document
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists()) {
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        displayName: user.displayName || "",
+        email: user.email || "",
+        photoURL: user.photoURL || "",
+        favorites: [],
+        suggestedArticles: [],
+        isAdmin: false,
+        createdAt: Timestamp.now()
+      });
+    }
+    
+    return user;
+  } catch (error) {
+    console.error("Error signing in with Google:", error);
+    throw error;
+  }
+}
+
+// Apple sign-in
+export async function signInWithApple() {
+  try {
+    // Apple provider authentication
+    const result = await signInWithPopup(auth, appleProvider);
+    // You can get the Apple OAuth access token and ID token from result.user
+    const user = result.user;
+    
+    // Check if user exists in our database, if not create a document
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (!userDoc.exists()) {
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        displayName: user.displayName || "",
+        email: user.email || "",
+        photoURL: user.photoURL || "",
+        favorites: [],
+        suggestedArticles: [],
+        isAdmin: false,
+        createdAt: Timestamp.now()
+      });
+    }
+    
+    return user;
+  } catch (error) {
+    console.error("Error signing in with Apple:", error);
+    throw error;
+  }
 }
 
 export async function getUserData(uid: string) {

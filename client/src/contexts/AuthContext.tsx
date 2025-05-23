@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User as FirebaseUser } from "firebase/auth";
 import { 
-  auth, 
   onAuthChange, 
   loginUser, 
   logoutUser, 
   registerUser,
-  getUserData
+  getUserData,
+  signInWithGoogle,
+  signInWithApple
 } from "@/lib/firebase";
 
 interface AuthContextType {
@@ -18,6 +19,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  loginWithApple: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
