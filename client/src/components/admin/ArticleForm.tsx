@@ -485,28 +485,76 @@ export function ArticleForm({
 
           <div className="space-y-6">
             {/* Draft Status */}
-            <FormField
-              control={form.control}
-              name="draft"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      {t("admin.article.draft")}
-                    </FormLabel>
-                    <FormDescription>
-                      {t("admin.article.draftDescription")}
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="draft"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        {t("admin.article.draft")}
+                      </FormLabel>
+                      <FormDescription>
+                        {t("admin.article.draftDescription")}
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="featured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        {t("admin.article.featured") || "Featured"}
+                      </FormLabel>
+                      <FormDescription>
+                        {t("admin.article.featuredDescription") || "Mark as featured to highlight on homepage"}
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="popular"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        {t("admin.article.popular") || "Popular"}
+                      </FormLabel>
+                      <FormDescription>
+                        {t("admin.article.popularDescription") || "Mark as popular to show in trending section"}
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Featured Image */}
             <div>
@@ -582,22 +630,32 @@ export function ArticleForm({
                 )}
 
                 {/* URL Input */}
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("admin.article.imageUrl")}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://..." {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        {t("admin.article.imageUrlDescription")}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="space-y-2 mt-4">
+                  <FormLabel>{t("admin.article.imageUrl") || "Add Image URL"}</FormLabel>
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="https://example.com/image.jpg" 
+                      value={imageSearchTerm}
+                      onChange={(e) => setImageSearchTerm(e.target.value)}
+                      className="flex-grow"
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        if (imageSearchTerm && imageSearchTerm.trim().startsWith('http')) {
+                          handleSelectImage(imageSearchTerm);
+                          setImageSearchTerm('');
+                        }
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </div>
+                  <FormDescription>
+                    {t("admin.article.imageUrlDescription") || "Enter a direct URL to an image or search above"}
+                  </FormDescription>
+                </div>
               </div>
             </div>
           </div>
