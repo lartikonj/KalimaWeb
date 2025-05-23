@@ -310,7 +310,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           createdAt: Timestamp.now(),
         };
         
-        await createArticle(newArticleData);
+        console.log("Creating article with data:", JSON.stringify(newArticleData, null, 2));
+        
+        try {
+          await createArticle(newArticleData);
+        } catch (createError) {
+          console.error("Detailed article creation error:", createError);
+          throw createError;
+        }
         toast({
           title: t("admin.articleCreated"),
           description: t("admin.articleCreatedDescription"),

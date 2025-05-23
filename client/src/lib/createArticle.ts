@@ -28,6 +28,13 @@ export type ArticleFormData = z.infer<typeof articleSchema>;
  */
 export async function createArticle(articleData: ArticleFormData) {
   try {
+    console.log("Article data received:", JSON.stringify(articleData, null, 2));
+    
+    // Check slug specifically before validation
+    if (!articleData.slug || articleData.slug.trim() === '') {
+      throw new Error("Slug is required and cannot be empty");
+    }
+    
     // Ensure all required fields are present
     const validatedData = articleSchema.parse(articleData);
     
@@ -48,6 +55,8 @@ export async function createArticle(articleData: ArticleFormData) {
     // Create the article
     return await firebaseCreateArticle(validatedData);
   } catch (error) {
+    console.error("Error creating article:", error);
+    
     if (error instanceof z.ZodError) {
       // Format Zod validation errors for better readability
       const errorMessage = error.errors.map(err => 
