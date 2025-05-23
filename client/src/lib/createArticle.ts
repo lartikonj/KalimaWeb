@@ -4,12 +4,14 @@ import { z } from 'zod';
 // Define the article schema for validation
 const articleSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
+  title: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   subcategory: z.string().min(1, "Subcategory is required"),
   availableLanguages: z.array(z.string()).min(1, "At least one language is required"),
   translations: z.record(z.object({
     title: z.string().min(1, "Title is required"),
     summary: z.string().min(1, "Summary is required"),
+    keywords: z.array(z.string()).optional().default([]),
     content: z.array(z.object({
       title: z.string().optional(),
       paragraph: z.string().min(1, "Content paragraph is required"),
@@ -17,7 +19,14 @@ const articleSchema = z.object({
     })).min(1, "At least one content section is required")
   })),
   draft: z.boolean().default(true),
-  imageUrl: z.string().min(1, "Image URL is required")
+  featured: z.boolean().default(false),
+  popular: z.boolean().default(false),
+  imageUrls: z.array(z.string()).optional().default([]),
+  author: z.object({
+    uid: z.string(),
+    displayName: z.string(),
+    photoURL: z.string().optional()
+  }).optional()
 });
 
 export type ArticleFormData = z.infer<typeof articleSchema>;
@@ -32,8 +41,93 @@ export async function createArticle(articleData: ArticleFormData) {
     
     // Check slug specifically before validation
     if (!articleData.slug || articleData.slug.trim() === '') {
-      throw new Error("Slug is required and cannot be empty");
+      // Generate a slug from the title if available, otherwise use timestamp
+      const slugBase = articleData.title || 
+        (articleData.translations.en?.title) || 
+        Object.values(articleData.translations)[0]?.title || 
+        `article-${Date.now()}`;
+      
+      // Create a URL-friendly slug
+      articleData.slug = slugBase
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || `article-${Date.now()}`;
+      
+      console.log("Generated slug:", articleData.slug);
     }
+    
+    // Convert single imageUrl to imageUrls array if needed (for backward compatibility)
+    if ((articleData as any).imageUrl && !articleData.imageUrls) {
+      articleData.imageUrls = [(articleData as any).imageUrl];
+      delete (articleData as any).imageUrl;
+    }
+    
+    // Ensure imageUrls exists
+    if (!articleData.imageUrls || !Array.isArray(articleData.imageUrls)) {
+      articleData.imageUrls = [];
+    }
+    
+    // If imageUrls is empty, add placeholder
+    if (articleData.imageUrls.length === 0) {
+      articleData.imageUrls = ["https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop"];
+    }
+    
+    // Set author information if missing
+    if (!articleData.author) {
+      articleData.author = {
+        uid: "system",
+        displayName: "System"
+      };
+    }
+    
+    // Set main title field from translations if not specified
+    if (!articleData.title) {
+      articleData.title = articleData.translations.en?.title || 
+        Object.values(articleData.translations)[0]?.title || 
+        "Untitled Article";
+    }
+    
+    // Add featured and popular flags if missing
+    articleData.featured = articleData.featured || false;
+    articleData.popular = articleData.popular || false;
+    
+    // Ensure all translations have appropriate content structure
+    Object.keys(articleData.translations).forEach(lang => {
+      const translation = articleData.translations[lang];
+      
+      // Ensure keywords array exists
+      if (!translation.keywords) {
+        translation.keywords = [];
+      }
+      
+      // Make sure content has proper structure
+      if (!translation.content || !Array.isArray(translation.content)) {
+        translation.content = [{
+          title: "Content",
+          paragraph: "No content provided",
+          references: []
+        }];
+      }
+      
+      // Fix content items that might be missing title
+      translation.content = translation.content.map(item => {
+        // If content is just a string, convert to proper format
+        if (typeof item === 'string') {
+          return {
+            title: "Content",
+            paragraph: item,
+            references: []
+          };
+        }
+        
+        // Ensure title exists
+        if (!item.title) {
+          item.title = "Content";
+        }
+        
+        return item;
+      });
+    });
     
     // Ensure all required fields are present
     const validatedData = articleSchema.parse(articleData);
@@ -52,7 +146,7 @@ export async function createArticle(articleData: ArticleFormData) {
       }
     }
     
-    // Create the article
+    // Create the article with our enhanced structure
     return await firebaseCreateArticle(validatedData);
   } catch (error) {
     console.error("Error creating article:", error);

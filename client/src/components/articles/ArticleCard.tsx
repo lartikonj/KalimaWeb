@@ -13,29 +13,42 @@ import { LanguageBadge } from "./LanguageBadge";
 interface ArticleCardProps {
   id: string;
   slug: string;
+  mainTitle?: string; // Main article title
   category: string;
   subcategory: string;
-  imageUrl: string;
+  imageUrls?: string[];
+  imageUrl?: string; // For backwards compatibility
   availableLanguages: string[];
   translations: Record<string, {
     title: string;
     summary: string;
-    content: Array<{type: string; text: string}>;
+    keywords?: string[];
+    content: Array<{
+      title: string;
+      paragraph: string;
+      references?: string[];
+    }>;
   }>;
   createdAt: any; // Firestore timestamp
   isFavorite?: boolean;
+  featured?: boolean;
+  popular?: boolean;
 }
 
 export function ArticleCard({
   id,
   slug,
+  mainTitle,
   category,
   subcategory,
-  imageUrl,
+  imageUrls,
+  imageUrl, // For backwards compatibility
   availableLanguages,
   translations,
   createdAt,
   isFavorite = false,
+  featured = false,
+  popular = false,
 }: ArticleCardProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -45,7 +58,7 @@ export function ArticleCard({
 
   // Get the translation for the current language or fall back to English
   const currentTranslation = translations[language] || translations.en || Object.values(translations)[0];
-  const title = currentTranslation?.title || '';
+  const displayTitle = currentTranslation?.title || mainTitle || '';
   const summary = currentTranslation?.summary || '';
   
   // Convert Firestore timestamp to Date
@@ -113,8 +126,8 @@ export function ArticleCard({
       <div className="relative">
         <Link href={`/categories/${category}/${subcategory}/${slug}`}>
           <img
-            src={imageUrl || 'https://source.unsplash.com/featured/?education'}
-            alt={title}
+            src={(imageUrls && imageUrls.length > 0) ? imageUrls[0] : (imageUrl || 'https://source.unsplash.com/featured/?education')}
+            alt={displayTitle}
             className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
           />
         </Link>
@@ -138,7 +151,7 @@ export function ArticleCard({
         
         <Link href={`/categories/${category}/${subcategory}/${slug}`}>
           <h3 className="text-lg font-bold mb-2 text-neutral-800 dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 line-clamp-2">
-            {title}
+            {displayTitle}
           </h3>
         </Link>
         
