@@ -21,9 +21,8 @@ import { useToast } from "@/hooks/use-toast";
 import UserSuggestionsList from "@/components/admin/UserSuggestionsList";
 import { Link } from "wouter";
 import { User, SuggestedArticle } from "@/types";
-import { getArticles } from "@/lib/firebase";
-import { collection, getDocs, getFirestore, getDoc, doc, updateDoc } from "firebase/firestore";
-import { getApp } from "firebase/app";
+import { getArticles, db } from "@/lib/firebase";
+import { collection, getDocs, doc, getDoc, updateDoc } from "firebase/firestore";
 
 // Mock users with suggestions for demonstration
 const MOCK_USERS: User[] = [
@@ -87,11 +86,8 @@ export default function Suggestions() {
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
-        // Get Firestore instance
-        const firestore = getFirestore(getApp());
-        
         // Get all users from Firestore
-        const usersCollection = collection(firestore, "users");
+        const usersCollection = collection(db, "users");
         const querySnapshot = await getDocs(usersCollection);
         
         // Filter users that have suggestions
@@ -150,11 +146,8 @@ export default function Suggestions() {
   // Handle deleting a suggestion
   const handleDeleteSuggestion = async (suggestionIndex: number, user: User) => {
     try {
-      // Get Firestore instance
-      const firestore = getFirestore(getApp());
-      
       // Get current user data
-      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+      const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
         throw new Error("User not found");
       }
@@ -165,7 +158,7 @@ export default function Suggestions() {
       updatedSuggestions.splice(suggestionIndex, 1);
       
       // Update Firestore
-      await updateDoc(doc(firestore, "users", user.uid), {
+      await updateDoc(doc(db, "users", user.uid), {
         suggestedArticles: updatedSuggestions
       });
       
