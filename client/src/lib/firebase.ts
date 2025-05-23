@@ -392,19 +392,24 @@ export async function createArticle(articleData: {
   createdAt?: Timestamp;
 }): Promise<FirestoreArticle> {
   try {
-    // Validate required fields to prevent "undefined" values
+    // Validate and provide fallback for required fields
     console.log("Validating article data:", {
       slug: articleData.slug,
       slugType: typeof articleData.slug,
-      slugTrimmed: articleData.slug ? articleData.slug.trim() : null
+      slugTrimmed: articleData.slug ? articleData.slug.trim() : null,
+      category: articleData.category,
+      subcategory: articleData.subcategory
     });
     
+    // Generate a slug if none is provided
     if (!articleData.slug) {
-      throw new Error("Article slug is required");
-    }
-    
-    if (articleData.slug.trim() === '') {
-      throw new Error("Article slug cannot be empty")
+      // Generate a slug from category and a timestamp
+      articleData.slug = `${articleData.category || 'article'}-${Date.now()}`;
+      console.log("Auto-generated slug:", articleData.slug);
+    } else if (articleData.slug.trim() === '') {
+      // If slug is just empty spaces, replace with a generated one
+      articleData.slug = `${articleData.category || 'article'}-${Date.now()}`;
+      console.log("Replaced empty slug with:", articleData.slug);
     }
     
     if (!articleData.category) {
