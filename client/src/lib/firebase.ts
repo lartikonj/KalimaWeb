@@ -92,7 +92,7 @@ console.log("Firebase config loaded with:", {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 // Authentication functions
 export async function registerUser(email: string, password: string, displayName: string) {

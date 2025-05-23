@@ -22,6 +22,8 @@ import UserSuggestionsList from "@/components/admin/UserSuggestionsList";
 import { Link } from "wouter";
 import { User, SuggestedArticle } from "@/types";
 import { getArticles } from "@/lib/firebase";
+import { collection, getDocs, getFirestore, getDoc, doc, updateDoc } from "firebase/firestore";
+import { getApp } from "firebase/app";
 
 // Mock users with suggestions for demonstration
 const MOCK_USERS: User[] = [
@@ -81,16 +83,32 @@ export default function Suggestions() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching users with suggestions
-    // In a real application, this would fetch from Firebase
+    // Fetch real users with suggestions from Firebase
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
-        // This would be a real API call in production
-        // const usersWithSuggestions = await fetchUsersWithSuggestions();
+        // Get Firestore instance
+        const firestore = getFirestore(getApp());
         
-        // Using mock data for now
-        setUsers(MOCK_USERS);
+        // Get all users from Firestore
+        const usersCollection = collection(firestore, "users");
+        const querySnapshot = await getDocs(usersCollection);
+        
+        // Filter users that have suggestions
+        const usersWithSuggestions: User[] = [];
+        
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data() as User;
+          userData.uid = doc.id; // Ensure UID is set
+          
+          // Only include users that have suggestions
+          if (userData.suggestedArticles && userData.suggestedArticles.length > 0) {
+            usersWithSuggestions.push(userData);
+          }
+        });
+        
+        console.log("Fetched users with suggestions:", usersWithSuggestions);
+        setUsers(usersWithSuggestions);
       } catch (error) {
         console.error("Error fetching users with suggestions:", error);
         toast({
@@ -132,13 +150,28 @@ export default function Suggestions() {
   // Handle deleting a suggestion
   const handleDeleteSuggestion = async (suggestionIndex: number, user: User) => {
     try {
-      // In a real application, this would call a Firebase function to remove the suggestion
+      // Get Firestore instance
+      const firestore = getFirestore(getApp());
       
-      // Update local state to remove the suggestion
+      // Get current user data
+      const userDoc = await getDoc(doc(firestore, "users", user.uid));
+      if (!userDoc.exists()) {
+        throw new Error("User not found");
+      }
+      
+      // Update the suggestions array by removing the suggestion at the specified index
+      const userData = userDoc.data();
+      const updatedSuggestions = [...userData.suggestedArticles];
+      updatedSuggestions.splice(suggestionIndex, 1);
+      
+      // Update Firestore
+      await updateDoc(doc(firestore, "users", user.uid), {
+        suggestedArticles: updatedSuggestions
+      });
+      
+      // Update local state
       const updatedUsers = users.map(u => {
         if (u.uid === user.uid) {
-          const updatedSuggestions = [...u.suggestedArticles];
-          updatedSuggestions.splice(suggestionIndex, 1);
           return {
             ...u,
             suggestedArticles: updatedSuggestions
