@@ -35,16 +35,24 @@ import { Language } from "@/contexts/LanguageContext";
 // Schema for article form
 const articleFormSchema = z.object({
   slug: z.string().min(3).max(100),
+  title: z.string().min(3).max(200).optional(),
   languages: z.array(z.string()),
+  category: z.string().default("general"),
+  subcategory: z.string().default("other"),
   translations: z.record(z.object({
     title: z.string().min(3).max(200),
     summary: z.string().min(10).max(500),
-    category: z.string(),
-    subcategory: z.string().optional(),
-    content: z.array(z.string())
+    keywords: z.array(z.string()).optional().default([]),
+    content: z.array(z.object({
+      title: z.string(),
+      paragraph: z.string(),
+      references: z.array(z.string()).optional()
+    }))
   })),
   draft: z.boolean().default(true),
-  imageUrl: z.string().url().optional(),
+  featured: z.boolean().default(false),
+  popular: z.boolean().default(false),
+  imageUrls: z.array(z.string().url()).optional().default([]),
 });
 
 type ArticleFormValues = z.infer<typeof articleFormSchema>;

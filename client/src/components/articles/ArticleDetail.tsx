@@ -201,7 +201,7 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
     <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg mb-8">
       <div className="relative">
         <img 
-          src={article.imageUrl} 
+          src={article.imageUrls?.[0] || article.imageUrl || "https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop"} 
           alt={translation.title} 
           className="w-full h-64 md:h-80 object-cover"
         />

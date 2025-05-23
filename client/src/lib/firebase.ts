@@ -31,22 +31,30 @@ import { Language } from "@/contexts/LanguageContext";
 interface FirestoreArticle {
   id: string;
   slug: string;
+  title: string;
   category: string;
   subcategory: string;
-  author?: string;
+  createdAt: Timestamp;
+  draft: boolean;
+  featured: boolean;
+  popular: boolean;
+  imageUrls: string[];
+  author: {
+    uid: string;
+    displayName: string;
+    photoURL?: string;
+  };
   availableLanguages: string[];
   translations: Record<string, {
     title: string;
     summary: string;
+    keywords: string[];
     content: Array<{
       title: string;
       paragraph: string;
       references?: string[];
     }>;
   }>;
-  createdAt: Timestamp;
-  draft: boolean;
-  imageUrl: string;
 }
 
 interface FirestoreCategory {
@@ -396,84 +404,101 @@ export async function deleteArticle(slug: string): Promise<boolean> {
 
 export async function createArticle(inputData: {
   slug: string;
-  category: string;
-  subcategory: string;
-  author?: string;
+  title?: string;
+  category?: string;
+  subcategory?: string;
+  author?: {
+    uid: string;
+    displayName: string;
+    photoURL?: string;
+  };
   availableLanguages: string[];
   translations: Record<string, {
     title: string;
     summary: string;
+    keywords?: string[];
     content: Array<{
       title: string;
       paragraph: string;
       references?: string[];
     }>;
   }>;
-  draft: boolean;
-  imageUrl: string;
+  draft?: boolean;
+  featured?: boolean;
+  popular?: boolean;
+  imageUrls?: string[];
   createdAt?: Timestamp;
 }): Promise<FirestoreArticle> {
   try {
     // First, verify what type of data we're receiving for slug
     console.log("Creating article with initial data:", {
-      slugValue: inputData.slug,
       slugType: typeof inputData.slug,
       isSlugObject: typeof inputData.slug === 'object',
       hasCategory: !!inputData.category
     });
     
     // Handle all inputData values with safety checks
-    const articleData = {
-      // For slug, use the provided string or generate one if needed
-      slug: typeof inputData.slug === 'string' && inputData.slug.trim() !== '' 
-        ? inputData.slug.trim() 
-        : `article-${Date.now()}`,
-        
-      category: typeof inputData.category === 'string' ? inputData.category : '',
-      subcategory: typeof inputData.subcategory === 'string' ? inputData.subcategory : '',
-      author: typeof inputData.author === 'string' ? inputData.author : '',
+    // For slug, use the provided string or generate one if needed
+    const slug = typeof inputData.slug === 'string' && inputData.slug.trim() !== '' 
+      ? inputData.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-{2,}/g, '-')
+      : `article-${Date.now()}`;
       
-      availableLanguages: Array.isArray(inputData.availableLanguages) 
-        ? inputData.availableLanguages 
-        : ['en'],
+    // Find a main title from translations if title is missing
+    let title = inputData.title;
+    if (!title && inputData.translations) {
+      // Try to get title from English translation first
+      if (inputData.translations.en?.title) {
+        title = inputData.translations.en.title;
+      } else {
+        // Or use the first available translation title
+        const firstTranslation = Object.values(inputData.translations)[0];
+        if (firstTranslation?.title) {
+          title = firstTranslation.title;
+        }
+      }
+    }
+    
+    // Default title if still none found
+    if (!title) {
+      title = "Untitled Article";
+    }
         
-      translations: typeof inputData.translations === 'object' 
-        ? inputData.translations 
-        : {},
-        
-      draft: inputData.draft === false ? false : true,
-      imageUrl: typeof inputData.imageUrl === 'string' ? inputData.imageUrl : '',
-      createdAt: inputData.createdAt || Timestamp.now()
-    };
+    // Validate and set category/subcategory
+    const category = typeof inputData.category === 'string' && inputData.category.trim() !== '' 
+      ? inputData.category 
+      : 'general';
+      
+    const subcategory = typeof inputData.subcategory === 'string' && inputData.subcategory.trim() !== '' 
+      ? inputData.subcategory 
+      : 'other';
     
     console.log("Processed article data:", {
-      slug: articleData.slug,
-      category: articleData.category,
-      hasTranslations: !!Object.keys(articleData.translations).length
+      slug,
+      category,
+      hasTranslations: !!Object.keys(inputData.translations || {}).length
     });
     
-    // Ensure we have default values for category/subcategory
-    if (!articleData.category) {
-      articleData.category = "general";
-      console.log("Setting default category:", articleData.category);
-    }
+    console.log("Setting default category:", category);
+    console.log("Setting default subcategory:", subcategory);
     
-    if (!articleData.subcategory) {
-      articleData.subcategory = "other";
-      console.log("Setting default subcategory:", articleData.subcategory);
-    }
-    
-    if (!articleData.availableLanguages || articleData.availableLanguages.length === 0) {
+    // Handle available languages
+    const availableLanguages = Array.isArray(inputData.availableLanguages) && inputData.availableLanguages.length > 0
+      ? inputData.availableLanguages
+      : ['en'];
+      
+    if (availableLanguages.length === 0) {
       throw new Error("At least one language must be available");
     }
     
     // Check for translations and provide defaults if needed
-    if (!articleData.translations || Object.keys(articleData.translations).length === 0) {
+    let translations = inputData.translations;
+    if (!translations || Object.keys(translations).length === 0) {
       // Create a default translation in English
-      articleData.translations = {
+      translations = {
         en: {
-          title: "Untitled Article",
+          title: title,
           summary: "This article was created without content.",
+          keywords: ["article", "default"],
           content: [{
             title: "Introduction",
             paragraph: "This is a placeholder content for an article that was created without specific content.",
@@ -484,28 +509,55 @@ export async function createArticle(inputData: {
       console.log("Created default translation for article");
       
       // Ensure English is in availableLanguages
-      if (!articleData.availableLanguages.includes('en')) {
-        articleData.availableLanguages.push('en');
+      if (!availableLanguages.includes('en')) {
+        availableLanguages.push('en');
       }
     }
     
-    // Provide a placeholder image URL if none was provided
-    if (!articleData.imageUrl) {
-      articleData.imageUrl = "https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop";
+    // Make sure every translation has the required fields
+    Object.keys(translations).forEach(langCode => {
+      if (!translations[langCode].keywords) {
+        translations[langCode].keywords = [];
+      }
+      
+      if (!translations[langCode].content) {
+        translations[langCode].content = [{
+          title: "Content",
+          paragraph: "No content provided.",
+          references: []
+        }];
+      }
+    });
+    
+    // Set up author information
+    const author = inputData.author || {
+      uid: "system",
+      displayName: "System"
+    };
+    
+    // Handle image URLs
+    const imageUrls = Array.isArray(inputData.imageUrls) && inputData.imageUrls.length > 0
+      ? inputData.imageUrls
+      : ["https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop"];
+      
+    if (!inputData.imageUrls || inputData.imageUrls.length === 0) {
       console.log("Using placeholder image URL");
     }
     
     // Create a clean copy of the article data with defaults for optional fields
     const cleanArticleData = {
-      slug: articleData.slug,
-      category: articleData.category,
-      subcategory: articleData.subcategory,
-      author: articleData.author || "",
-      availableLanguages: articleData.availableLanguages,
-      translations: articleData.translations,
-      draft: articleData.draft !== undefined ? articleData.draft : true,
-      imageUrl: articleData.imageUrl,
-      createdAt: articleData.createdAt || Timestamp.now()
+      slug,
+      title,
+      category,
+      subcategory,
+      author,
+      availableLanguages,
+      translations,
+      createdAt: inputData.createdAt || Timestamp.now(),
+      draft: inputData.draft !== undefined ? inputData.draft : true,
+      featured: inputData.featured !== undefined ? inputData.featured : false,
+      popular: inputData.popular !== undefined ? inputData.popular : false,
+      imageUrls
     };
     
     // Check if slug already exists
