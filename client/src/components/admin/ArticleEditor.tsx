@@ -117,6 +117,9 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         photoURL: ""
       },
       availableLanguages: ["en"],
+      imageUrls: [],
+      featured: false,
+      popular: false,
       translations: {
         en: {
           title: "",
@@ -319,8 +322,28 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       }
       
       // Add createdAt timestamp if this is a new article
+      // Make sure author has a uid field
+      const author = data.author ? {
+        uid: data.author.uid || "system",
+        displayName: data.author.displayName || "Kalima Author",
+        photoURL: data.author.photoURL || ""
+      } : {
+        uid: "system", 
+        displayName: "Kalima Author",
+        photoURL: ""
+      };
+      
+      // Convert image to imageUrls array if needed
+      const imageUrls = data.imageUrls && data.imageUrls.length > 0 
+        ? data.imageUrls 
+        : (data.imageUrl ? [data.imageUrl] : []);
+        
       const articleData = {
         ...data,
+        author, // Use the properly formatted author object
+        imageUrls, // Ensure we have an array of image URLs
+        featured: data.featured || false,
+        popular: data.popular || false,
         createdAt: isEditMode ? undefined : Timestamp.now(),
       };
       
@@ -338,24 +361,8 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         }
         
         // Create the article with explicit values to avoid undefined
-        const newArticleData = {
-          slug: data.slug, // Use the slug value we've explicitly set above
-          title: data.title || Object.values(data.translations)[0]?.title || "Untitled Article",
-          category: data.category,
-          subcategory: data.subcategory,
-          author: data.author || {
-            uid: "system",
-            displayName: "Kalima Author",
-            photoURL: ""
-          },
-          availableLanguages: data.availableLanguages,
-          translations: data.translations,
-          draft: data.draft !== undefined ? data.draft : true,
-          featured: data.featured !== undefined ? data.featured : false,
-          popular: data.popular !== undefined ? data.popular : false,
-          imageUrls: data.imageUrls || [],
-          createdAt: Timestamp.now(),
-        };
+        // We don't need this duplicate object - we've already prepared all the data correctly above
+        const newArticleData = articleData;
         
         console.log("Creating article with processed data:", JSON.stringify({
           slug: newArticleData.slug,
