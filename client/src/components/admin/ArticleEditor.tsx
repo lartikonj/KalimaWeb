@@ -54,7 +54,6 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { getRandomPhoto } from "@/lib/unsplash";
 import { cn } from "@/lib/utils";
-import { Timestamp } from "firebase/firestore";
 
 // Schema for the article content section
 const contentSectionSchema = z.object({
@@ -268,6 +267,21 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
     try {
       setIsLoading(true);
       
+      // Debug form values
+      console.log("Form data submitted:", JSON.stringify({
+        slug: data.slug,
+        slugType: typeof data.slug,
+        category: data.category,
+        subcategory: data.subcategory,
+        hasTranslations: !!data.translations,
+        availableLanguages: data.availableLanguages
+      }, null, 2));
+      
+      // Manual slug validation before continuing
+      if (!data.slug || data.slug.trim() === '') {
+        throw new Error("Article slug is required and cannot be empty");
+      }
+      
       // Ensure we have valid category and subcategory values
       if (!data.category || !data.subcategory) {
         throw new Error(t("admin.categorySubcategoryRequired"));
@@ -299,7 +313,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         
         // Create the article with explicit values to avoid undefined
         const newArticleData = {
-          slug: data.slug,
+          slug: data.slug || 'missing-slug-' + Date.now(), // Add fallback to guarantee a slug
           category: data.category,
           subcategory: data.subcategory,
           author: data.author || "",
@@ -310,7 +324,12 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           createdAt: Timestamp.now(),
         };
         
-        console.log("Creating article with data:", JSON.stringify(newArticleData, null, 2));
+        console.log("Creating article with processed data:", JSON.stringify({
+          slug: newArticleData.slug,
+          slugType: typeof newArticleData.slug,
+          categoryType: typeof newArticleData.category,
+          availableLanguagesLength: newArticleData.availableLanguages.length
+        }, null, 2));
         
         try {
           await createArticle(newArticleData);
