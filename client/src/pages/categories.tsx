@@ -105,8 +105,8 @@ export default function Categories() {
   const getTranslatedCategoryName = () => {
     if (!currentCategory) return "";
     
-    if (categoryData && categoryData.translations) {
-      return categoryData.translations[language] || categoryData.translations.en || categoryData.name;
+    if (categoryData && categoryData.titles) {
+      return categoryData.titles[language] || categoryData.titles.en || categoryData.slug;
     }
     
     return currentCategory;
@@ -115,9 +115,9 @@ export default function Categories() {
   const getTranslatedSubcategoryName = () => {
     if (!currentSubcategory || !categoryData || !categoryData.subcategories) return "";
     
-    const subcategory = categoryData.subcategories.find((sub: any) => sub.key === currentSubcategory);
-    if (subcategory && subcategory.translations) {
-      return subcategory.translations[language] || subcategory.translations.en || subcategory.key;
+    const subcategory = categoryData.subcategories.find((sub: any) => sub.slug === currentSubcategory);
+    if (subcategory && subcategory.titles) {
+      return subcategory.titles[language] || subcategory.titles.en || subcategory.slug;
     }
     
     return currentSubcategory;
@@ -128,8 +128,8 @@ export default function Categories() {
     if (!currentCategory || !categoryData || !categoryData.subcategories) return [];
     
     return categoryData.subcategories.map((subcategory: any) => ({
-      name: subcategory.translations[language] || subcategory.translations.en || subcategory.key,
-      slug: subcategory.key
+      name: subcategory.titles[language] || subcategory.titles.en || subcategory.slug,
+      slug: subcategory.slug
     }));
   };
 

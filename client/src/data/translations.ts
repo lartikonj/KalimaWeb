@@ -60,8 +60,8 @@ const translations = {
       "science": "Science", 
       "stories": "Stories",
       "tips-lifestyle": "Tips & Lifestyle",
-     
-      
+      "fitness": "Fitness",
+      "technology": "Technology"
     },
     categoryDescriptions: {
       "language-learning": "Learn new languages with our comprehensive language learning resources.",
