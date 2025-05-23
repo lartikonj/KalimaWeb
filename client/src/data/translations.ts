@@ -16,7 +16,10 @@ const translations = {
       delete: "Delete",
       cancel: "Cancel",
       confirm: "Confirm",
-      submit: "Submit"
+      submit: "Submit",
+      browseSubcategory: "Browse",
+      articles: "Articles",
+      noArticlesInSubcategory: "No Articles In This Subcategory"
     },
 
     // Navigation
@@ -56,7 +59,19 @@ const translations = {
       "culture": "Culture",
       "science": "Science", 
       "stories": "Stories",
-      "tips-lifestyle": "Tips & Lifestyle"
+      "tips-lifestyle": "Tips & Lifestyle",
+     
+      
+    },
+    categoryDescriptions: {
+      "language-learning": "Learn new languages with our comprehensive language learning resources.",
+      "culture": "Explore different cultures around the world through our cultural articles.",
+      "science": "Discover the wonders of science with our educational science articles,",
+      "stories": "Enjoy a variety of stories, including short stories, fairy tales, and more.",
+      "tips-lifestyle": "Improve your lifestyle with our tips and productivity articles.",
+      "travel": "Explore the world through our travel articles, covering destinations, tips, and experiences.",
+      "technology": "Stay updated with the latest tech trends and innovations in our technology articles.",
+      "health": "Learn about health and wellness with our articles on fitness, nutrition, and mental health."
     },
 
     // Subcategories
@@ -75,6 +90,17 @@ const translations = {
       "productivity": "Productivity",
       "study-tips": "Study Tips",
       "motivation": "Motivation"
+    },
+    subcategoryDescriptions: {
+      travel: "Explore the world through our travel articles, covering destinations, tips, and experiences.",
+      nature: "Discover the beauty of nature with our articles on wildlife, ecosystems, and environmental conservation.",
+      technology: "Stay updated with the latest tech trends and innovations in our technology articles.",
+      health: "Learn about health and wellness with our articles on fitness, nutrition, and mental health.",
+      history: "Dive into the past with our historical articles, covering significant events and figures.",
+      food: "Savor the flavors with our food articles, offering recipes, cooking tips, and culinary insights.",
+      vocabulary: "Expand your vocabulary with our articles on words, phrases, and idioms.",
+      grammar: "Master grammar rules with our articles on sentence structure, verb tenses, and more.",
+      phrases: "Enhance your languages skills with our articles on common phrases and expressions.",
     },
 
     // Article
@@ -257,7 +283,8 @@ const translations = {
       delete: "حذف",
       cancel: "إلغاء",
       confirm: "تأكيد",
-      submit: "إرسال"
+      submit: "إرسال",
+      browseSubcategory: "تصفح"
     },
 
     // Navigation
