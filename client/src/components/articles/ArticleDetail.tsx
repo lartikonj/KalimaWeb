@@ -286,45 +286,68 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
         </h1>
         
         <div className="text-neutral-600 dark:text-neutral-300 prose dark:prose-invert max-w-none mb-6">
-          {translation.content.map((block, index) => {
-            if (block.type === 'heading') {
-              return (
-                <h2 key={index} className="text-2xl font-bold mt-6 mb-3 text-neutral-800 dark:text-neutral-100">
-                  {block.text}
+          {translation.content.map((section, index) => (
+            <div key={index} className="mb-8">
+              {section.title && (
+                <h2 className="text-2xl font-bold mt-6 mb-3 text-neutral-800 dark:text-neutral-100">
+                  {section.title}
                 </h2>
-              );
-            } else if (block.type === 'paragraph') {
-              return (
-                <p key={index} className="mb-4">
-                  {block.text}
-                </p>
-              );
-            } else {
-              // Fallback for any other content type
-              return (
-                <div key={index} className="mb-4">
-                  {block.text}
+              )}
+              <div className="mb-4">
+                {section.paragraph}
+              </div>
+              {section.references && section.references.length > 0 && (
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md mt-2 text-sm">
+                  <h4 className="font-medium mb-1">References:</h4>
+                  <ul className="list-disc pl-5">
+                    {section.references.map((ref, refIdx) => (
+                      <li key={refIdx}>{ref}</li>
+                    ))}
+                  </ul>
                 </div>
-              );
-            }
-          })}
+              )}
+            </div>
+          ))}
         </div>
         
         {/* Article metadata */}
         <div className="flex items-center justify-between border-t border-neutral-200 dark:border-neutral-700 pt-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <span className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-500">
-                <span className="text-xl font-medium leading-none text-white">K</span>
-              </span>
+              {article.author?.photoURL ? (
+                <img 
+                  src={article.author.photoURL} 
+                  alt={article.author.displayName || "Author"} 
+                  className="h-10 w-10 rounded-full object-cover"
+                />
+              ) : (
+                <span className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-primary-500">
+                  <span className="text-xl font-medium leading-none text-white">
+                    {article.author?.displayName?.charAt(0) || "K"}
+                  </span>
+                </span>
+              )}
             </div>
             <div className="ml-3 rtl:mr-3 rtl:ml-0">
-              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Kalima</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("article.educationalContent")}</p>
+              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                {article.author?.displayName || "Kalima"}
+              </p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                {t("article.publishedOn")}: {article.createdAt ? new Date(article.createdAt.seconds * 1000).toLocaleDateString() : ""}
+              </p>
             </div>
           </div>
-          <div className="text-xs text-neutral-500 dark:text-neutral-400">
-            {formattedDate}
+          <div>
+            {article.featured && (
+              <span className="px-2 py-1 mr-2 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 rounded-md">
+                Featured
+              </span>
+            )}
+            {article.popular && (
+              <span className="px-2 py-1 text-xs bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200 rounded-md">
+                Popular
+              </span>
+            )}
           </div>
         </div>
       </div>
