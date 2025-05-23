@@ -372,7 +372,7 @@ export async function deleteArticle(slug: string): Promise<boolean> {
   }
 }
 
-export async function createArticle(articleData: {
+export async function createArticle(inputData: {
   slug: string;
   category: string;
   subcategory: string;
@@ -392,25 +392,43 @@ export async function createArticle(articleData: {
   createdAt?: Timestamp;
 }): Promise<FirestoreArticle> {
   try {
-    // Validate and provide fallback for required fields
-    console.log("Validating article data:", {
-      slug: articleData.slug,
-      slugType: typeof articleData.slug,
-      slugTrimmed: articleData.slug ? articleData.slug.trim() : null,
-      category: articleData.category,
-      subcategory: articleData.subcategory
+    // First, verify what type of data we're receiving for slug
+    console.log("Creating article with initial data:", {
+      slugValue: inputData.slug,
+      slugType: typeof inputData.slug,
+      isSlugObject: typeof inputData.slug === 'object',
+      hasCategory: !!inputData.category
     });
     
-    // Generate a slug if none is provided
-    if (!articleData.slug) {
-      // Generate a slug from category and a timestamp
-      articleData.slug = `${articleData.category || 'article'}-${Date.now()}`;
-      console.log("Auto-generated slug:", articleData.slug);
-    } else if (articleData.slug.trim() === '') {
-      // If slug is just empty spaces, replace with a generated one
-      articleData.slug = `${articleData.category || 'article'}-${Date.now()}`;
-      console.log("Replaced empty slug with:", articleData.slug);
-    }
+    // Handle all inputData values with safety checks
+    const articleData = {
+      // For slug, use the provided string or generate one if needed
+      slug: typeof inputData.slug === 'string' && inputData.slug.trim() !== '' 
+        ? inputData.slug.trim() 
+        : `article-${Date.now()}`,
+        
+      category: typeof inputData.category === 'string' ? inputData.category : '',
+      subcategory: typeof inputData.subcategory === 'string' ? inputData.subcategory : '',
+      author: typeof inputData.author === 'string' ? inputData.author : '',
+      
+      availableLanguages: Array.isArray(inputData.availableLanguages) 
+        ? inputData.availableLanguages 
+        : ['en'],
+        
+      translations: typeof inputData.translations === 'object' 
+        ? inputData.translations 
+        : {},
+        
+      draft: inputData.draft === false ? false : true,
+      imageUrl: typeof inputData.imageUrl === 'string' ? inputData.imageUrl : '',
+      createdAt: inputData.createdAt || Timestamp.now()
+    };
+    
+    console.log("Processed article data:", {
+      slug: articleData.slug,
+      category: articleData.category,
+      hasTranslations: !!Object.keys(articleData.translations).length
+    });
     
     if (!articleData.category) {
       throw new Error("Article category is required");
