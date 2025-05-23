@@ -131,7 +131,7 @@ export default function UserSuggestionsList({
                   <TableRow key={`${user.uid}-${index}`}>
                     <TableCell className="font-medium">{suggestion.title}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{suggestion.language.toUpperCase()}</Badge>
+                      <Badge variant="outline">{suggestion.language ? suggestion.language.toUpperCase() : 'N/A'}</Badge>
                     </TableCell>
                     <TableCell>{suggestion.content?.length || 0} {t("admin.suggestions.paragraphs")}</TableCell>
                     <TableCell className="text-right">
@@ -181,7 +181,7 @@ export default function UserSuggestionsList({
               <DialogTitle>{selectedSuggestion.suggestion.title}</DialogTitle>
               <DialogDescription>
                 {t("admin.suggestions.suggestedBy")} {selectedUser?.displayName} (
-                <Badge variant="outline">{selectedSuggestion.suggestion.language.toUpperCase()}</Badge>
+                <Badge variant="outline">{selectedSuggestion.suggestion.language ? selectedSuggestion.suggestion.language.toUpperCase() : 'N/A'}</Badge>
                 )
               </DialogDescription>
             </DialogHeader>
