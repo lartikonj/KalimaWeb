@@ -1,39 +1,25 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { 
-  Card, 
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getArticles, deleteArticle } from "@/lib/firebase";
+import { toast } from "@/hooks/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Card,
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription
+  CardDescription,
 } from "@/components/ui/card";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-  TableCaption
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,21 +31,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
-  FileText, 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { 
   PenSquare, 
   Trash2, 
-  Plus, 
   Eye, 
-  Search,
-  FilterX
+  Search, 
+  Plus, 
+  FilterX,
+  FileText 
 } from "lucide-react";
-import { useLanguage, Language } from "@/contexts/LanguageContext";
-import { getArticles, deleteArticle } from "@/lib/firebase";
-import { AdminLayout } from "@/components/admin/AdminLayout";
 
-export default function ArticlesAdmin() {
+export default function ArticlesPage() {
   const { t, language } = useLanguage();
   const [articles, setArticles] = useState<any[]>([]);
   const [filteredArticles, setFilteredArticles] = useState<any[]>([]);
@@ -68,26 +60,27 @@ export default function ArticlesAdmin() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [languageFilter, setLanguageFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [categories, setCategories] = useState<Set<string>>(new Set());
-  const [articleToDelete, setArticleToDelete] = useState<any>(null);
 
-  // Fetch all articles
+  // Load articles
   useEffect(() => {
     const fetchArticles = async () => {
       setIsLoading(true);
       try {
-        const fetchedArticles = await getArticles();
-        setArticles(fetchedArticles);
-        setFilteredArticles(fetchedArticles);
+        const data = await getArticles();
         
         // Extract unique categories
         const uniqueCategories = new Set<string>();
-        fetchedArticles.forEach((article: any) => {
+        data.forEach(article => {
           if (article.category) {
             uniqueCategories.add(article.category);
           }
         });
+        
         setCategories(uniqueCategories);
+        setArticles(data);
+        setFilteredArticles(data);
       } catch (error) {
         console.error("Error fetching articles:", error);
         toast({
@@ -103,62 +96,69 @@ export default function ArticlesAdmin() {
     fetchArticles();
   }, [t]);
 
-  // Filter articles when filters change
+  // Apply filters
   useEffect(() => {
-    let result = [...articles];
+    let filtered = [...articles];
     
-    // Apply search term filter
+    // Apply search filter
     if (searchTerm) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      result = result.filter(article => {
-        // Search in translations
-        const hasMatch = Object.values(article.translations || {}).some((translation: any) => {
-          return translation.title?.toLowerCase().includes(lowerSearchTerm) || 
-                 translation.summary?.toLowerCase().includes(lowerSearchTerm);
+      const lowerCaseSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter(article => {
+        // Search through all translations
+        if (!article.translations) return false;
+        
+        return Object.values(article.translations).some((translation: any) => {
+          return (
+            translation.title?.toLowerCase().includes(lowerCaseSearch) ||
+            translation.summary?.toLowerCase().includes(lowerCaseSearch)
+          );
         });
-        return hasMatch;
       });
     }
     
     // Apply category filter
-    if (categoryFilter && categoryFilter !== 'all') {
-      result = result.filter(article => article.category === categoryFilter);
+    if (categoryFilter && categoryFilter !== "all") {
+      filtered = filtered.filter(article => article.category === categoryFilter);
     }
     
     // Apply language filter
-    if (languageFilter && languageFilter !== 'all') {
-      result = result.filter(article => 
-        article.availableLanguages && article.availableLanguages.includes(languageFilter)
+    if (languageFilter && languageFilter !== "all") {
+      filtered = filtered.filter(article => 
+        article.availableLanguages?.includes(languageFilter)
       );
     }
     
     // Apply status filter
-    if (statusFilter && statusFilter !== 'all') {
-      const isDraft = statusFilter === 'draft';
-      result = result.filter(article => article.draft === isDraft);
+    if (statusFilter && statusFilter !== "all") {
+      const isDraft = statusFilter === "draft";
+      filtered = filtered.filter(article => article.draft === isDraft);
     }
     
-    setFilteredArticles(result);
-  }, [searchTerm, categoryFilter, languageFilter, statusFilter, articles]);
+    setFilteredArticles(filtered);
+  }, [articles, searchTerm, categoryFilter, languageFilter, statusFilter]);
 
-  // Handle article deletion
+  // Reset all filters
+  const resetFilters = () => {
+    setSearchTerm("");
+    setCategoryFilter("all");
+    setLanguageFilter("all");
+    setStatusFilter("all");
+  };
+
+  // Delete article
   const handleDeleteArticle = async () => {
-    if (!articleToDelete) return;
+    if (!selectedArticle) return;
     
     try {
-      await deleteArticle(articleToDelete.slug);
+      await deleteArticle(selectedArticle.slug);
       
-      // Update local state
-      const updatedArticles = articles.filter(a => a.id !== articleToDelete.id);
-      setArticles(updatedArticles);
-      setFilteredArticles(updatedArticles);
-      
+      setArticles(prev => prev.filter(a => a.id !== selectedArticle.id));
       toast({
         title: t("admin.articleDeleted"),
-        description: t("admin.articleDeletedDescription"),
+        description: t("admin.articleDeletedSuccess"),
       });
       
-      setArticleToDelete(null);
+      setSelectedArticle(null);
     } catch (error) {
       console.error("Error deleting article:", error);
       toast({
@@ -169,33 +169,30 @@ export default function ArticlesAdmin() {
     }
   };
 
-  // Reset all filters
-  const resetFilters = () => {
-    setSearchTerm("");
-    setCategoryFilter("all");
-    setLanguageFilter("all");
-    setStatusFilter("all");
-  };
-
-  // Get the article title in the current language or fallback
-  const getArticleTitle = (article: any) => {
-    if (!article.translations) return "Untitled";
-    
-    // Try current language, then English, then first available
-    const translation = 
-      article.translations[language] || 
-      article.translations.en || 
-      article.translations[Object.keys(article.translations)[0]];
-    
-    return translation?.title || "Untitled";
-  };
-
   // Format date
   const formatDate = (timestamp: any) => {
     if (!timestamp) return "-";
     
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleDateString();
+    try {
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      return date.toLocaleDateString();
+    } catch {
+      return "-";
+    }
+  };
+
+  // Get article title in current language
+  const getArticleTitle = (article: any) => {
+    if (!article.translations) return "Untitled";
+    
+    const currentLang = article.translations[language];
+    const englishLang = article.translations.en;
+    const firstLang = article.availableLanguages && article.availableLanguages.length > 0
+      ? article.translations[article.availableLanguages[0]]
+      : null;
+      
+    const translation = currentLang || englishLang || firstLang;
+    return translation?.title || "Untitled";
   };
 
   return (
@@ -204,120 +201,126 @@ export default function ArticlesAdmin() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">{t("admin.articles")}</h1>
-            <p className="text-muted-foreground">{t("admin.articlesDescription")}</p>
+            <p className="text-muted-foreground">Manage your articles</p>
           </div>
+          
           <Button asChild>
             <Link href="/admin/articles/create">
               <Plus className="mr-2 h-4 w-4" />
-              {t("admin.createArticle")}
+              Create Article
             </Link>
           </Button>
         </div>
-        
+
+        {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("admin.filterArticles")}</CardTitle>
-            <CardDescription>{t("admin.filterArticlesDescription")}</CardDescription>
+            <CardTitle>Filter Articles</CardTitle>
+            <CardDescription>Filter articles by category, language, or status</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <div className="relative w-full md:w-auto md:flex-1">
+            <div className="flex flex-col space-y-4">
+              {/* Search */}
+              <div className="flex-1 relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder={t("admin.searchArticles")}
+                  placeholder="Search articles..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-8"
                 />
               </div>
-            </div>
-            
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="w-full md:w-48">
-                <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value)}>
+              
+              {/* Filter controls */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Category filter */}
+                <Select 
+                  value={categoryFilter} 
+                  onValueChange={setCategoryFilter}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("admin.filterByCategory")} />
+                    <SelectValue placeholder="Filter by category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">
-                      {t("admin.allCategories")}
-                    </SelectItem>
-                    {Array.from(categories).map((category) => (
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {Array.from(categories).map(category => (
                       <SelectItem key={category} value={category}>
-                        {t(`categories.${category}`, { defaultValue: category })}
+                        {category}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              
-              <div className="w-full md:w-40">
-                <Select value={languageFilter} onValueChange={(value) => setLanguageFilter(value)}>
+                
+                {/* Language filter */}
+                <Select 
+                  value={languageFilter} 
+                  onValueChange={setLanguageFilter}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("admin.filterByLanguage")} />
+                    <SelectValue placeholder="Filter by language" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">
-                      {t("admin.allLanguages")}
-                    </SelectItem>
+                    <SelectItem value="all">All Languages</SelectItem>
                     <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="ar">العربية</SelectItem>
                     <SelectItem value="fr">Français</SelectItem>
                     <SelectItem value="es">Español</SelectItem>
                     <SelectItem value="de">Deutsch</SelectItem>
-                    <SelectItem value="ar">العربية</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              
-              <div className="w-full md:w-40">
-                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
+                
+                {/* Status filter */}
+                <Select 
+                  value={statusFilter} 
+                  onValueChange={setStatusFilter}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("admin.filterByStatus")} />
+                    <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">
-                      {t("admin.allStatuses")}
-                    </SelectItem>
-                    <SelectItem value="published">
-                      {t("admin.published")}
-                    </SelectItem>
-                    <SelectItem value="draft">
-                      {t("admin.draft")}
-                    </SelectItem>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
                   </SelectContent>
                 </Select>
+                
+                {/* Reset filters */}
+                <Button 
+                  variant="outline" 
+                  onClick={resetFilters}
+                  className="gap-2"
+                >
+                  <FilterX className="h-4 w-4" />
+                  Reset Filters
+                </Button>
               </div>
-              
-              <Button variant="outline" onClick={resetFilters} className="gap-2">
-                <FilterX className="h-4 w-4" />
-                {t("admin.resetFilters")}
-              </Button>
             </div>
           </CardContent>
         </Card>
-        
+
         {/* Articles Table */}
         <Card>
           <CardContent className="p-0">
             <Table>
-              <TableCaption>{t("admin.articleCount", { count: filteredArticles.length })}</TableCaption>
+              <TableCaption>{`${filteredArticles.length} articles`}</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("admin.title")}</TableHead>
-                  <TableHead>{t("admin.category")}</TableHead>
-                  <TableHead>{t("admin.languages")}</TableHead>
-                  <TableHead>{t("admin.status")}</TableHead>
-                  <TableHead>{t("admin.dateCreated")}</TableHead>
-                  <TableHead className="text-right">{t("admin.actions")}</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Languages</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
+              
               <TableBody>
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-6">
                       <div className="flex flex-col items-center gap-2">
                         <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                        <span>{t("admin.loading")}</span>
+                        <span>Loading...</span>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -326,23 +329,19 @@ export default function ArticlesAdmin() {
                     <TableCell colSpan={6} className="text-center py-8">
                       <div className="flex flex-col items-center gap-3">
                         <FileText className="h-10 w-10 text-muted-foreground" />
-                        <p className="font-medium">{t("admin.noArticlesFound")}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {searchTerm || categoryFilter !== "all" || languageFilter !== "all" || statusFilter !== "all" 
-                            ? t("admin.noArticlesWithFilters") 
-                            : t("admin.noArticlesYet")}
+                        <p className="font-medium">
+                          {(searchTerm || categoryFilter !== "all" || languageFilter !== "all" || statusFilter !== "all")
+                            ? "No articles found"
+                            : "No articles yet"}
                         </p>
-                        {searchTerm || categoryFilter !== "all" || languageFilter !== "all" || statusFilter !== "all" ? (
-                          <Button variant="outline" size="sm" onClick={resetFilters}>
-                            {t("admin.resetFilters")}
-                          </Button>
+                        {(searchTerm || categoryFilter !== "all" || languageFilter !== "all" || statusFilter !== "all") ? (
+                          <p className="text-sm text-muted-foreground">
+                            Try a different filter or search term
+                          </p>
                         ) : (
-                          <Button asChild size="sm">
-                            <Link href="/admin/articles/create">
-                              <Plus className="mr-2 h-4 w-4" />
-                              {t("admin.createArticle")}
-                            </Link>
-                          </Button>
+                          <p className="text-sm text-muted-foreground">
+                            Create your first article to get started
+                          </p>
                         )}
                       </div>
                     </TableCell>
@@ -350,91 +349,76 @@ export default function ArticlesAdmin() {
                 ) : (
                   filteredArticles.map((article) => (
                     <TableRow key={article.id}>
-                      <TableCell className="font-medium">
-                        {getArticleTitle(article)}
-                      </TableCell>
+                      <TableCell className="font-medium">{getArticleTitle(article)}</TableCell>
                       <TableCell>
-                        {article.category ? t(`categories.${article.category}`, { defaultValue: article.category }) : "-"}
+                        {article.category || "-"}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {article.availableLanguages?.map((lang: string) => (
-                            <Badge key={lang} variant="outline" className="text-xs">
+                            <Badge key={lang} variant="outline">
                               {lang.toUpperCase()}
                             </Badge>
-                          )) || "-"}
+                          ))}
                         </div>
                       </TableCell>
                       <TableCell>
                         {article.draft ? (
-                          <Badge variant="outline" className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-500">
-                            {t("admin.draft")}
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-500">
+                            Draft
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-500">
-                            {t("admin.published")}
+                          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-500">
+                            Published
                           </Badge>
                         )}
                       </TableCell>
                       <TableCell>{formatDate(article.createdAt)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <span className="sr-only">{t("admin.openMenu")}</span>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>{t("admin.actions")}</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem
-                                    className="text-red-600 dark:text-red-400 cursor-pointer"
-                                    onSelect={(e) => {
-                                      e.preventDefault();
-                                      setArticleToDelete(article);
-                                    }}
-                                  >
-                                    {t("admin.delete")}
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>{t("admin.confirmDelete")}</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      {t("admin.deleteArticleConfirmText")}
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>{t("admin.cancel")}</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      className="bg-red-600 text-white hover:bg-red-700"
-                                      onClick={handleDeleteArticle}
-                                    >
-                                      {t("admin.delete")}
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                          
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="ghost" size="icon" asChild>
                             <Link href={`/article/${article.slug}`}>
-                              <span className="sr-only">{t("admin.view")}</span>
+                              <span className="sr-only">View</span>
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
                           
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" asChild>
+                          <Button variant="ghost" size="icon" asChild>
                             <Link href={`/admin/articles/edit/${article.slug}`}>
-                              <span className="sr-only">{t("admin.edit")}</span>
+                              <span className="sr-only">Edit</span>
                               <PenSquare className="h-4 w-4" />
                             </Link>
                           </Button>
+                          
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => setSelectedArticle(article)}
+                              >
+                                <span className="sr-only">Delete</span>
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete this article? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={handleDeleteArticle}
+                                  className="bg-red-600 text-white hover:bg-red-700"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>
