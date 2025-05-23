@@ -19,6 +19,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { FcGoogle } from "react-icons/fc";
+import { BsApple } from "react-icons/bs";
 
 // Form validation schema
 const formSchema = z.object({
@@ -30,7 +33,7 @@ const formSchema = z.object({
 
 export default function Login() {
   const { t } = useLanguage();
-  const { login } = useAuth();
+  const { login, loginWithGoogle, loginWithApple } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
@@ -57,6 +60,49 @@ export default function Login() {
       setLocation("/");
     } catch (error) {
       console.error("Login error:", error);
+      toast({
+        title: t("error.login"),
+        description: error instanceof Error ? error.message : t("error.generic"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Social login handlers
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      await loginWithGoogle();
+      toast({
+        title: t("auth.loginSuccess"),
+        description: t("auth.welcomeBack"),
+      });
+      setLocation("/");
+    } catch (error) {
+      console.error("Google login error:", error);
+      toast({
+        title: t("error.login"),
+        description: error instanceof Error ? error.message : t("error.generic"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleAppleLogin = async () => {
+    setIsLoading(true);
+    try {
+      await loginWithApple();
+      toast({
+        title: t("auth.loginSuccess"),
+        description: t("auth.welcomeBack"),
+      });
+      setLocation("/");
+    } catch (error) {
+      console.error("Apple login error:", error);
       toast({
         title: t("error.login"),
         description: error instanceof Error ? error.message : t("error.generic"),
@@ -143,6 +189,40 @@ export default function Login() {
               </Button>
             </form>
           </Form>
+          
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                {t("auth.orContinueWith")}
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-2">
+            <Button 
+              variant="outline" 
+              type="button" 
+              className="w-full flex items-center gap-2"
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+            >
+              <FcGoogle className="h-5 w-5" />
+              Google
+            </Button>
+            <Button 
+              variant="outline" 
+              type="button" 
+              className="w-full flex items-center gap-2"
+              onClick={handleAppleLogin}
+              disabled={isLoading}
+            >
+              <BsApple className="h-5 w-5" />
+              Apple
+            </Button>
+          </div>
         </CardContent>
         <CardFooter className="flex flex-col">
           <div className="text-center text-sm">

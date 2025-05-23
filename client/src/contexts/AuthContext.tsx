@@ -94,6 +94,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      await signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithApple = async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
+      await signInWithApple();
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value = {
     user,
     userData,
@@ -102,7 +128,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     error,
     login,
     logout,
-    register
+    register,
+    loginWithGoogle,
+    loginWithApple
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
