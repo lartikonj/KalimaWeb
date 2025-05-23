@@ -239,39 +239,19 @@ export async function getCategories(): Promise<FirestoreCategory[]> {
 
 export async function getCategoryBySlug(slug: string): Promise<FirestoreCategory | null> {
   try {
-    console.log("Fetching category with slug:", slug);
-    
-    // First try with the exact match
     const categoriesSnapshot = await getDocs(query(
       collection(db, "categories"), 
       where("slug", "==", slug)
     ));
     
     if (categoriesSnapshot.empty) {
-      console.log("No category found with exact slug match:", slug);
-      
-      // Log all available categories for debugging
-      const allCategoriesSnapshot = await getDocs(collection(db, "categories"));
-      console.log("All available categories:", allCategoriesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        slug: doc.data().slug
-      })));
-      
       return null;
     }
     
     const categoryDoc = categoriesSnapshot.docs[0];
-    const categoryData = categoryDoc.data();
-    console.log("Found category:", {
-      id: categoryDoc.id,
-      slug: categoryData.slug,
-      titles: categoryData.titles,
-      subcategories: categoryData.subcategories
-    });
-    
     return {
       id: categoryDoc.id,
-      ...categoryData
+      ...categoryDoc.data()
     } as FirestoreCategory;
   } catch (error) {
     console.error("Error fetching category by slug:", error);
