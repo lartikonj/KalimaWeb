@@ -103,11 +103,11 @@ export default function AdminArticles() {
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(article => {
-        // Check if any translation contains the search term
-        return Object.values(article.translations).some(
+        // Check if any translation contains the search term, with null check
+        return Object.values(article.translations || {}).some(
           translation => 
-            translation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            translation.summary.toLowerCase().includes(searchTerm.toLowerCase())
+            (translation?.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (translation?.summary || '').toLowerCase().includes(searchTerm.toLowerCase())
         );
       });
     }
@@ -115,9 +115,9 @@ export default function AdminArticles() {
     // Filter by category
     if (selectedCategory) {
       filtered = filtered.filter(article => {
-        // Check if any translation has the selected category
-        return Object.values(article.translations).some(
-          translation => translation.category === selectedCategory
+        // Check if any translation has the selected category, with null check
+        return Object.values(article.translations || {}).some(
+          translation => translation?.category === selectedCategory
         );
       });
     }
@@ -125,13 +125,13 @@ export default function AdminArticles() {
     // Filter by language
     if (selectedLanguage && selectedLanguage !== "all") {
       filtered = filtered.filter(article => 
-        article.availableLanguages.includes(selectedLanguage)
+        article.availableLanguages && article.availableLanguages.includes(selectedLanguage)
       );
     }
     
     // Filter by draft status
     if (showDrafts !== null) {
-      filtered = filtered.filter(article => article.draft === showDrafts);
+      filtered = filtered.filter(article => article?.draft === showDrafts);
     }
     
     setFilteredArticles(filtered);
@@ -157,22 +157,30 @@ export default function AdminArticles() {
   
   // Get article title based on current language
   const getArticleTitle = (article: Article) => {
-    const translation = 
-      article.translations[language] || 
-      article.translations["en"] || 
-      article.translations[article.availableLanguages[0]];
+    if (!article.translations) return "Untitled";
     
-    return translation ? translation.title : "Untitled";
+    const currentLang = article.translations[language];
+    const englishLang = article.translations["en"];
+    const firstLang = article.availableLanguages && article.availableLanguages.length > 0 
+      ? article.translations[article.availableLanguages[0]] 
+      : null;
+    
+    const translation = currentLang || englishLang || firstLang;
+    return translation?.title || "Untitled";
   };
   
   // Get article category based on current language
   const getArticleCategory = (article: Article) => {
-    const translation = 
-      article.translations[language] || 
-      article.translations["en"] || 
-      article.translations[article.availableLanguages[0]];
+    if (!article.translations) return "";
     
-    return translation ? translation.category : "";
+    const currentLang = article.translations[language];
+    const englishLang = article.translations["en"];
+    const firstLang = article.availableLanguages && article.availableLanguages.length > 0 
+      ? article.translations[article.availableLanguages[0]] 
+      : null;
+    
+    const translation = currentLang || englishLang || firstLang;
+    return translation?.category || "";
   };
   
   // Clear filters
@@ -360,7 +368,7 @@ export default function AdminArticles() {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
-                          {article.availableLanguages.map(lang => (
+                          {article.availableLanguages?.map(lang => (
                             <Badge 
                               key={lang} 
                               variant="outline" 
