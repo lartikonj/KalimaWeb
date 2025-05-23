@@ -393,8 +393,18 @@ export async function createArticle(articleData: {
 }): Promise<FirestoreArticle> {
   try {
     // Validate required fields to prevent "undefined" values
+    console.log("Validating article data:", {
+      slug: articleData.slug,
+      slugType: typeof articleData.slug,
+      slugTrimmed: articleData.slug ? articleData.slug.trim() : null
+    });
+    
     if (!articleData.slug) {
       throw new Error("Article slug is required");
+    }
+    
+    if (articleData.slug.trim() === '') {
+      throw new Error("Article slug cannot be empty")
     }
     
     if (!articleData.category) {
