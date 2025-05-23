@@ -65,7 +65,7 @@ export default function AdminArticles() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedLanguage, setSelectedLanguage] = useState<Language | "">("");
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | "all">("all");
   const [showDrafts, setShowDrafts] = useState<boolean | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
@@ -123,7 +123,7 @@ export default function AdminArticles() {
     }
     
     // Filter by language
-    if (selectedLanguage) {
+    if (selectedLanguage && selectedLanguage !== "all") {
       filtered = filtered.filter(article => 
         article.availableLanguages.includes(selectedLanguage)
       );
@@ -262,7 +262,7 @@ export default function AdminArticles() {
             {/* Language filter */}
             <Select 
               value={selectedLanguage} 
-              onValueChange={(value) => setSelectedLanguage(value as Language | "")}
+              onValueChange={(value) => setSelectedLanguage(value as Language | "all")}
             >
               <SelectTrigger>
                 <SelectValue placeholder={t("admin.filterByLanguage")} />
