@@ -12,10 +12,18 @@ interface Article {
   translations: Record<string, {
     title: string;
     summary: string;
-    content: Array<{type: string; text: string}>;
+    keywords?: string[];
+    content: Array<{
+      title: string;
+      paragraph: string;
+      references?: string[];
+    }>;
   }>;
   createdAt: any; // Firestore timestamp
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
+  featured?: boolean;
+  popular?: boolean;
 }
 
 interface ArticleGridProps {
@@ -67,10 +75,13 @@ export function ArticleGrid({ articles, isLoading = false, emptyMessage }: Artic
             category={article.category}
             subcategory={article.subcategory}
             imageUrl={article.imageUrl}
+            imageUrls={article.imageUrls}
             availableLanguages={article.availableLanguages}
             translations={article.translations}
             createdAt={article.createdAt}
             isFavorite={isFavorite}
+            featured={article.featured}
+            popular={article.popular}
           />
         );
       })}

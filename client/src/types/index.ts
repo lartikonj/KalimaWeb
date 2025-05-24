@@ -8,7 +8,12 @@ export interface ArticleTranslation {
   summary: string;
   category: string;
   subcategory: string;
-  content: string[];
+  keywords?: string[];
+  content: Array<{
+    title: string;
+    paragraph: string;
+    references?: string[];
+  }>;
 }
 
 export interface Article {
@@ -17,8 +22,17 @@ export interface Article {
   translations: Record<string, ArticleTranslation>;
   availableLanguages: string[];
   createdAt: any; // Firestore timestamp
-  imageUrl: string;
+  imageUrl?: string; // Legacy single image
+  imageUrls?: string[]; // New multi-image support
+  imageDescriptions?: string[]; // Image accessibility descriptions
   draft: boolean;
+  featured?: boolean;
+  popular?: boolean;
+  author?: {
+    uid: string;
+    displayName: string;
+    photoURL?: string;
+  };
 }
 
 // User types

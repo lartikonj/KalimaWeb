@@ -126,9 +126,13 @@ export function ArticleCard({
       <div className="relative">
         <Link href={`/categories/${category}/${subcategory}/${slug}`}>
           <img
-            src={(imageUrls && imageUrls.length > 0) ? imageUrls[0] : (imageUrl || 'https://source.unsplash.com/featured/?education')}
+            src={(imageUrls && imageUrls.length > 0) ? imageUrls[0] : (imageUrl || 'https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop')}
             alt={displayTitle}
             className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+            onError={(e) => {
+              // Fallback to a static image if the source fails to load
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop';
+            }}
           />
         </Link>
         
