@@ -57,97 +57,99 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-primary-foreground border-t py-8 mt-12">
-      <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-lg font-bold mb-4">Kalima</h3>
-            <p className="text-muted-foreground text-sm">
-              A multilingual educational platform providing valuable resources
-              in multiple languages to support global learning.
-            </p>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/">
-                  <span className="text-sm hover:underline cursor-pointer">Home</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/categories">
-                  <span className="text-sm hover:underline cursor-pointer">Categories</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/favorites">
-                  <span className="text-sm hover:underline cursor-pointer">Favorites</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-bold mb-4">Information</h3>
-            <ul className="space-y-2">
-              {staticPages.map(page => (
-                <li key={page.id}>
-                  <Link href={`/page/${page.slug}`}>
-                    <span className="text-sm hover:underline cursor-pointer">
-                      {getPageTitle(page)}
-                    </span>
+    <footer className="bg-primary dark:bg-gray-900 text-white py-8 mt-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-center sm:text-left">
+            <div>
+              <h3 className="text-lg font-bold mb-4 text-white">Kalima</h3>
+              <p className="text-gray-300 text-sm">
+                A multilingual educational platform providing valuable resources
+                in multiple languages to support global learning.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-bold mb-4 text-white">Quick Links</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/">
+                    <span className="text-sm text-gray-300 hover:text-white hover:underline cursor-pointer transition-colors">Home</span>
                   </Link>
                 </li>
-              ))}
-            </ul>
+                <li>
+                  <Link href="/categories">
+                    <span className="text-sm text-gray-300 hover:text-white hover:underline cursor-pointer transition-colors">Categories</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/favorites">
+                    <span className="text-sm text-gray-300 hover:text-white hover:underline cursor-pointer transition-colors">Favorites</span>
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-bold mb-4 text-white">Information</h3>
+              <ul className="space-y-2">
+                {staticPages.map(page => (
+                  <li key={page.id}>
+                    <Link href={`/page/${page.slug}`}>
+                      <span className="text-sm text-gray-300 hover:text-white hover:underline cursor-pointer transition-colors">
+                        {getPageTitle(page)}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-bold mb-4 text-white">Languages</h3>
+              <ul className="space-y-2">
+                <li>
+                  <button 
+                    onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'en' })); }}
+                    className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors ${language === 'en' ? 'font-bold text-white' : ''}`}>
+                    English
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'ar' })); }}
+                    className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors ${language === 'ar' ? 'font-bold text-white' : ''}`}>
+                    العربية (Arabic)
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'fr' })); }}
+                    className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors ${language === 'fr' ? 'font-bold text-white' : ''}`}>
+                    Français (French)
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'es' })); }}
+                    className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors ${language === 'es' ? 'font-bold text-white' : ''}`}>
+                    Español (Spanish)
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'de' })); }}
+                    className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors ${language === 'de' ? 'font-bold text-white' : ''}`}>
+                    Deutsch (German)
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
           
-          <div>
-            <h3 className="text-lg font-bold mb-4">Languages</h3>
-            <ul className="space-y-2">
-              <li>
-                <button 
-                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'en' })); }}
-                  className={`text-sm hover:underline ${language === 'en' ? 'font-bold' : ''}`}>
-                  English
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'ar' })); }}
-                  className={`text-sm hover:underline ${language === 'ar' ? 'font-bold' : ''}`}>
-                  العربية (Arabic)
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'fr' })); }}
-                  className={`text-sm hover:underline ${language === 'fr' ? 'font-bold' : ''}`}>
-                  Français (French)
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'es' })); }}
-                  className={`text-sm hover:underline ${language === 'es' ? 'font-bold' : ''}`}>
-                  Español (Spanish)
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'de' })); }}
-                  className={`text-sm hover:underline ${language === 'de' ? 'font-bold' : ''}`}>
-                  Deutsch (German)
-                </button>
-              </li>
-            </ul>
+          <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
+            <p>© {currentYear} Kalima Educational Platform. All rights reserved.</p>
           </div>
-        </div>
-        
-        <div className="border-t mt-8 pt-6 text-center text-sm text-muted-foreground">
-          <p>© {currentYear} Kalima Educational Platform. All rights reserved.</p>
         </div>
       </div>
     </footer>
