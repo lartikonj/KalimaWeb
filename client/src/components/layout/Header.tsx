@@ -34,7 +34,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-neutral-800 shadow-sm transition-theme">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-primary/5 via-background to-secondary/5 dark:from-primary/10 dark:via-background dark:to-accent/10 backdrop-blur-sm shadow-sm transition-theme">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -45,7 +45,7 @@ export default function Header() {
                 <path d="M2 12L12 16L22 12" fill="currentColor"/>
                 <path d="M2 16L12 20L22 16" fill="currentColor"/>
               </svg>
-              <span className={`ml-2 text-xl font-bold text-primary-600 dark:text-primary-400 ${isRTL ? 'mr-2 ml-0' : 'ml-2'}`}>
+              <span className={`ml-2 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary dark:from-primary dark:to-accent ${isRTL ? 'mr-2 ml-0' : 'ml-2'}`}>
                 Kalima
               </span>
             </Link>

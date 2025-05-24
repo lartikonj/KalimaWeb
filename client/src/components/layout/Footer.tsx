@@ -70,13 +70,15 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-primary dark:bg-gray-900 text-white py-8 mt-12">
+    <footer className="bg-gradient-to-r from-primary to-secondary dark:from-primary/80 dark:to-accent/80 text-white py-8 mt-12">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Main intro content for all screen sizes */}
           <div className="text-center mb-8">
-            <h3 className="text-xl font-bold mb-4 text-white">Kalima</h3>
-            <p className="text-gray-300 text-sm max-w-2xl mx-auto">
+            <h3 className="text-xl font-bold mb-4 text-white">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-200">Kalima</span>
+            </h3>
+            <p className="text-gray-100 text-sm max-w-2xl mx-auto backdrop-blur-sm bg-white/10 rounded-lg p-3">
               A multilingual educational platform providing valuable resources
               in multiple languages to support global learning.
             </p>
