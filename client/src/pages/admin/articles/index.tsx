@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getArticles, deleteArticle } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+import { getDocs, collection } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
 import {
   Table,
@@ -68,18 +70,22 @@ export default function ArticlesPage() {
     const fetchArticles = async () => {
       setIsLoading(true);
       try {
-        // Get all articles without any filtering to ensure we see everything in admin
-        const data = await getArticles();
-        console.log("Loaded articles:", data); // Debug log
+        // Get all articles directly from the API function
+        const allArticles = await getArticles();
+        console.log("Loaded articles:", allArticles);
+        
+        if (allArticles.length === 0) {
+          console.log("No articles found. You may need to create some articles first.");
+        }
         
         // Extract unique categories
         const uniqueCategories = new Set<string>();
-        data.forEach(article => {
+        allArticles.forEach((article: any) => {
           if (article.category) {
             uniqueCategories.add(article.category);
           }
           
-          // Also check categories in translations
+          // Also check translations for categories
           if (article.translations) {
             Object.values(article.translations).forEach((translation: any) => {
               if (translation.category) {
@@ -89,14 +95,15 @@ export default function ArticlesPage() {
           }
         });
         
+        console.log("Found categories:", Array.from(uniqueCategories));
         setCategories(uniqueCategories);
-        setArticles(data);
-        setFilteredArticles(data);
+        setArticles(allArticles);
+        setFilteredArticles(allArticles);
       } catch (error) {
         console.error("Error fetching articles:", error);
         toast({
-          title: t("admin.error"),
-          description: t("admin.errorFetchingArticles"),
+          title: "Error Loading Articles",
+          description: "There was a problem fetching your articles. Please try again.",
           variant: "destructive"
         });
       } finally {
@@ -105,7 +112,7 @@ export default function ArticlesPage() {
     };
     
     fetchArticles();
-  }, [t]);
+  }, []);
 
   // Apply filters
   useEffect(() => {
