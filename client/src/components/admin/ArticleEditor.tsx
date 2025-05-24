@@ -69,7 +69,7 @@ import { cn } from "@/lib/utils";
 
 // Schema for the article content section
 const contentSectionSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().default("Content"), // Keep title in schema but not in UI
   paragraph: z.string().min(1, "Content is required"),
   references: z.array(z.string()).optional(),
 });
@@ -230,7 +230,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
 
   // Add a new content section to the active language
   const addContentSection = () => {
-    append({ title: "", paragraph: "", references: [] });
+    append({ title: "Content", paragraph: "", references: [] });
   };
 
   // Remove a language from available languages and its translations
@@ -1318,19 +1318,11 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                       </Button>
                     </div>
                     
-                    {/* Section Title */}
-                    <FormField
-                      control={form.control}
-                      name={`translations.${activeLanguage}.content.${index}.title`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("admin.sectionTitle")}</FormLabel>
-                          <FormControl>
-                            <Input placeholder={t("admin.sectionTitlePlaceholder")} {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                    {/* Hidden Section Title - auto-filled with "Content" */}
+                    <input 
+                      type="hidden" 
+                      {...form.register(`translations.${activeLanguage}.content.${index}.title`)} 
+                      value="Content" 
                     />
                     
                     {/* Section Content with Markdown Support */}
