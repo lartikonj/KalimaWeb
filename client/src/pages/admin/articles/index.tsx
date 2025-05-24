@@ -4,7 +4,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { deleteArticle } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
-import { getDocs, collection, DocumentData } from "firebase/firestore";
+import { getDocs, collection, DocumentData, query, orderBy } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -68,58 +68,60 @@ export default function ArticlesPage() {
   // Get toast hook
   const { toast } = useToast();
   
-  // Load articles directly from Firestore
+  // Load articles directly from Firestore with improved reliability
   useEffect(() => {
     const fetchArticlesDirectly = async () => {
       setIsLoading(true);
       
       try {
-        // Get articles directly from Firestore collection
-        const articlesSnapshot = await getDocs(collection(db, "articles"));
-        console.log("Articles snapshot size:", articlesSnapshot.size);
+        // Get articles directly from Firestore collection using a query for better organization
+        const articlesQuery = query(collection(db, "articles"));
+        const articlesSnapshot = await getDocs(articlesQuery);
+        
+        console.log("Articles found in Firestore:", articlesSnapshot.size);
         
         if (articlesSnapshot.empty) {
           console.log("No articles found in Firestore. You may need to create some articles first.");
+          setArticles([]);
+          setFilteredArticles([]);
+          setIsLoading(false);
+          return;
         }
         
-        // Convert to array of article data
+        // Convert to array of article data with more detailed logging
         const articlesData = articlesSnapshot.docs.map(doc => {
           const data = doc.data() as DocumentData;
-          console.log("Article document data:", doc.id, data.slug, data);
-          return {
+          const article = {
             id: doc.id,
             ...data
           };
+          console.log(`Article loaded: ${doc.id} (${data.slug}) - Category: ${data.category || "none"}, Languages: ${data.availableLanguages?.join(", ") || "none"}`);
+          return article;
         });
         
-        console.log("Articles loaded from Firestore:", articlesData.length);
+        console.log(`Successfully loaded ${articlesData.length} articles from Firestore`);
         
-        // Extract unique categories
+        // Extract unique categories with more reliable detection
         const uniqueCategories = new Set<string>();
         articlesData.forEach((article: any) => {
-          if (article.category) {
+          // Add main category if present
+          if (article.category && typeof article.category === 'string') {
             uniqueCategories.add(article.category);
-          }
-          
-          // Also check translations for categories
-          if (article.translations) {
-            Object.entries(article.translations).forEach(([lang, translation]: [string, any]) => {
-              if (translation && translation.category) {
-                uniqueCategories.add(translation.category);
-              }
-            });
           }
         });
         
+        // Log loaded categories for debugging
         console.log("Found categories:", Array.from(uniqueCategories));
+        
+        // Update state with loaded data
         setCategories(uniqueCategories);
         setArticles(articlesData);
         setFilteredArticles(articlesData);
       } catch (error) {
-        console.error("Error fetching articles directly from Firestore:", error);
+        console.error("Error fetching articles from Firestore:", error);
         toast({
           title: "Error Loading Articles",
-          description: "There was a problem fetching your articles from the database. Please try again.",
+          description: "There was a problem fetching your articles. Please try again or check your connection.",
           variant: "destructive"
         });
       } finally {
