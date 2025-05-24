@@ -13,11 +13,10 @@ interface CategoryCardProps {
   name: string;
   slug: string;
   color: string;
-  description?: string;
   subcategories: SubcategoryProps[];
 }
 
-export function CategoryCard({ name, slug, color, description, subcategories }: CategoryCardProps) {
+export function CategoryCard({ name, slug, color, subcategories }: CategoryCardProps) {
   const { t, isRTL } = useLanguage();
   
   // Generate dynamic classes based on the color
@@ -76,9 +75,6 @@ export function CategoryCard({ name, slug, color, description, subcategories }: 
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <CardHeader className={`p-4 ${getHeaderClass()}`}>
         <h2 className={`text-xl font-bold ${getTitleClass()}`}>{name}</h2>
-        {description && (
-          <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{description}</p>
-        )}
       </CardHeader>
       <CardContent className="p-4">
         <ul className="space-y-2">
