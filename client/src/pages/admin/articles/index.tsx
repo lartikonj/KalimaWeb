@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { deleteArticle, getArticles, getCategories } from "@/lib/firebase";
+import { deleteArticle } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
-import { getDocs, collection, DocumentData, query, orderBy } from "firebase/firestore";
+import { getDocs, collection, DocumentData, query, orderBy, limit } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -68,72 +68,62 @@ export default function ArticlesPage() {
   // Get toast hook
   const { toast } = useToast();
   
-  // Load articles and categories directly from Firebase
+  // Simple and direct approach to fetch all articles from Firestore
   useEffect(() => {
-    const fetchAllData = async () => {
+    const fetchAllArticles = async () => {
       setIsLoading(true);
       
       try {
-        // Use the firebase.ts functions to get articles and categories
-        const [articlesData, categoriesData] = await Promise.all([
-          getArticles(), // Use the existing function from firebase.ts
-          getCategories() // Use the existing function from firebase.ts
-        ]);
+        // Get all articles with a simple, direct query
+        const queryRef = query(collection(db, "articles"), limit(100)); // Limit to 100 articles max
+        const snapshot = await getDocs(queryRef);
         
-        console.log("Articles loaded from Firebase:", articlesData.length);
-        console.log("Categories loaded from Firebase:", categoriesData.length);
+        // Direct debugging output
+        console.log(`Found ${snapshot.size} articles in Firestore database`);
         
-        if (articlesData.length === 0) {
-          console.log("No articles found. Please create some articles first.");
-          toast({
-            title: "No Articles Found",
-            description: "Your article collection is empty. Create your first article to get started."
-          });
+        // Handle empty case
+        if (snapshot.empty) {
+          console.log("No articles found in database");
+          setArticles([]);
+          setFilteredArticles([]);
+          setIsLoading(false);
+          return;
         }
         
-        // Log each article for debugging
-        articlesData.forEach((article, index) => {
-          console.log(`Article ${index + 1}: ${article.slug} (${article.id})`, 
-            `Category: ${article.category || "none"}`,
-            `Subcategory: ${article.subcategory || "none"}`,
-            `Languages: ${article.availableLanguages?.join(", ") || "none"}`
-          );
+        // Convert Firestore documents to article objects and log each one
+        const allArticles = snapshot.docs.map(doc => {
+          const data = doc.data();
+          console.log(`Article ID: ${doc.id}, Slug: ${data.slug || "no-slug"}`);
+          return {
+            id: doc.id,
+            ...(data as any)
+          };
         });
         
-        // Extract unique categories
-        const uniqueCategories = new Set<string>();
-        const uniqueSubcategories = new Map<string, Set<string>>();
+        // Simple display of first article for debugging
+        if (allArticles.length > 0) {
+          console.log("First article data:", JSON.stringify(allArticles[0], null, 2));
+        }
         
-        // Collect categories and subcategories from articles
-        articlesData.forEach((article: any) => {
-          if (article.category) {
-            uniqueCategories.add(article.category);
-            
-            // Track subcategories by their parent category
-            if (article.subcategory) {
-              if (!uniqueSubcategories.has(article.category)) {
-                uniqueSubcategories.set(article.category, new Set());
-              }
-              uniqueSubcategories.get(article.category)!.add(article.subcategory);
-            }
+        // Find all unique categories from articles
+        const categories = new Set<string>();
+        allArticles.forEach((article: any) => {
+          if (article.category && typeof article.category === 'string') {
+            categories.add(article.category);
           }
         });
         
-        // Log found categories and subcategories
-        console.log("Found categories:", Array.from(uniqueCategories));
-        uniqueSubcategories.forEach((subcats, category) => {
-          console.log(`Category '${category}' has subcategories:`, Array.from(subcats));
-        });
+        // Update state with all articles and categories
+        setArticles(allArticles);
+        setFilteredArticles(allArticles); // Show all by default
+        setCategories(categories);
         
-        // Update state with loaded data
-        setCategories(uniqueCategories);
-        setArticles(articlesData);
-        setFilteredArticles(articlesData);
+        console.log(`Loaded ${allArticles.length} articles and ${categories.size} categories`);
       } catch (error) {
-        console.error("Error fetching data from Firebase:", error);
+        console.error("Error loading articles:", error);
         toast({
           title: "Error Loading Content",
-          description: "There was a problem fetching your articles and categories. Please try again.",
+          description: "There was a problem fetching your articles. Please try again.",
           variant: "destructive"
         });
       } finally {
@@ -141,12 +131,16 @@ export default function ArticlesPage() {
       }
     };
     
-    fetchAllData();
+    fetchAllArticles();
   }, [toast]);
 
   // Apply filters
   useEffect(() => {
     let filtered = [...articles];
+    
+    // Debug what we're working with
+    console.log("Current article count:", articles.length);
+    console.log("First article sample:", articles[0]);
     
     // Apply search filter
     if (searchTerm) {
@@ -182,6 +176,7 @@ export default function ArticlesPage() {
       filtered = filtered.filter(article => article.draft === isDraft);
     }
     
+    console.log("Filtered articles count:", filtered.length);
     setFilteredArticles(filtered);
   }, [articles, searchTerm, categoryFilter, languageFilter, statusFilter]);
 
