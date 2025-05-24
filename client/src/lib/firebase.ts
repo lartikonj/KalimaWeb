@@ -770,7 +770,7 @@ export async function getStaticPages(): Promise<FirestoreStaticPage[]> {
 export async function getStaticPageBySlug(slug: string): Promise<FirestoreStaticPage | null> {
   try {
     const pagesSnapshot = await getDocs(query(
-      collection(db, "pages"), 
+      collection(db, "staticPages"), 
       where("slug", "==", slug)
     ));
     
@@ -791,7 +791,12 @@ export async function getStaticPageBySlug(slug: string): Promise<FirestoreStatic
 
 export async function createStaticPage(pageData: {
   slug: string;
-  translations: Record<string, string>;
+  availableLanguages: string[];
+  translations: Record<string, {
+    title: string;
+    content: string;
+    keywords?: string[];
+  }>;
 }): Promise<FirestoreStaticPage> {
   try {
     // Check if slug already exists
@@ -800,13 +805,18 @@ export async function createStaticPage(pageData: {
       throw new Error(`Static page with slug ${pageData.slug} already exists`);
     }
     
-    // Add the page to Firestore
-    const docRef = await addDoc(collection(db, "pages"), pageData);
+    // Add the page to Firestore with a timestamp
+    const data = {
+      ...pageData,
+      updatedAt: Timestamp.now()
+    };
+    
+    const docRef = await addDoc(collection(db, "staticPages"), data);
     
     // Return the created page with its ID
     return {
       id: docRef.id,
-      ...pageData
+      ...data
     } as FirestoreStaticPage;
   } catch (error) {
     console.error("Error creating static page:", error);
@@ -815,17 +825,34 @@ export async function createStaticPage(pageData: {
 }
 
 export async function updateStaticPage(pageId: string, pageData: {
-  slug: string;
-  translations: Record<string, string>;
+  slug?: string;
+  availableLanguages?: string[];
+  translations?: Record<string, {
+    title: string;
+    content: string;
+    keywords?: string[];
+  }>;
 }): Promise<FirestoreStaticPage> {
   try {
-    // Update the page document
-    await updateDoc(doc(db, "pages", pageId), pageData);
+    // Update the page document with current timestamp
+    const updateData = {
+      ...pageData,
+      updatedAt: Timestamp.now()
+    };
     
-    // Return the updated page with its ID
+    await updateDoc(doc(db, "staticPages", pageId), updateData);
+    
+    // Get the full updated document
+    const updatedDocSnap = await getDoc(doc(db, "staticPages", pageId));
+    
+    if (!updatedDocSnap.exists()) {
+      throw new Error(`Static page with ID ${pageId} not found after update`);
+    }
+    
+    // Return the updated page
     return {
       id: pageId,
-      ...pageData
+      ...updatedDocSnap.data()
     } as FirestoreStaticPage;
   } catch (error) {
     console.error("Error updating static page:", error);
@@ -836,7 +863,7 @@ export async function updateStaticPage(pageId: string, pageData: {
 export async function deleteStaticPage(pageId: string): Promise<boolean> {
   try {
     // Delete the page document
-    await deleteDoc(doc(db, "pages", pageId));
+    await deleteDoc(doc(db, "staticPages", pageId));
     return true;
   } catch (error) {
     console.error("Error deleting static page:", error);
