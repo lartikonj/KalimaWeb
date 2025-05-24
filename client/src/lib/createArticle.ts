@@ -132,8 +132,11 @@ export async function createArticle(articleData: ArticleFormData) {
         }
         
         // Create a new object with all required fields to ensure proper type
+        // Force title to be a string, not undefined
+        const title = (item.title !== undefined) ? item.title : "Content";
+        
         return {
-          title: item.title || "Content",
+          title: title,
           paragraph: item.paragraph || "",
           references: item.references || []
         };

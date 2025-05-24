@@ -174,9 +174,22 @@ export function ArticleForm({
   };
 
   // Handle image selection
-  const handleSelectImage = (imageUrl: string) => {
+  const handleSelectImage = (imageUrl: string, altDescription: string = "") => {
     const currentImages = form.getValues().imageUrls || [];
+    const currentDescriptions = form.getValues().imageDescriptions || [];
+    
+    // Add the image URL
     form.setValue("imageUrls", [...currentImages, imageUrl]);
+    
+    // Add a corresponding description
+    const defaultDescription = altDescription || 
+      `Image ${currentImages.length + 1} for ${form.getValues().title || form.getValues().translations?.en?.title || 'article'}`;
+    form.setValue("imageDescriptions", [...currentDescriptions, defaultDescription]);
+    
+    toast({
+      title: t("admin.imageSearch.imageAdded") || "Image added successfully",
+      description: t("admin.imageSearch.descriptionAdded") || "Don't forget to add a meaningful description",
+    });
   };
 
   // Handle adding/removing languages
@@ -602,14 +615,34 @@ export function ArticleForm({
                         alt={`${t("admin.article.preview")} ${index + 1}`}
                         className="w-full h-40 object-cover rounded-md"
                       />
+                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/70">
+                        <FormField
+                          control={form.control}
+                          name={`imageDescriptions.${index}`}
+                          render={({ field }) => (
+                            <FormItem className="mb-0">
+                              <FormControl>
+                                <Input 
+                                  placeholder="Image description"
+                                  {...field}
+                                  className="text-xs h-8 bg-transparent text-white"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => {
                           const currentImages = [...form.getValues().imageUrls];
+                          const currentDescriptions = [...(form.getValues().imageDescriptions || [])];
                           currentImages.splice(index, 1);
+                          currentDescriptions.splice(index, 1);
                           form.setValue("imageUrls", currentImages);
+                          form.setValue("imageDescriptions", currentDescriptions);
                         }}
                         className="absolute top-2 right-2 bg-white dark:bg-gray-800"
                       >
