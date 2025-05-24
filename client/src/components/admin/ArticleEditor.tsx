@@ -566,7 +566,20 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     <FormItem>
                       <FormLabel>{t("admin.author")}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t("admin.authorPlaceholder")} {...field} />
+                        {/* Converting complex author object to string display for the input */}
+                        <Input 
+                          placeholder={t("admin.authorPlaceholder")} 
+                          value={field.value?.displayName || ""}
+                          onChange={(e) => {
+                            // Update just the displayName in the author object
+                            const currentAuthor = field.value || {};
+                            field.onChange({
+                              ...currentAuthor,
+                              displayName: e.target.value,
+                              uid: currentAuthor.uid || "system"
+                            });
+                          }}
+                        />
                       </FormControl>
                       <FormDescription>
                         {t("admin.authorDescription")}
@@ -724,7 +737,8 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                                   form.setValue(`translations.${lang}`, {
                                                     title: "",
                                                     summary: "",
-                                                    content: [{ title: "", paragraph: "", references: [] }],
+                                                    keywords: [],
+                                                    content: [{ title: "Introduction", paragraph: "", references: [] }],
                                                   });
                                                 }
                                               }
@@ -848,6 +862,35 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Keywords */}
+              <FormField
+                control={form.control}
+                name={`translations.${activeLanguage}.keywords`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("admin.keywords") || "Keywords"}</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="e-learning, education, online (comma separated)"
+                        value={Array.isArray(field.value) ? field.value.join(", ") : ""}
+                        onChange={(e) => {
+                          const keywordsText = e.target.value;
+                          const keywordsArray = keywordsText
+                            .split(",")
+                            .map(k => k.trim())
+                            .filter(k => k.length > 0);
+                          field.onChange(keywordsArray);
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {t("admin.keywordsDescription") || "Add SEO keywords separated by commas"}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
