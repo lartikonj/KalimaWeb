@@ -862,6 +862,15 @@ const translations = {
       "stories": "Cuentos",
       "tips-lifestyle": "Consejos y estilo de vida"
     },
+    
+    // Category Descriptions
+    categoryDescriptions: {
+      "language-learning": "Mejora tus habilidades lingüísticas con nuestras guías completas y recursos para estudiantes de todos los niveles.",
+      "culture": "Explora diversas tradiciones culturales, costumbres y perspectivas de todo el mundo.",
+      "science": "Descubre fascinantes conceptos científicos explicados de manera accesible y atractiva.",
+      "stories": "Sumérgete en cautivadoras narrativas que entretienen mientras mejoran tu comprensión del idioma.",
+      "tips-lifestyle": "Consejos prácticos y estrategias para mejorar tus hábitos de aprendizaje y rutinas diarias."
+    },
 
     // Subcategories
     subcategories: {
@@ -879,6 +888,24 @@ const translations = {
       "productivity": "Productividad",
       "study-tips": "Consejos de estudio",
       "motivation": "Motivación"
+    },
+    
+    // Subcategory Descriptions
+    subcategoryDescriptions: {
+      "vocabulary": "Construye tu banco de palabras con términos y expresiones esenciales para la comunicación cotidiana.",
+      "grammar": "Domina las reglas y estructuras que forman la base de un uso claro y correcto del lenguaje.",
+      "phrases": "Aprende expresiones prácticas y modismos que los hablantes nativos utilizan en conversaciones reales.",
+      "history": "Explora eventos significativos, períodos y desarrollos culturales que moldearon las sociedades.",
+      "food": "Descubre tradiciones culinarias, recetas y el significado cultural de los alimentos alrededor del mundo.",
+      "travel": "Encuentra información sobre destinos, etiqueta cultural y lenguaje práctico para viajar.",
+      "nature": "Aprende sobre ecosistemas, vida silvestre y fenómenos naturales en términos científicos accesibles.",
+      "technology": "Comprende innovaciones modernas y conceptos digitales explicados en lenguaje sencillo.",
+      "health": "Accede a información sobre bienestar, hábitos saludables y terminología médica básica.",
+      "short-stories": "Disfruta de narrativas breves que entretienen mientras mejoran tu comprensión lectora.",
+      "fairy-tales": "Descubre cuentos tradicionales y modernos que transmiten sabiduría cultural e imaginación.",
+      "productivity": "Aprende estrategias para mejorar la eficiencia y lograr más en tus estudios y trabajo.",
+      "study-tips": "Encuentra consejos prácticos para mejorar tus técnicas de aprendizaje y rendimiento académico.",
+      "motivation": "Descubre enfoques para mantener el entusiasmo y superar desafíos en tu viaje de aprendizaje."
     },
 
     // Article
@@ -1102,6 +1129,15 @@ const translations = {
       "science": "Wissenschaft", 
       "stories": "Geschichten",
       "tips-lifestyle": "Tipps & Lebensstil"
+    },
+    
+    // Category Descriptions
+    categoryDescriptions: {
+      "language-learning": "Verbessern Sie Ihre Sprachkenntnisse mit unseren umfassenden Leitfäden und Ressourcen für Lernende aller Niveaus.",
+      "culture": "Entdecken Sie vielfältige kulturelle Traditionen, Bräuche und Perspektiven aus der ganzen Welt.",
+      "science": "Entdecken Sie faszinierende wissenschaftliche Konzepte, die auf zugängliche und ansprechende Weise erklärt werden.",
+      "stories": "Tauchen Sie ein in fesselnde Erzählungen, die unterhalten und gleichzeitig Ihr Sprachverständnis verbessern.",
+      "tips-lifestyle": "Praktische Ratschläge und Strategien zur Verbesserung Ihrer Lerngewohnheiten und täglichen Routinen."
     },
 
     // Subcategories
