@@ -76,7 +76,13 @@ interface FirestoreCategory {
 interface FirestoreStaticPage {
   id: string;
   slug: string;
-  translations: Record<string, string>;
+  availableLanguages: string[];
+  translations: Record<string, {
+    title: string;
+    content: string;
+    keywords?: string[];
+  }>;
+  updatedAt: Timestamp;
 }
 
 // Firebase configuration from environment variables
@@ -750,7 +756,7 @@ export async function updateArticle(slug: string, articleData: {
 // Static page related functions
 export async function getStaticPages(): Promise<FirestoreStaticPage[]> {
   try {
-    const pagesSnapshot = await getDocs(collection(db, "pages"));
+    const pagesSnapshot = await getDocs(collection(db, "staticPages"));
     return pagesSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
