@@ -297,8 +297,8 @@ export default function AllArticles() {
                 size="sm" 
                 className="text-xs" 
                 onClick={() => {
-                  setSelectedCategory("");
-                  setSelectedSubcategory("");
+                  setSelectedCategory("all");
+                  setSelectedSubcategory("all");
                   setSearchTerm("");
                 }}
               >
