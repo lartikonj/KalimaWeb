@@ -59,6 +59,15 @@ const translations = {
       "tips-lifestyle": "Tips & Lifestyle"
     },
 
+    // Category Descriptions
+    categoryDescriptions: {
+      "language-learning": "Enhance your language skills with our comprehensive guides and resources for learners at all levels.",
+      "culture": "Explore diverse cultural traditions, customs, and perspectives from around the world.",
+      "science": "Discover fascinating scientific concepts explained in an accessible and engaging way.",
+      "stories": "Immerse yourself in captivating narratives that entertain while improving your language comprehension.",
+      "tips-lifestyle": "Practical advice and strategies to improve your learning habits and daily routines."
+    },
+
     // Subcategories
     subcategories: {
       "vocabulary": "Vocabulary",
@@ -75,6 +84,24 @@ const translations = {
       "productivity": "Productivity",
       "study-tips": "Study Tips",
       "motivation": "Motivation"
+    },
+    
+    // Subcategory Descriptions
+    subcategoryDescriptions: {
+      "vocabulary": "Build your word bank with essential terms and expressions for everyday communication.",
+      "grammar": "Master the rules and structures that form the foundation of clear and correct language use.",
+      "phrases": "Learn practical expressions and idioms that native speakers use in real conversations.",
+      "history": "Explore significant events, periods, and cultural developments that shaped societies.",
+      "food": "Discover culinary traditions, recipes, and the cultural significance of foods around the world.",
+      "travel": "Find insights about destinations, cultural etiquette, and practical travel language.",
+      "nature": "Learn about ecosystems, wildlife, and natural phenomena in accessible scientific terms.",
+      "technology": "Understand modern innovations and digital concepts explained in simple language.",
+      "health": "Access information about wellbeing, healthy habits, and basic medical terminology.",
+      "short-stories": "Enjoy brief narratives that entertain while improving your reading comprehension.",
+      "fairy-tales": "Discover traditional and modern tales that carry cultural wisdom and imagination.",
+      "productivity": "Learn strategies to enhance efficiency and accomplish more in your studies and work.",
+      "study-tips": "Find practical advice to improve your learning techniques and academic performance.",
+      "motivation": "Discover approaches to maintain enthusiasm and overcome challenges in your learning journey."
     },
 
     // Article
@@ -300,6 +327,15 @@ const translations = {
       "tips-lifestyle": "نصائح ونمط الحياة"
     },
 
+    // Category Descriptions
+    categoryDescriptions: {
+      "language-learning": "عزز مهاراتك اللغوية من خلال أدلتنا الشاملة ومواردنا للمتعلمين في جميع المستويات.",
+      "culture": "استكشف التقاليد والعادات والمنظورات الثقافية المتنوعة من جميع أنحاء العالم.",
+      "science": "اكتشف المفاهيم العلمية المثيرة التي يتم شرحها بطريقة سهلة الفهم وجذابة.",
+      "stories": "انغمس في روايات آسرة تمتع وتحسن فهمك للغة في نفس الوقت.",
+      "tips-lifestyle": "نصائح عملية واستراتيجيات لتحسين عادات التعلم والروتين اليومي."
+    },
+
     // Subcategories
     subcategories: {
       "vocabulary": "المفردات",
@@ -316,6 +352,24 @@ const translations = {
       "productivity": "الإنتاجية",
       "study-tips": "نصائح للدراسة",
       "motivation": "التحفيز"
+    },
+    
+    // Subcategory Descriptions
+    subcategoryDescriptions: {
+      "vocabulary": "بناء قاموسك اللغوي بالمصطلحات والتعبيرات الأساسية للتواصل اليومي.",
+      "grammar": "إتقان القواعد والهياكل التي تشكل أساس الاستخدام اللغوي الواضح والصحيح.",
+      "phrases": "تعلم التعبيرات العملية والمصطلحات التي يستخدمها المتحدثون الأصليون في المحادثات الحقيقية.",
+      "history": "استكشاف الأحداث والفترات والتطورات الثقافية المهمة التي شكلت المجتمعات.",
+      "food": "اكتشف التقاليد الطهي والوصفات والأهمية الثقافية للأطعمة حول العالم.",
+      "travel": "اكتشف معلومات عن الوجهات وآداب السلوك الثقافية واللغة العملية للسفر.",
+      "nature": "تعلم عن النظم البيئية والحياة البرية والظواهر الطبيعية بمصطلحات علمية سهلة الفهم.",
+      "technology": "فهم الابتكارات الحديثة والمفاهيم الرقمية موضحة بلغة بسيطة.",
+      "health": "الوصول إلى معلومات حول الرفاهية والعادات الصحية والمصطلحات الطبية الأساسية.",
+      "short-stories": "استمتع بالروايات القصيرة التي تسلي وتحسن فهمك للقراءة.",
+      "fairy-tales": "اكتشف الحكايات التقليدية والحديثة التي تحمل الحكمة الثقافية والخيال.",
+      "productivity": "تعلم استراتيجيات لتعزيز الكفاءة وإنجاز المزيد في دراستك وعملك.",
+      "study-tips": "العثور على نصائح عملية لتحسين تقنيات التعلم والأداء الأكاديمي.",
+      "motivation": "اكتشف أساليب للحفاظ على الحماس والتغلب على التحديات في رحلة التعلم الخاصة بك."
     },
 
     // Article
@@ -541,6 +595,15 @@ const translations = {
       "tips-lifestyle": "Conseils et mode de vie"
     },
 
+    // Category Descriptions
+    categoryDescriptions: {
+      "language-learning": "Améliorez vos compétences linguistiques grâce à nos guides complets et nos ressources pour les apprenants de tous niveaux.",
+      "culture": "Explorez les traditions culturelles, les coutumes et les perspectives diverses du monde entier.",
+      "science": "Découvrez des concepts scientifiques fascinants expliqués de manière accessible et captivante.",
+      "stories": "Plongez dans des récits captivants qui divertissent tout en améliorant votre compréhension linguistique.",
+      "tips-lifestyle": "Conseils pratiques et stratégies pour améliorer vos habitudes d'apprentissage et vos routines quotidiennes."
+    },
+
     // Subcategories
     subcategories: {
       "vocabulary": "Vocabulaire",
@@ -557,6 +620,24 @@ const translations = {
       "productivity": "Productivité",
       "study-tips": "Conseils d'étude",
       "motivation": "Motivation"
+    },
+    
+    // Subcategory Descriptions
+    subcategoryDescriptions: {
+      "vocabulary": "Enrichissez votre banque de mots avec des termes et expressions essentiels pour la communication quotidienne.",
+      "grammar": "Maîtrisez les règles et structures qui forment la base d'une utilisation claire et correcte de la langue.",
+      "phrases": "Apprenez des expressions pratiques et des idiomes que les locuteurs natifs utilisent dans les conversations réelles.",
+      "history": "Explorez les événements importants, les périodes et les développements culturels qui ont façonné les sociétés.",
+      "food": "Découvrez les traditions culinaires, les recettes et l'importance culturelle des aliments du monde entier.",
+      "travel": "Trouvez des informations sur les destinations, l'étiquette culturelle et le langage pratique du voyage.",
+      "nature": "Apprenez sur les écosystèmes, la faune et les phénomènes naturels en termes scientifiques accessibles.",
+      "technology": "Comprenez les innovations modernes et les concepts numériques expliqués en langage simple.",
+      "health": "Accédez à des informations sur le bien-être, les habitudes saines et la terminologie médicale de base.",
+      "short-stories": "Profitez de récits brefs qui divertissent tout en améliorant votre compréhension de la lecture.",
+      "fairy-tales": "Découvrez des contes traditionnels et modernes qui véhiculent la sagesse culturelle et l'imagination.",
+      "productivity": "Apprenez des stratégies pour améliorer l'efficacité et accomplir davantage dans vos études et votre travail.",
+      "study-tips": "Trouvez des conseils pratiques pour améliorer vos techniques d'apprentissage et vos performances académiques.",
+      "motivation": "Découvrez des approches pour maintenir l'enthousiasme et surmonter les défis dans votre parcours d'apprentissage."
     },
 
     // Article
