@@ -407,10 +407,13 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
                   category={relatedArticle.category}
                   subcategory={relatedArticle.subcategory}
                   imageUrl={relatedArticle.imageUrl}
+                  imageUrls={relatedArticle.imageUrls}
                   translations={relatedArticle.translations}
                   createdAt={relatedArticle.createdAt}
                   availableLanguages={relatedArticle.availableLanguages}
                   isFavorite={isRelatedFavorite}
+                  featured={relatedArticle.featured}
+                  popular={relatedArticle.popular}
                 />
               );
             })}
