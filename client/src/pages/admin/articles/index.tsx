@@ -68,13 +68,24 @@ export default function ArticlesPage() {
     const fetchArticles = async () => {
       setIsLoading(true);
       try {
+        // Get all articles without any filtering to ensure we see everything in admin
         const data = await getArticles();
+        console.log("Loaded articles:", data); // Debug log
         
         // Extract unique categories
         const uniqueCategories = new Set<string>();
         data.forEach(article => {
           if (article.category) {
             uniqueCategories.add(article.category);
+          }
+          
+          // Also check categories in translations
+          if (article.translations) {
+            Object.values(article.translations).forEach((translation: any) => {
+              if (translation.category) {
+                uniqueCategories.add(translation.category);
+              }
+            });
           }
         });
         
@@ -377,7 +388,9 @@ export default function ArticlesPage() {
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button variant="ghost" size="icon" asChild>
-                            <Link href={`/article/${article.slug}`}>
+                            <Link href={article.category && article.subcategory 
+                              ? `/categories/${article.category}/${article.subcategory}/${article.slug}` 
+                              : `/article/${article.slug}`}>
                               <span className="sr-only">View</span>
                               <Eye className="h-4 w-4" />
                             </Link>
