@@ -175,16 +175,12 @@ export default function Header() {
           {/* Language Switcher (Mobile) */}
           <div className="pt-4 pb-3 border-t border-neutral-200 dark:border-neutral-700">
             <div className="px-4">
-              <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
-                {t("language.selectLanguage")}
-              </p>
-            </div>
-            <div className="mt-2 space-y-1">
-              <MobileLanguageOption code="en" label="English" onClick={() => setIsMenuOpen(false)} />
-              <MobileLanguageOption code="fr" label="Français" onClick={() => setIsMenuOpen(false)} />
-              <MobileLanguageOption code="es" label="Español" onClick={() => setIsMenuOpen(false)} />
-              <MobileLanguageOption code="de" label="Deutsch" onClick={() => setIsMenuOpen(false)} />
-              <MobileLanguageOption code="ar" label="العربية" onClick={() => setIsMenuOpen(false)} />
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                  {t("language.selectLanguage")}
+                </p>
+                <LanguageSwitcher />
+              </div>
             </div>
           </div>
         </div>
