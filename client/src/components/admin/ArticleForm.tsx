@@ -58,6 +58,7 @@ const articleFormSchema = z.object({
   featured: z.boolean().default(false),
   popular: z.boolean().default(false),
   imageUrls: z.array(z.string().url()).optional().default([]),
+  imageDescriptions: z.array(z.string()).optional().default([]),
 });
 
 type ArticleFormValues = z.infer<typeof articleFormSchema>;
@@ -117,6 +118,7 @@ export function ArticleForm({
     featured: false,
     popular: false,
     imageUrls: [],
+    imageDescriptions: [],
   };
 
   // Form instance

@@ -44,6 +44,7 @@ interface FirestoreArticle {
   featured: boolean;
   popular: boolean;
   imageUrls: string[];
+  imageDescriptions: string[];
   author: {
     uid: string;
     displayName: string;
@@ -496,6 +497,7 @@ export async function createArticle(inputData: {
   featured?: boolean;
   popular?: boolean;
   imageUrls?: string[];
+  imageDescriptions?: string[];
   createdAt?: Timestamp;
 }): Promise<FirestoreArticle> {
   try {
@@ -638,6 +640,17 @@ export async function createArticle(inputData: {
       console.log("Using placeholder image URL");
     }
     
+    // Handle image descriptions
+    let imageDescriptions: string[] = [];
+    if (Array.isArray(inputData.imageDescriptions) && inputData.imageDescriptions.length > 0) {
+      imageDescriptions = inputData.imageDescriptions;
+    }
+    
+    // Add default descriptions if needed
+    while (imageDescriptions.length < imageUrls.length) {
+      imageDescriptions.push(`Image ${imageDescriptions.length + 1} for ${title}`);
+    }
+    
     // Create a clean copy of the article data with defaults for optional fields
     const cleanArticleData = {
       slug,
@@ -651,7 +664,8 @@ export async function createArticle(inputData: {
       draft: inputData.draft !== undefined ? inputData.draft : true,
       featured: inputData.featured !== undefined ? inputData.featured : false,
       popular: inputData.popular !== undefined ? inputData.popular : false,
-      imageUrls
+      imageUrls,
+      imageDescriptions
     };
     
     // Check if slug already exists
