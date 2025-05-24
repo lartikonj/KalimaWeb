@@ -102,7 +102,7 @@ export function SearchDialog() {
           </kbd>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px] top-4 sm:top-20 max-h-[90vh] overflow-hidden">
+      <DialogContent className="sm:max-w-[550px] top-24 sm:top-20 max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{t("search.searchArticles")}</DialogTitle>
         </DialogHeader>
@@ -145,19 +145,19 @@ export function SearchDialog() {
                 ))}
               </ul>
               
-              {results.length > 5 && (
-                <div className="mt-4 flex justify-center">
-                  <Button 
-                    onClick={() => {
-                      setOpen(false);
-                      setLocation(`/search?q=${encodeURIComponent(query)}`);
-                    }}
-                    className="w-full"
-                  >
-                    {t("search.seeAllResults")} ({results.length})
-                  </Button>
-                </div>
-              )}
+              <div className="mt-4 flex justify-center">
+                <Button 
+                  onClick={() => {
+                    setOpen(false);
+                    setLocation(`/search?q=${encodeURIComponent(query)}`);
+                  }}
+                  className="w-full"
+                >
+                  {results.length > 5 
+                    ? `${t("search.seeAllResults")} (${results.length})` 
+                    : t("search.seeAllResults")}
+                </Button>
+              </div>
             </>
           ) : query.trim().length >= 2 ? (
             <p className="text-center text-muted-foreground py-4">
