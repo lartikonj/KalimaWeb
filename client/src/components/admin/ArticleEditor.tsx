@@ -7,6 +7,7 @@ import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { getCategories, createArticle, updateArticle, getArticleBySlug, createCategory, updateCategory } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import ReactMarkdown from 'react-markdown';
 
 import { 
   Form,
@@ -1332,20 +1333,44 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                       )}
                     />
                     
-                    {/* Section Content */}
+                    {/* Section Content with Markdown Support */}
                     <FormField
                       control={form.control}
                       name={`translations.${activeLanguage}.content.${index}.paragraph`}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="space-y-4">
                           <FormLabel>{t("admin.sectionContent")}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder={t("admin.sectionContentPlaceholder")}
-                              className="min-h-32"
+                              placeholder="Use Markdown for formatting: # Heading, ## Subheading, **bold**, *italic*, \n\n for new paragraph"
+                              className="min-h-48 font-mono"
                               {...field}
                             />
                           </FormControl>
+                          
+                          {/* Markdown Preview */}
+                          {field.value && (
+                            <div className="border rounded-md p-4 mt-2">
+                              <div className="text-sm font-medium mb-2">Markdown Preview:</div>
+                              <div className="prose dark:prose-invert max-w-none">
+                                <ReactMarkdown>
+                                  {field.value}
+                                </ReactMarkdown>
+                              </div>
+                            </div>
+                          )}
+                          
+                          <FormDescription>
+                            You can use Markdown formatting in this field:
+                            <ul className="list-disc list-inside mt-1 space-y-1 text-xs">
+                              <li># Heading 1, ## Heading 2, ### Heading 3</li>
+                              <li>**bold text**, *italic text*</li>
+                              <li>- bullet points</li>
+                              <li>1. numbered lists</li>
+                              <li>[link text](https://example.com)</li>
+                              <li>Leave a blank line for a new paragraph</li>
+                            </ul>
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
