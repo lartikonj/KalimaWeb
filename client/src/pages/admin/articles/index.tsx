@@ -85,7 +85,7 @@ export default function ArticlesPage() {
         // Convert to array of article data
         const articlesData = articlesSnapshot.docs.map(doc => {
           const data = doc.data() as DocumentData;
-          console.log("Article document data:", doc.id, data.slug);
+          console.log("Article document data:", doc.id, data.slug, data);
           return {
             id: doc.id,
             ...data
