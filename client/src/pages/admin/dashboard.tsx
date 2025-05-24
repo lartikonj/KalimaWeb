@@ -285,9 +285,9 @@ export default function Dashboard() {
                     Show All Articles in Console
                   </Button>
                   
-                  <Link href="/admin/all-articles">
+                  <Link href="/admin/articles">
                     <Button variant="secondary">
-                      View All Articles List
+                      View All Articles
                     </Button>
                   </Link>
                 </div>

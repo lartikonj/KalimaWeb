@@ -81,12 +81,6 @@ function RouterContent() {
           </Route>
           <Route path="/admin/articles">
             <ProtectedRoute>
-              <AdminArticles />
-            </ProtectedRoute>
-          </Route>
-          
-          <Route path="/admin/all-articles">
-            <ProtectedRoute>
               <AllArticles />
             </ProtectedRoute>
           </Route>
