@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { deleteArticle } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
-import { getDocs, collection, DocumentData, query, orderBy, limit } from "firebase/firestore";
+import { getDocs, collection } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,

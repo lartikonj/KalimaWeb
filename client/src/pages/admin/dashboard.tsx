@@ -261,6 +261,58 @@ export default function Dashboard() {
           ))}
         </div>
 
+        {/* Article Preview Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>All Firestore Articles</CardTitle>
+            <CardDescription>Direct view of articles from your Firestore database</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="py-6 text-center">Loading articles...</div>
+            ) : stats.articles === 0 ? (
+              <div className="py-6 text-center">No articles found in your Firestore database</div>
+            ) : (
+              <div className="space-y-4 max-h-80 overflow-auto">
+                <Button 
+                  className="mb-3"
+                  onClick={async () => {
+                    const firebaseArticles = await getArticles();
+                    console.log("ALL ARTICLES FROM FIREBASE:", firebaseArticles);
+                    alert(`Found ${firebaseArticles.length} articles in Firestore. Check console for details.`);
+                  }}
+                >
+                  Show All Articles in Console
+                </Button>
+                
+                <div className="space-y-3">
+                  {stats.articles > 0 ? (
+                    <div className="p-4 border rounded bg-green-50 dark:bg-green-900/20">
+                      <p className="font-medium">Found {stats.articles} articles in your database</p>
+                      <p className="text-sm text-muted-foreground mt-1">View your admin articles section to manage content</p>
+                      <div className="mt-3">
+                        <Link href="/admin/articles">
+                          <Button variant="outline">Go to Articles</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 border rounded bg-amber-50 dark:bg-amber-900/20">
+                      <p className="font-medium">No articles found in database</p>
+                      <p className="text-sm text-muted-foreground mt-1">Create your first article to get started</p>
+                      <div className="mt-3">
+                        <Link href="/admin/articles/create">
+                          <Button>Create Article</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        
         {/* Quick Tips */}
         <Card>
           <CardHeader>

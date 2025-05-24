@@ -83,6 +83,7 @@ function RouterContent() {
               <AdminArticles />
             </ProtectedRoute>
           </Route>
+
           <Route path="/admin/categories">
             <ProtectedRoute>
               <AdminCategories />
