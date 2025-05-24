@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getArticles, deleteArticle } from "@/lib/firebase";
+import { deleteArticle } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
-import { getDocs, collection } from "firebase/firestore";
-import { toast } from "@/hooks/use-toast";
+import { getDocs, collection, DocumentData } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -65,30 +65,46 @@ export default function ArticlesPage() {
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [categories, setCategories] = useState<Set<string>>(new Set());
 
-  // Load articles
+  // Get toast hook
+  const { toast } = useToast();
+  
+  // Load articles directly from Firestore
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchArticlesDirectly = async () => {
       setIsLoading(true);
+      
       try {
-        // Get all articles directly from the API function
-        const allArticles = await getArticles();
-        console.log("Loaded articles:", allArticles);
+        // Get articles directly from Firestore collection
+        const articlesSnapshot = await getDocs(collection(db, "articles"));
+        console.log("Articles snapshot size:", articlesSnapshot.size);
         
-        if (allArticles.length === 0) {
-          console.log("No articles found. You may need to create some articles first.");
+        if (articlesSnapshot.empty) {
+          console.log("No articles found in Firestore. You may need to create some articles first.");
         }
+        
+        // Convert to array of article data
+        const articlesData = articlesSnapshot.docs.map(doc => {
+          const data = doc.data() as DocumentData;
+          console.log("Article document data:", doc.id, data.slug);
+          return {
+            id: doc.id,
+            ...data
+          };
+        });
+        
+        console.log("Articles loaded from Firestore:", articlesData.length);
         
         // Extract unique categories
         const uniqueCategories = new Set<string>();
-        allArticles.forEach((article: any) => {
+        articlesData.forEach((article: any) => {
           if (article.category) {
             uniqueCategories.add(article.category);
           }
           
           // Also check translations for categories
           if (article.translations) {
-            Object.values(article.translations).forEach((translation: any) => {
-              if (translation.category) {
+            Object.entries(article.translations).forEach(([lang, translation]: [string, any]) => {
+              if (translation && translation.category) {
                 uniqueCategories.add(translation.category);
               }
             });
@@ -97,13 +113,13 @@ export default function ArticlesPage() {
         
         console.log("Found categories:", Array.from(uniqueCategories));
         setCategories(uniqueCategories);
-        setArticles(allArticles);
-        setFilteredArticles(allArticles);
+        setArticles(articlesData);
+        setFilteredArticles(articlesData);
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        console.error("Error fetching articles directly from Firestore:", error);
         toast({
           title: "Error Loading Articles",
-          description: "There was a problem fetching your articles. Please try again.",
+          description: "There was a problem fetching your articles from the database. Please try again.",
           variant: "destructive"
         });
       } finally {
@@ -111,8 +127,8 @@ export default function ArticlesPage() {
       }
     };
     
-    fetchArticles();
-  }, []);
+    fetchArticlesDirectly();
+  }, [toast]);
 
   // Apply filters
   useEffect(() => {
@@ -172,16 +188,16 @@ export default function ArticlesPage() {
       
       setArticles(prev => prev.filter(a => a.id !== selectedArticle.id));
       toast({
-        title: t("admin.articleDeleted"),
-        description: t("admin.articleDeletedSuccess"),
+        title: "Article Deleted",
+        description: "The article was successfully deleted.",
       });
       
       setSelectedArticle(null);
     } catch (error) {
       console.error("Error deleting article:", error);
       toast({
-        title: t("admin.error"),
-        description: t("admin.errorDeletingArticle"),
+        title: "Error",
+        description: "There was an error deleting the article. Please try again.",
         variant: "destructive"
       });
     }
