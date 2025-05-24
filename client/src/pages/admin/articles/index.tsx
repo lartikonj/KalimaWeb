@@ -215,18 +215,39 @@ export default function ArticlesPage() {
     }
   };
 
-  // Get article title in current language
+  // Get article title in current language with better fallback handling
   const getArticleTitle = (article: any) => {
-    if (!article.translations) return "Untitled";
+    if (!article.translations) {
+      console.log("Article missing translations:", article.id, article.slug);
+      return article.slug || "Untitled";
+    }
     
-    const currentLang = article.translations[language];
-    const englishLang = article.translations.en;
-    const firstLang = article.availableLanguages && article.availableLanguages.length > 0
-      ? article.translations[article.availableLanguages[0]]
-      : null;
-      
-    const translation = currentLang || englishLang || firstLang;
-    return translation?.title || "Untitled";
+    // Try to get title from current language
+    if (article.translations[language]?.title) {
+      return article.translations[language].title;
+    }
+    
+    // Try English as fallback
+    if (article.translations.en?.title) {
+      return article.translations.en.title;
+    }
+    
+    // Try first available language
+    if (article.availableLanguages && article.availableLanguages.length > 0) {
+      const firstLangCode = article.availableLanguages[0];
+      if (article.translations[firstLangCode]?.title) {
+        return article.translations[firstLangCode].title;
+      }
+    }
+    
+    // Last resort: get first title from any language
+    const firstTranslation = Object.values(article.translations)[0] as any;
+    if (firstTranslation?.title) {
+      return firstTranslation.title;
+    }
+    
+    // Ultimate fallback
+    return article.slug || "Untitled";
   };
 
   return (
