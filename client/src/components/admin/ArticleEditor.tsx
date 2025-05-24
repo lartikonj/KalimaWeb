@@ -7,7 +7,7 @@ import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { getCategories, createArticle, updateArticle, getArticleBySlug, createCategory } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Save, X, Check, ChevronDown, ChevronUp } from "lucide-react";
+
 import { 
   Form,
   FormControl,
@@ -17,6 +17,12 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,7 +56,11 @@ import {
   Trash2,
   Languages, 
   BookOpen, 
-  Image as ImageIcon
+  Image as ImageIcon,
+  X,
+  Check,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { getRandomPhoto } from "@/lib/unsplash";
@@ -73,10 +83,14 @@ const articleFormSchema = z.object({
   category: z.string().min(1, "Category is required"),
   subcategory: z.string().min(1, "Subcategory is required"),
   author: z.object({
-    uid: z.string().optional(),
+    uid: z.string().default("system"),
     displayName: z.string().min(1, "Author name is required"),
     photoURL: z.string().optional()
-  }).optional(),
+  }).default({
+    uid: "system",
+    displayName: "Kalima Author", 
+    photoURL: ""
+  }),
   availableLanguages: z.array(z.string()).min(1, "At least one language is required"),
   translations: z.record(z.object({
     title: z.string().min(1, "Title is required"),
@@ -611,7 +625,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   )}
                 />
                 
-                {/* Subcategory (only show if category is selected) */}
+                {/* Subcategory with on-the-fly creation (only show if category is selected) */}
                 {watchCategory && (
                   <FormField
                     control={form.control}
@@ -619,24 +633,119 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("admin.subcategory")}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder={t("admin.selectSubcategory")} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {subcategories.map((subcategory: any) => (
-                              <SelectItem key={subcategory.slug} value={subcategory.slug}>
-                                {subcategory.titles?.[language] || subcategory.titles?.en || subcategory.slug}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder={t("admin.selectSubcategory")} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {subcategories.map((subcategory: any) => (
+                                  <SelectItem key={subcategory.slug} value={subcategory.slug}>
+                                    {subcategory.titles?.[language] || subcategory.titles?.en || subcategory.slug}
+                                  </SelectItem>
+                                ))}
+                                {field.value && !subcategories.find((s: any) => s.slug === field.value) && (
+                                  <SelectItem value={field.value}>
+                                    {field.value} (New)
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="icon"
+                                title={t("admin.addNewSubcategory") || "Add New Subcategory"}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                              <div className="space-y-4">
+                                <h4 className="font-medium">{t("admin.addNewSubcategory") || "Add New Subcategory"}</h4>
+                                <div className="space-y-2">
+                                  <Label>{t("admin.slug") || "Slug"}</Label>
+                                  <Input
+                                    id="new-subcategory-slug"
+                                    placeholder="subcategory-slug"
+                                    onChange={(e) => {
+                                      // Convert to slug format
+                                      const slugValue = e.target.value
+                                        .toLowerCase()
+                                        .replace(/[^a-z0-9]+/g, '-')
+                                        .replace(/^-|-$/g, '');
+                                      e.target.value = slugValue;
+                                    }}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>{t("admin.title") || "Title (English)"}</Label>
+                                  <Input
+                                    id="new-subcategory-title"
+                                    placeholder="Subcategory Title"
+                                  />
+                                </div>
+                                <Button
+                                  type="button"
+                                  onClick={() => {
+                                    const slugInput = document.getElementById("new-subcategory-slug") as HTMLInputElement;
+                                    const titleInput = document.getElementById("new-subcategory-title") as HTMLInputElement;
+                                    
+                                    if (slugInput?.value && titleInput?.value) {
+                                      const newSlug = slugInput.value;
+                                      const newTitle = titleInput.value;
+                                      
+                                      // Add to form
+                                      field.onChange(newSlug);
+                                      
+                                      // Find current category and add new subcategory
+                                      const categoryIndex = categories.findIndex(c => c.slug === watchCategory);
+                                      if (categoryIndex !== -1) {
+                                        // Create a new subcategory
+                                        const newSubcategory = {
+                                          slug: newSlug,
+                                          titles: { [language]: newTitle, en: newTitle }
+                                        };
+                                        
+                                        // Add to subcategories list for display
+                                        setSubcategories([...subcategories, newSubcategory]);
+                                        
+                                        // Add to category's subcategories
+                                        const updatedCategories = [...categories];
+                                        if (!updatedCategories[categoryIndex].subcategories) {
+                                          updatedCategories[categoryIndex].subcategories = [];
+                                        }
+                                        updatedCategories[categoryIndex].subcategories.push(newSubcategory);
+                                        setCategories(updatedCategories);
+                                        
+                                        // Reset inputs
+                                        slugInput.value = "";
+                                        titleInput.value = "";
+                                        
+                                        toast({
+                                          title: "Subcategory Added",
+                                          description: `New subcategory "${newTitle}" will be created when you save the article.`,
+                                        });
+                                      }
+                                    }
+                                  }}
+                                >
+                                  {t("admin.addSubcategory") || "Add Subcategory"}
+                                </Button>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -657,7 +766,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                           value={field.value?.displayName || ""}
                           onChange={(e) => {
                             // Update just the displayName in the author object
-                            const currentAuthor = field.value || {};
+                            const currentAuthor = field.value || { uid: "system", displayName: "" };
                             field.onChange({
                               ...currentAuthor,
                               displayName: e.target.value,
