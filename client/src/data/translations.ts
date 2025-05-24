@@ -18,6 +18,18 @@ const translations = {
       confirm: "Confirm",
       submit: "Submit"
     },
+    
+    // Search
+    search: {
+      search: "Search",
+      searchArticles: "Search Articles",
+      typeToSearch: "Type to search...",
+      noResults: "No results found",
+      enterSearchTerm: "Enter at least 2 characters to search",
+      searching: "Searching...",
+      pressToSearch: "Press ⌘K to search",
+      results: "Search Results"
+    },
 
     // Navigation
     nav: {
