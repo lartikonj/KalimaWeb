@@ -22,6 +22,7 @@ import AdminStaticPages from "@/pages/admin/static-pages/index";
 import Suggestions from "@/pages/admin/suggestions";
 import EditArticle from "@/pages/admin/edit-article";
 import CreateArticle from "@/pages/admin/create-article";
+import AllArticles from "@/pages/admin/all-articles";
 import Profile from "@/pages/profile";
 import UserSuggestions from "@/pages/suggestions";
 import { useAuth, AuthProvider } from "@/contexts/AuthContext";
@@ -81,6 +82,12 @@ function RouterContent() {
           <Route path="/admin/articles">
             <ProtectedRoute>
               <AdminArticles />
+            </ProtectedRoute>
+          </Route>
+          
+          <Route path="/admin/all-articles">
+            <ProtectedRoute>
+              <AllArticles />
             </ProtectedRoute>
           </Route>
 

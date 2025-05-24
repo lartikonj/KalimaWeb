@@ -274,16 +274,23 @@ export default function Dashboard() {
               <div className="py-6 text-center">No articles found in your Firestore database</div>
             ) : (
               <div className="space-y-4 max-h-80 overflow-auto">
-                <Button 
-                  className="mb-3"
-                  onClick={async () => {
-                    const firebaseArticles = await getArticles();
-                    console.log("ALL ARTICLES FROM FIREBASE:", firebaseArticles);
-                    alert(`Found ${firebaseArticles.length} articles in Firestore. Check console for details.`);
-                  }}
-                >
-                  Show All Articles in Console
-                </Button>
+                <div className="flex gap-3 mb-3">
+                  <Button 
+                    onClick={async () => {
+                      const firebaseArticles = await getArticles();
+                      console.log("ALL ARTICLES FROM FIREBASE:", firebaseArticles);
+                      alert(`Found ${firebaseArticles.length} articles in Firestore. Check console for details.`);
+                    }}
+                  >
+                    Show All Articles in Console
+                  </Button>
+                  
+                  <Link href="/admin/all-articles">
+                    <Button variant="secondary">
+                      View All Articles List
+                    </Button>
+                  </Link>
+                </div>
                 
                 <div className="space-y-3">
                   {stats.articles > 0 ? (

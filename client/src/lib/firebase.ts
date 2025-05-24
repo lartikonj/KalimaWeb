@@ -33,7 +33,7 @@ import { ArticleTranslation, SuggestedArticle } from "@shared/schema";
 import { Language } from "@/contexts/LanguageContext";
 
 // Define our Firestore document types
-interface FirestoreArticle {
+export interface FirestoreArticle {
   id: string;
   slug: string;
   title: string;
