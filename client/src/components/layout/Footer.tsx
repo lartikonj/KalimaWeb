@@ -109,37 +109,37 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <button 
-                  onClick={() => { /* Handle language change */ }}
-                  className="text-sm hover:underline">
+                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'en' })); }}
+                  className={`text-sm hover:underline ${language === 'en' ? 'font-bold' : ''}`}>
                   English
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => { /* Handle language change */ }}
-                  className="text-sm hover:underline">
-                  Arabic
+                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'ar' })); }}
+                  className={`text-sm hover:underline ${language === 'ar' ? 'font-bold' : ''}`}>
+                  العربية (Arabic)
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => { /* Handle language change */ }}
-                  className="text-sm hover:underline">
-                  French
+                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'fr' })); }}
+                  className={`text-sm hover:underline ${language === 'fr' ? 'font-bold' : ''}`}>
+                  Français (French)
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => { /* Handle language change */ }}
-                  className="text-sm hover:underline">
-                  Spanish
+                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'es' })); }}
+                  className={`text-sm hover:underline ${language === 'es' ? 'font-bold' : ''}`}>
+                  Español (Spanish)
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => { /* Handle language change */ }}
-                  className="text-sm hover:underline">
-                  German
+                  onClick={() => { window.dispatchEvent(new CustomEvent('setLanguage', { detail: 'de' })); }}
+                  className={`text-sm hover:underline ${language === 'de' ? 'font-bold' : ''}`}>
+                  Deutsch (German)
                 </button>
               </li>
             </ul>
