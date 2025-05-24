@@ -68,6 +68,7 @@ const articleFormSchema = z.object({
     .refine(slug => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug), {
       message: "Slug must contain only lowercase letters, numbers, and hyphens"
     }),
+  title: z.string().optional(), // Main title (often derived from English translation)
   category: z.string().min(1, "Category is required"),
   subcategory: z.string().min(1, "Subcategory is required"),
   author: z.object({
@@ -79,11 +80,13 @@ const articleFormSchema = z.object({
   translations: z.record(z.object({
     title: z.string().min(1, "Title is required"),
     summary: z.string().min(1, "Summary is required"),
+    keywords: z.array(z.string()).optional().default([]),
     content: z.array(contentSectionSchema).min(1, "At least one content section is required"),
   })),
   draft: z.boolean().default(true),
-  imageUrl: z.string().optional(),
-  imageUrls: z.array(z.string()).optional(),
+  imageUrl: z.string().optional(), // For backward compatibility
+  imageUrls: z.array(z.string()).optional().default([]),
+  imageDescriptions: z.array(z.string()).optional().default([]),
   featured: z.boolean().optional().default(false),
   popular: z.boolean().optional().default(false),
 });
@@ -109,6 +112,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
     resolver: zodResolver(articleFormSchema),
     defaultValues: initialData || {
       slug: "",
+      title: "", // Main title
       category: "",
       subcategory: "",
       author: {
@@ -118,17 +122,19 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       },
       availableLanguages: ["en"],
       imageUrls: [],
+      imageDescriptions: [], // For image alt texts
       featured: false,
       popular: false,
       translations: {
         en: {
           title: "",
           summary: "",
-          content: [{ title: "", paragraph: "", references: [] }],
+          keywords: [], // SEO keywords
+          content: [{ title: "Introduction", paragraph: "", references: [] }],
         },
       },
       draft: true,
-      imageUrl: "",
+      imageUrl: "", // For backward compatibility
     },
   });
 
@@ -194,7 +200,8 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       form.setValue(`translations.${lang}`, {
         title: "",
         summary: "",
-        content: [{ title: "", paragraph: "", references: [] }],
+        keywords: [],
+        content: [{ title: "Introduction", paragraph: "", references: [] }],
       });
     }
     
@@ -337,11 +344,33 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       const imageUrls = data.imageUrls && data.imageUrls.length > 0 
         ? data.imageUrls 
         : (data.imageUrl ? [data.imageUrl] : []);
+      
+      // Ensure we have image descriptions for each image
+      const imageDescriptions = data.imageDescriptions || [];
+      // Add default descriptions if needed
+      while (imageDescriptions.length < imageUrls.length) {
+        imageDescriptions.push(`Image ${imageDescriptions.length + 1} for ${data.title || data.translations.en?.title || 'article'}`);
+      }
+      
+      // Make sure all translations have keywords array
+      const updatedTranslations = { ...data.translations };
+      Object.keys(updatedTranslations).forEach(lang => {
+        if (!updatedTranslations[lang].keywords) {
+          updatedTranslations[lang].keywords = [];
+        }
+      });
+      
+      // Set the main title from the English translation or first available translation
+      const title = data.title || data.translations.en?.title || 
+                   Object.values(data.translations)[0]?.title || "Untitled Article";
         
       const articleData = {
         ...data,
+        title, // Set main title explicitly
         author, // Use the properly formatted author object
         imageUrls, // Ensure we have an array of image URLs
+        imageDescriptions, // Add image descriptions
+        translations: updatedTranslations, // Ensure keywords exist in all translations
         featured: data.featured || false,
         popular: data.popular || false,
         createdAt: isEditMode ? undefined : Timestamp.now(),
