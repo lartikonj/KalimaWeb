@@ -4,7 +4,7 @@ import { ChevronLeft, BookmarkPlus, BookmarkCheck, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { addFavorite, removeFavorite } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
@@ -77,7 +77,7 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
   const { user, userData } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [activeLanguage, setActiveLanguage] = useState(language);
+  const [activeLanguage, setActiveLanguage] = useState<string>(language);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   
@@ -127,7 +127,7 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
             <Button 
               key={lang} 
               variant={activeLanguage === lang ? "default" : "outline"}
-              onClick={() => setActiveLanguage(lang)}
+              onClick={() => setActiveLanguage(lang as any)}
             >
               {lang.toUpperCase()}
             </Button>
