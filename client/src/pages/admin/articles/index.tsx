@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { deleteArticle } from "@/lib/firebase";
+import { deleteArticle, getArticles, getCategories } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
 import { getDocs, collection, DocumentData, query, orderBy } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
@@ -68,60 +68,72 @@ export default function ArticlesPage() {
   // Get toast hook
   const { toast } = useToast();
   
-  // Load articles directly from Firestore with improved reliability
+  // Load articles and categories directly from Firebase
   useEffect(() => {
-    const fetchArticlesDirectly = async () => {
+    const fetchAllData = async () => {
       setIsLoading(true);
       
       try {
-        // Get articles directly from Firestore collection using a query for better organization
-        const articlesQuery = query(collection(db, "articles"));
-        const articlesSnapshot = await getDocs(articlesQuery);
+        // Use the firebase.ts functions to get articles and categories
+        const [articlesData, categoriesData] = await Promise.all([
+          getArticles(), // Use the existing function from firebase.ts
+          getCategories() // Use the existing function from firebase.ts
+        ]);
         
-        console.log("Articles found in Firestore:", articlesSnapshot.size);
+        console.log("Articles loaded from Firebase:", articlesData.length);
+        console.log("Categories loaded from Firebase:", categoriesData.length);
         
-        if (articlesSnapshot.empty) {
-          console.log("No articles found in Firestore. You may need to create some articles first.");
-          setArticles([]);
-          setFilteredArticles([]);
-          setIsLoading(false);
-          return;
+        if (articlesData.length === 0) {
+          console.log("No articles found. Please create some articles first.");
+          toast({
+            title: "No Articles Found",
+            description: "Your article collection is empty. Create your first article to get started."
+          });
         }
         
-        // Convert to array of article data with more detailed logging
-        const articlesData = articlesSnapshot.docs.map(doc => {
-          const data = doc.data() as DocumentData;
-          const article = {
-            id: doc.id,
-            ...data
-          };
-          console.log(`Article loaded: ${doc.id} (${data.slug}) - Category: ${data.category || "none"}, Languages: ${data.availableLanguages?.join(", ") || "none"}`);
-          return article;
+        // Log each article for debugging
+        articlesData.forEach((article, index) => {
+          console.log(`Article ${index + 1}: ${article.slug} (${article.id})`, 
+            `Category: ${article.category || "none"}`,
+            `Subcategory: ${article.subcategory || "none"}`,
+            `Languages: ${article.availableLanguages?.join(", ") || "none"}`
+          );
         });
         
-        console.log(`Successfully loaded ${articlesData.length} articles from Firestore`);
-        
-        // Extract unique categories with more reliable detection
+        // Extract unique categories
         const uniqueCategories = new Set<string>();
+        const uniqueSubcategories = new Map<string, Set<string>>();
+        
+        // Collect categories and subcategories from articles
         articlesData.forEach((article: any) => {
-          // Add main category if present
-          if (article.category && typeof article.category === 'string') {
+          if (article.category) {
             uniqueCategories.add(article.category);
+            
+            // Track subcategories by their parent category
+            if (article.subcategory) {
+              if (!uniqueSubcategories.has(article.category)) {
+                uniqueSubcategories.set(article.category, new Set());
+              }
+              uniqueSubcategories.get(article.category)!.add(article.subcategory);
+            }
           }
         });
         
-        // Log loaded categories for debugging
+        // Log found categories and subcategories
         console.log("Found categories:", Array.from(uniqueCategories));
+        uniqueSubcategories.forEach((subcats, category) => {
+          console.log(`Category '${category}' has subcategories:`, Array.from(subcats));
+        });
         
         // Update state with loaded data
         setCategories(uniqueCategories);
         setArticles(articlesData);
         setFilteredArticles(articlesData);
       } catch (error) {
-        console.error("Error fetching articles from Firestore:", error);
+        console.error("Error fetching data from Firebase:", error);
         toast({
-          title: "Error Loading Articles",
-          description: "There was a problem fetching your articles. Please try again or check your connection.",
+          title: "Error Loading Content",
+          description: "There was a problem fetching your articles and categories. Please try again.",
           variant: "destructive"
         });
       } finally {
@@ -129,7 +141,7 @@ export default function ArticlesPage() {
       }
     };
     
-    fetchArticlesDirectly();
+    fetchAllData();
   }, [toast]);
 
   // Apply filters
