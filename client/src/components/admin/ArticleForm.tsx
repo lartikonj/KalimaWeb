@@ -28,8 +28,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { searchPhotos } from "@/lib/unsplash";
-import categories from "@/data/categories";
+import { getCategories, createCategory, updateCategory } from "@/lib/firebase";
 import { X, Plus, ImageIcon, Loader2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { Language } from "@/contexts/LanguageContext";
 
 // Schema for article form
