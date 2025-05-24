@@ -15,6 +15,7 @@ import StaticPage from "@/pages/page";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Favorites from "@/pages/favorites";
+import SearchPage from "@/pages/search";
 // Use existing admin components
 import Dashboard from "@/pages/admin/dashboard";
 import AdminArticles from "@/pages/admin/articles";
@@ -61,6 +62,7 @@ function RouterContent() {
           <Route path="/categories/:categorySlug/:subcategorySlug/:slug" component={Article} />
           <Route path="/article/:slug" component={Article} />
           <Route path="/page/:slug" component={StaticPage} />
+          <Route path="/search" component={SearchPage} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/favorites">
