@@ -5,12 +5,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { Footer } from "@/components/layout/Footer";
 import Home from "@/pages/home";
 import Categories from "@/pages/categories";
 import CategoryPage from "@/pages/category";
 import SubcategoryPage from "@/pages/subcategory";
 import Article from "@/pages/article";
+import StaticPage from "@/pages/page";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Favorites from "@/pages/favorites";
@@ -19,6 +20,8 @@ import Dashboard from "@/pages/admin/dashboard";
 import AdminArticles from "@/pages/admin/articles";
 import AdminCategories from "@/pages/admin/categories";
 import AdminStaticPages from "@/pages/admin/static-pages/index";
+import CreateStaticPage from "@/pages/admin/static-pages/create";
+import EditStaticPage from "@/pages/admin/static-pages/edit/[id]";
 import Suggestions from "@/pages/admin/suggestions";
 import EditArticle from "@/pages/admin/articles/edit/[slug]";
 import CreateArticle from "@/pages/admin/create-article";
@@ -57,6 +60,7 @@ function RouterContent() {
           <Route path="/categories/:categorySlug/:subcategorySlug" component={SubcategoryPage} />
           <Route path="/categories/:categorySlug/:subcategorySlug/:slug" component={Article} />
           <Route path="/article/:slug" component={Article} />
+          <Route path="/page/:slug" component={StaticPage} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/favorites">
@@ -93,6 +97,16 @@ function RouterContent() {
           <Route path="/admin/static-pages">
             <ProtectedRoute>
               <AdminStaticPages />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/static-pages/create">
+            <ProtectedRoute>
+              <CreateStaticPage />
+            </ProtectedRoute>
+          </Route>
+          <Route path="/admin/static-pages/edit/:id">
+            <ProtectedRoute>
+              <EditStaticPage />
             </ProtectedRoute>
           </Route>
           <Route path="/admin/suggestions">

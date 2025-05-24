@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { StaticPageForm } from "@/components/admin/StaticPageForm";
 import { createStaticPage } from "@/lib/firebase";
@@ -9,7 +9,7 @@ import { Language } from "@/contexts/LanguageContext";
 export default function CreateStaticPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   const handleSubmit = async (data: {
     slug: string;
