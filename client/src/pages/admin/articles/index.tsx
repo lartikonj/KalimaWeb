@@ -224,39 +224,42 @@ export default function ArticlesPage() {
     }
   };
 
-  // Get article title in current language with better fallback handling
+  // Simplified article title getter that always returns something displayable
   const getArticleTitle = (article: any) => {
-    if (!article.translations) {
-      console.log("Article missing translations:", article.id, article.slug);
-      return article.slug || "Untitled";
+    // If no article or it's invalid, return a default
+    if (!article) {
+      return "Untitled Article";
     }
     
-    // Try to get title from current language
+    // If slug exists, use that as a fallback
+    const slug = article.slug || "untitled";
+    
+    // Check for translations
+    if (!article.translations) {
+      return slug;
+    }
+    
+    // Try current language
     if (article.translations[language]?.title) {
       return article.translations[language].title;
     }
     
-    // Try English as fallback
+    // Try English
     if (article.translations.en?.title) {
       return article.translations.en.title;
     }
     
-    // Try first available language
-    if (article.availableLanguages && article.availableLanguages.length > 0) {
-      const firstLangCode = article.availableLanguages[0];
-      if (article.translations[firstLangCode]?.title) {
-        return article.translations[firstLangCode].title;
+    // Try first available language in translations
+    const languages = Object.keys(article.translations);
+    if (languages.length > 0) {
+      const firstLang = languages[0];
+      if (article.translations[firstLang]?.title) {
+        return article.translations[firstLang].title;
       }
     }
     
-    // Last resort: get first title from any language
-    const firstTranslation = Object.values(article.translations)[0] as any;
-    if (firstTranslation?.title) {
-      return firstTranslation.title;
-    }
-    
-    // Ultimate fallback
-    return article.slug || "Untitled";
+    // Return slug if all else fails
+    return slug;
   };
 
   return (
