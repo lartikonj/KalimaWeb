@@ -143,8 +143,36 @@ export async function createArticle(articleData: ArticleFormData) {
       });
     });
     
+    // Deep copy the article data to ensure we don't modify the original
+    const articleDataCopy = JSON.parse(JSON.stringify(articleData));
+    
+    // Fix the content structure before validation to ensure all title fields are strings
+    Object.keys(articleDataCopy.translations).forEach(lang => {
+      const translation = articleDataCopy.translations[lang];
+      
+      if (Array.isArray(translation.content)) {
+        // Create new content array with properly structured items
+        translation.content = translation.content.map(item => {
+          if (typeof item === 'string') {
+            return {
+              title: "Content",
+              paragraph: item,
+              references: []
+            };
+          }
+          
+          // Ensure each section has a proper title (not undefined)
+          return {
+            title: typeof item.title === 'string' ? item.title : "Content",
+            paragraph: typeof item.paragraph === 'string' ? item.paragraph : "",
+            references: Array.isArray(item.references) ? item.references : []
+          };
+        });
+      }
+    });
+    
     // Ensure all required fields are present
-    const validatedData = articleSchema.parse(articleData);
+    const validatedData = articleSchema.parse(articleDataCopy);
     
     // Ensure all available languages have corresponding translations
     for (const lang of validatedData.availableLanguages) {
@@ -159,6 +187,13 @@ export async function createArticle(articleData: ArticleFormData) {
         throw new Error(`Translation for ${lang} exists but language is not listed as available`);
       }
     }
+    
+    console.log("Creating article with validated data:", {
+      slug: validatedData.slug,
+      languages: validatedData.availableLanguages.length,
+      imageUrls: validatedData.imageUrls.length,
+      imageDescriptions: validatedData.imageDescriptions?.length || 0
+    });
     
     // Create the article with our enhanced structure
     return await firebaseCreateArticle(validatedData);
