@@ -102,7 +102,7 @@ export function SearchDialog() {
           </kbd>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[550px] top-4 sm:top-20 max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{t("search.searchArticles")}</DialogTitle>
         </DialogHeader>
@@ -123,26 +123,42 @@ export function SearchDialog() {
           )}
         </div>
         
-        <div className="mt-4 max-h-[300px] overflow-y-auto">
+        <div className="mt-4 max-h-[40vh] overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center p-4">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
             </div>
           ) : results.length > 0 ? (
-            <ul className="space-y-2">
-              {results.map((article) => (
-                <li 
-                  key={article.id} 
-                  className="rounded-md p-2 hover:bg-muted cursor-pointer"
-                  onClick={() => handleResultClick(article.slug)}
-                >
-                  <h3 className="font-medium">{article.translations[language].title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-1">
-                    {article.translations[language].summary}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="space-y-2">
+                {results.slice(0, 5).map((article) => (
+                  <li 
+                    key={article.id} 
+                    className="rounded-md p-2 hover:bg-muted cursor-pointer"
+                    onClick={() => handleResultClick(article.slug)}
+                  >
+                    <h3 className="font-medium">{article.translations[language].title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {article.translations[language].summary}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              
+              {results.length > 5 && (
+                <div className="mt-4 flex justify-center">
+                  <Button 
+                    onClick={() => {
+                      setOpen(false);
+                      setLocation(`/search?q=${encodeURIComponent(query)}`);
+                    }}
+                    className="w-full"
+                  >
+                    {t("search.seeAllResults")} ({results.length})
+                  </Button>
+                </div>
+              )}
+            </>
           ) : query.trim().length >= 2 ? (
             <p className="text-center text-muted-foreground py-4">
               {t("search.noResults")}

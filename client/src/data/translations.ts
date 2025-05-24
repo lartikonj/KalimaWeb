@@ -28,7 +28,11 @@ const translations = {
       enterSearchTerm: "Enter at least 2 characters to search",
       searching: "Searching...",
       pressToSearch: "Press ⌘K to search",
-      results: "Search Results"
+      results: "Search Results",
+      result: "Result",
+      seeAllResults: "See All Results",
+      for: "for",
+      tryDifferentTerms: "Try different search terms"
     },
 
     // Navigation
@@ -271,6 +275,22 @@ const translations = {
       confirm: "تأكيد",
       submit: "إرسال"
     },
+    
+    // Search
+    search: {
+      search: "بحث",
+      searchArticles: "البحث في المقالات",
+      typeToSearch: "اكتب للبحث...",
+      noResults: "لم يتم العثور على نتائج",
+      enterSearchTerm: "أدخل حرفين على الأقل للبحث",
+      searching: "جاري البحث...",
+      pressToSearch: "اضغط ⌘K للبحث",
+      results: "نتائج البحث",
+      result: "نتيجة",
+      seeAllResults: "مشاهدة كل النتائج",
+      for: "عن",
+      tryDifferentTerms: "حاول استخدام كلمات بحث مختلفة"
+    },
 
     // Navigation
     nav: {
@@ -511,6 +531,22 @@ const translations = {
       cancel: "Annuler",
       confirm: "Confirmer",
       submit: "Soumettre"
+    },
+    
+    // Search
+    search: {
+      search: "Rechercher",
+      searchArticles: "Rechercher des Articles",
+      typeToSearch: "Tapez pour rechercher...",
+      noResults: "Aucun résultat trouvé",
+      enterSearchTerm: "Saisissez au moins 2 caractères pour rechercher",
+      searching: "Recherche en cours...",
+      pressToSearch: "Appuyez sur ⌘K pour rechercher",
+      results: "Résultats de Recherche",
+      result: "Résultat",
+      seeAllResults: "Voir Tous les Résultats",
+      for: "pour",
+      tryDifferentTerms: "Essayez des termes de recherche différents"
     },
 
     // Navigation
@@ -753,6 +789,22 @@ const translations = {
       confirm: "Confirmar",
       submit: "Enviar"
     },
+    
+    // Search
+    search: {
+      search: "Buscar",
+      searchArticles: "Buscar Artículos",
+      typeToSearch: "Escribe para buscar...",
+      noResults: "No se encontraron resultados",
+      enterSearchTerm: "Introduce al menos 2 caracteres para buscar",
+      searching: "Buscando...",
+      pressToSearch: "Presiona ⌘K para buscar",
+      results: "Resultados de Búsqueda",
+      result: "Resultado",
+      seeAllResults: "Ver Todos los Resultados",
+      for: "para",
+      tryDifferentTerms: "Intenta con términos de búsqueda diferentes"
+    },
 
     // Navigation
     nav: {
@@ -993,6 +1045,22 @@ const translations = {
       cancel: "Abbrechen",
       confirm: "Bestätigen",
       submit: "Absenden"
+    },
+    
+    // Search
+    search: {
+      search: "Suchen",
+      searchArticles: "Artikel Suchen",
+      typeToSearch: "Tippen zum Suchen...",
+      noResults: "Keine Ergebnisse gefunden",
+      enterSearchTerm: "Geben Sie mindestens 2 Zeichen ein, um zu suchen",
+      searching: "Suche läuft...",
+      pressToSearch: "Drücken Sie ⌘K zum Suchen",
+      results: "Suchergebnisse",
+      result: "Ergebnis",
+      seeAllResults: "Alle Ergebnisse anzeigen",
+      for: "für",
+      tryDifferentTerms: "Versuchen Sie andere Suchbegriffe"
     },
 
     // Navigation
