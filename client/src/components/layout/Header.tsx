@@ -61,6 +61,11 @@ export default function Header() {
           </div>
           
           <div className="flex items-center">
+            {/* Search Button */}
+            <div className="hidden md:flex md:items-center mr-2">
+              <SearchDialog />
+            </div>
+            
             {/* Language Switcher */}
             <div className="hidden md:flex md:items-center">
               <LanguageSwitcher />
@@ -139,6 +144,11 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden bg-white dark:bg-neutral-800 shadow-md">
           <div className="pt-2 pb-3 space-y-1">
+            {/* Mobile Search */}
+            <div className="px-4 py-2 flex justify-center">
+              <SearchDialog />
+            </div>
+
             <MobileNavLink 
               href="/" 
               active={isActive('/')} 
