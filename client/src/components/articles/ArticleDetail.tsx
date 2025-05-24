@@ -10,13 +10,16 @@ import { addFavorite, removeFavorite } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { LanguageBadge } from "./LanguageBadge";
 import { ArticleCard } from "./ArticleCard";
+import ReactMarkdown from "react-markdown";
 
 interface ArticleTranslation {
   title: string;
   summary: string;
+  keywords?: string[];
   content: Array<{
-    type: string;
-    text: string;
+    title: string;
+    paragraph: string;
+    references?: string[];
   }>;
 }
 
@@ -28,7 +31,16 @@ interface Article {
   translations: Record<string, ArticleTranslation>;
   availableLanguages: string[];
   createdAt: any; // Firestore timestamp
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
+  imageDescriptions?: string[];
+  author?: {
+    uid: string;
+    displayName: string;
+    photoURL?: string;
+  };
+  featured?: boolean;
+  popular?: boolean;
 }
 
 interface RelatedArticle {
@@ -39,11 +51,19 @@ interface RelatedArticle {
   translations: Record<string, {
     title: string;
     summary: string;
-    content: Array<{type: string; text: string}>;
+    keywords?: string[];
+    content: Array<{
+      title: string;
+      paragraph: string;
+      references?: string[];
+    }>;
   }>;
   availableLanguages: string[];
   createdAt: any;
-  imageUrl: string;
+  imageUrl?: string;
+  imageUrls?: string[];
+  featured?: boolean;
+  popular?: boolean;
 }
 
 interface ArticleDetailProps {
@@ -64,10 +84,10 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
   // Set the active language to the current UI language if it's available for this article
   useEffect(() => {
     if (article && article.availableLanguages.includes(language)) {
-      setActiveLanguage(language);
+      setActiveLanguage(language as any);
     } else if (article && article.availableLanguages.length > 0) {
       // Fallback to first available language
-      setActiveLanguage(article.availableLanguages[0]);
+      setActiveLanguage(article.availableLanguages[0] as any);
     }
   }, [article, language]);
   
@@ -172,7 +192,7 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
     setActiveLanguage(lang as any);
     // Also update the UI language if needed
     if (lang === "en" || lang === "ar" || lang === "fr" || lang === "es" || lang === "de") {
-      setLanguage(lang);
+      setLanguage(lang as Language);
     }
   };
   
@@ -293,8 +313,10 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
                   {section.title}
                 </h2>
               )}
-              <div className="mb-4">
-                {section.paragraph}
+              <div className="mb-4 prose dark:prose-invert max-w-none">
+                <ReactMarkdown>
+                  {section.paragraph}
+                </ReactMarkdown>
               </div>
               {section.references && section.references.length > 0 && (
                 <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md mt-2 text-sm">
