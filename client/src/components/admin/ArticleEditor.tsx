@@ -4,7 +4,7 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
-import { getCategories, createArticle, updateArticle, getArticleBySlug, createCategory } from "@/lib/firebase";
+import { getCategories, createArticle, updateArticle, getArticleBySlug, createCategory, updateCategory } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
@@ -378,6 +378,77 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       // Set the main title from the English translation or first available translation
       const title = data.title || data.translations.en?.title || 
                    Object.values(data.translations)[0]?.title || "Untitled Article";
+      
+      // Check if category exists, if not, create it
+      const categoryExists = categories.some(c => c.slug === data.category && !c.id?.toString().startsWith('temp-'));
+      const isNewCategory = !categoryExists;
+      
+      if (isNewCategory) {
+        // Find the temporary category to get its titles
+        const tempCategory = categories.find(c => c.slug === data.category);
+        const categoryTitles = tempCategory?.titles || { en: data.category };
+        
+        try {
+          // Create the category in Firestore
+          await createCategory({
+            slug: data.category,
+            titles: categoryTitles,
+            subcategories: []
+          });
+          
+          toast({
+            title: "Category Created",
+            description: `Created new category "${data.category}"`,
+          });
+        } catch (error) {
+          console.error("Error creating category:", error);
+          toast({
+            title: "Category Error",
+            description: "Failed to create new category. Article will still be saved.",
+            variant: "destructive"
+          });
+        }
+      }
+      
+      // Check if subcategory exists in the category, if not, add it
+      const categoryObj = categories.find(c => c.slug === data.category);
+      if (categoryObj) {
+        const subcategoryExists = categoryObj.subcategories?.some(
+          (s: any) => s.slug === data.subcategory
+        );
+        
+        if (!subcategoryExists && data.subcategory) {
+          try {
+            // Find the temporary subcategory to get its titles
+            const tempSubcategory = subcategories.find((s: any) => s.slug === data.subcategory);
+            const subcategoryTitles = tempSubcategory?.titles || { en: data.subcategory };
+            
+            // Add subcategory to the category (skip if category is new as it will be handled in createCategory)
+            if (!isNewCategory && categoryObj.id) {
+              await updateCategory(categoryObj.id, {
+                slug: categoryObj.slug,
+                titles: categoryObj.titles,
+                subcategories: [
+                  ...(categoryObj.subcategories || []),
+                  { slug: data.subcategory, titles: subcategoryTitles }
+                ]
+              });
+              
+              toast({
+                title: "Subcategory Added",
+                description: `Added new subcategory "${data.subcategory}" to category "${data.category}"`,
+              });
+            }
+          } catch (error) {
+            console.error("Error adding subcategory:", error);
+            toast({
+              title: "Subcategory Error",
+              description: "Failed to add new subcategory. Article will still be saved.",
+              variant: "destructive"
+            });
+          }
+        }
+      }
         
       const articleData = {
         ...data,
