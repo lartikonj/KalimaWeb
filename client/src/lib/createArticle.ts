@@ -22,6 +22,7 @@ const articleSchema = z.object({
   featured: z.boolean().default(false),
   popular: z.boolean().default(false),
   imageUrls: z.array(z.string()).optional().default([]),
+  imageDescriptions: z.array(z.string()).optional().default([]),
   author: z.object({
     uid: z.string(),
     displayName: z.string(),
@@ -72,6 +73,16 @@ export async function createArticle(articleData: ArticleFormData) {
       articleData.imageUrls = ["https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop"];
     }
     
+    // Ensure imageDescriptions exist and match imageUrls length
+    if (!articleData.imageDescriptions || !Array.isArray(articleData.imageDescriptions)) {
+      articleData.imageDescriptions = [];
+    }
+    
+    // Add placeholder descriptions if needed
+    while (articleData.imageDescriptions.length < articleData.imageUrls.length) {
+      articleData.imageDescriptions.push(`Image ${articleData.imageDescriptions.length + 1} for ${articleData.title || 'article'}`);
+    }
+    
     // Set author information if missing
     if (!articleData.author) {
       articleData.author = {
@@ -120,12 +131,12 @@ export async function createArticle(articleData: ArticleFormData) {
           };
         }
         
-        // Ensure title exists
-        if (!item.title) {
-          item.title = "Content";
-        }
-        
-        return item;
+        // Create a new object with all required fields to ensure proper type
+        return {
+          title: item.title || "Content",
+          paragraph: item.paragraph || "",
+          references: item.references || []
+        };
       });
     });
     
