@@ -68,62 +68,68 @@ export default function ArticlesPage() {
   // Get toast hook
   const { toast } = useToast();
   
-  // Simple and direct approach to fetch all articles from Firestore
+  // DIRECT APPROACH: Get ALL articles from Firestore without any filtering
   useEffect(() => {
-    const fetchAllArticles = async () => {
+    const getEverySingleArticle = async () => {
       setIsLoading(true);
       
       try {
-        // Get all articles with a simple, direct query
-        const queryRef = query(collection(db, "articles"), limit(100)); // Limit to 100 articles max
-        const snapshot = await getDocs(queryRef);
+        // Most direct way to get all articles - no fancy queries
+        const articlesCollection = collection(db, "articles");
+        const allArticlesSnapshot = await getDocs(articlesCollection);
         
-        // Direct debugging output
-        console.log(`Found ${snapshot.size} articles in Firestore database`);
+        // Log exactly what we found
+        console.log(`DIRECT QUERY FOUND: ${allArticlesSnapshot.size} ARTICLES IN FIRESTORE`);
         
-        // Handle empty case
-        if (snapshot.empty) {
-          console.log("No articles found in database");
+        if (allArticlesSnapshot.empty) {
+          console.log("DATABASE IS EMPTY - NO ARTICLES FOUND");
+          toast({
+            title: "No Articles Found",
+            description: "Your Firestore database doesn't contain any articles yet. Create one to get started."
+          });
           setArticles([]);
           setFilteredArticles([]);
           setIsLoading(false);
           return;
         }
         
-        // Convert Firestore documents to article objects and log each one
-        const allArticles = snapshot.docs.map(doc => {
-          const data = doc.data();
-          console.log(`Article ID: ${doc.id}, Slug: ${data.slug || "no-slug"}`);
-          return {
+        // Map EVERY document to an article object
+        const rawArticles = [];
+        allArticlesSnapshot.forEach(doc => {
+          // Get document data and ID
+          const articleData = doc.data();
+          const article = {
             id: doc.id,
-            ...(data as any)
+            ...articleData
           };
+          
+          // Log EVERY article we find
+          console.log(`ARTICLE FOUND: ID=${doc.id}, SLUG=${articleData.slug || "NO-SLUG"}`);
+          
+          // Add to our list
+          rawArticles.push(article);
         });
         
-        // Simple display of first article for debugging
-        if (allArticles.length > 0) {
-          console.log("First article data:", JSON.stringify(allArticles[0], null, 2));
-        }
-        
-        // Find all unique categories from articles
-        const categories = new Set<string>();
-        allArticles.forEach((article: any) => {
-          if (article.category && typeof article.category === 'string') {
-            categories.add(article.category);
+        // Log ALL categories from ALL articles
+        const allCategories = new Set();
+        rawArticles.forEach(article => {
+          if (article.category) {
+            allCategories.add(article.category);
+            console.log(`CATEGORY FOUND: ${article.category}`);
           }
         });
         
-        // Update state with all articles and categories
-        setArticles(allArticles);
-        setFilteredArticles(allArticles); // Show all by default
-        setCategories(categories);
+        console.log(`TOTAL RESULTS: ${rawArticles.length} ARTICLES, ${allCategories.size} CATEGORIES`);
         
-        console.log(`Loaded ${allArticles.length} articles and ${categories.size} categories`);
+        // Update state with ALL articles and categories - NO FILTERING
+        setArticles(rawArticles);
+        setFilteredArticles(rawArticles); // Show ALL articles by default
+        setCategories(allCategories);
       } catch (error) {
-        console.error("Error loading articles:", error);
+        console.error("ERROR LOADING ARTICLES:", error);
         toast({
-          title: "Error Loading Content",
-          description: "There was a problem fetching your articles. Please try again.",
+          title: "Database Error",
+          description: "Failed to load articles from Firestore. Check console for details.",
           variant: "destructive"
         });
       } finally {
@@ -131,7 +137,7 @@ export default function ArticlesPage() {
       }
     };
     
-    fetchAllArticles();
+    getEverySingleArticle();
   }, [toast]);
 
   // Apply filters
