@@ -4,9 +4,10 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
-import { getCategories, createArticle, updateArticle, getArticleBySlug } from "@/lib/firebase";
+import { getCategories, createArticle, updateArticle, getArticleBySlug, createCategory } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import { Plus, Save, X, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { 
   Form,
   FormControl,
@@ -496,31 +497,115 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   )}
                 />
                 
-                {/* Category */}
+                {/* Category with on-the-fly creation */}
                 <FormField
                   control={form.control}
                   name="category"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="space-y-2">
                       <FormLabel>{t("admin.category")}</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t("admin.selectCategory")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.slug} value={category.slug}>
-                              {category.titles?.[language] || category.titles?.en || category.slug}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex gap-2">
+                        <div className="flex-1">
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={t("admin.selectCategory")} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categories.map((category) => (
+                                <SelectItem key={category.slug} value={category.slug}>
+                                  {category.titles?.[language] || category.titles?.en || category.slug}
+                                </SelectItem>
+                              ))}
+                              {field.value && !categories.find(c => c.slug === field.value) && (
+                                <SelectItem value={field.value}>
+                                  {field.value} (New)
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="icon"
+                              title={t("admin.addNewCategory") || "Add New Category"}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80">
+                            <div className="space-y-4">
+                              <h4 className="font-medium">{t("admin.addNewCategory") || "Add New Category"}</h4>
+                              <div className="space-y-2">
+                                <Label>{t("admin.slug") || "Slug"}</Label>
+                                <Input
+                                  id="new-category-slug"
+                                  placeholder="category-slug"
+                                  onChange={(e) => {
+                                    // Convert to slug format
+                                    const slugValue = e.target.value
+                                      .toLowerCase()
+                                      .replace(/[^a-z0-9]+/g, '-')
+                                      .replace(/^-|-$/g, '');
+                                    e.target.value = slugValue;
+                                  }}
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label>{t("admin.title") || "Title (English)"}</Label>
+                                <Input
+                                  id="new-category-title"
+                                  placeholder="Category Title"
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                onClick={() => {
+                                  const slugInput = document.getElementById("new-category-slug") as HTMLInputElement;
+                                  const titleInput = document.getElementById("new-category-title") as HTMLInputElement;
+                                  
+                                  if (slugInput?.value && titleInput?.value) {
+                                    const newSlug = slugInput.value;
+                                    const newTitle = titleInput.value;
+                                    
+                                    // Add to form
+                                    field.onChange(newSlug);
+                                    
+                                    // Add to categories list for display
+                                    const newCategory = {
+                                      id: `temp-${Date.now()}`,
+                                      slug: newSlug,
+                                      titles: { [language]: newTitle, en: newTitle },
+                                      subcategories: []
+                                    };
+                                    
+                                    setCategories([...categories, newCategory]);
+                                    
+                                    // Reset inputs
+                                    slugInput.value = "";
+                                    titleInput.value = "";
+                                    
+                                    toast({
+                                      title: "Category Added",
+                                      description: `New category "${newTitle}" will be created when you save the article.`,
+                                    });
+                                  }
+                                }}
+                              >
+                                {t("admin.addCategory") || "Add Category"}
+                              </Button>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
