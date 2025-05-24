@@ -89,6 +89,23 @@ export function ArticleForm({
   const [selectedCategory, setSelectedCategory] = useState<string>(
     initialData?.translations[activeLanguage]?.category || ""
   );
+  const [categories, setCategories] = useState<any[]>([]);
+  
+  // Fetch categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const fetchedCategories = await getCategories();
+        setCategories(fetchedCategories);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+        // Initialize with empty array if fetch fails
+        setCategories([]);
+      }
+    };
+    
+    loadCategories();
+  }, []);
 
   // Get subcategories based on selected category
   const getSubcategories = (categorySlug: string) => {
