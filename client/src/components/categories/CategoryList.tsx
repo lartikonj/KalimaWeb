@@ -35,6 +35,15 @@ export function CategoryList() {
     return category.titles?.en || category.slug;
   };
   
+  // Get translated category description based on current language
+  const getCategoryDescription = (categorySlug: string) => {
+    // Get description from translations
+    if (t(`categoryDescriptions.${categorySlug}`) !== `categoryDescriptions.${categorySlug}`) {
+      return t(`categoryDescriptions.${categorySlug}`);
+    }
+    return "";
+  };
+  
   // Transform subcategories to the format expected by CategoryCard
   const getTransformedSubcategories = (category: any) => {
     if (!category.subcategories) return [];
@@ -75,6 +84,7 @@ export function CategoryList() {
           name={getTranslatedName(category)}
           slug={category.id}
           color={colors[index % colors.length]}
+          description={getCategoryDescription(category.slug)}
           subcategories={getTransformedSubcategories(category)}
         />
       ))}

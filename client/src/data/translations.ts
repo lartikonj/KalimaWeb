@@ -1157,6 +1157,24 @@ const translations = {
       "study-tips": "Studientipps",
       "motivation": "Motivation"
     },
+    
+    // Subcategory Descriptions
+    subcategoryDescriptions: {
+      "vocabulary": "Bauen Sie Ihren Wortschatz mit grundlegenden Begriffen und Ausdrücken für die alltägliche Kommunikation auf.",
+      "grammar": "Beherrschen Sie die Regeln und Strukturen, die die Grundlage für einen klaren und korrekten Sprachgebrauch bilden.",
+      "phrases": "Lernen Sie praktische Ausdrücke und Redewendungen, die Muttersprachler in echten Gesprächen verwenden.",
+      "history": "Erkunden Sie bedeutende Ereignisse, Epochen und kulturelle Entwicklungen, die Gesellschaften geprägt haben.",
+      "food": "Entdecken Sie kulinarische Traditionen, Rezepte und die kulturelle Bedeutung von Speisen auf der ganzen Welt.",
+      "travel": "Finden Sie Einblicke zu Reisezielen, kultureller Etikette und praktischer Reisesprache.",
+      "nature": "Lernen Sie etwas über Ökosysteme, Wildtiere und Naturphänomene in verständlichen wissenschaftlichen Begriffen.",
+      "technology": "Verstehen Sie moderne Innovationen und digitale Konzepte, die in einfacher Sprache erklärt werden.",
+      "health": "Greifen Sie auf Informationen über Wohlbefinden, gesunde Gewohnheiten und grundlegende medizinische Terminologie zu.",
+      "short-stories": "Genießen Sie kurze Erzählungen, die unterhalten und gleichzeitig Ihr Leseverständnis verbessern.",
+      "fairy-tales": "Entdecken Sie traditionelle und moderne Geschichten, die kulturelle Weisheit und Fantasie vermitteln.",
+      "productivity": "Lernen Sie Strategien zur Steigerung der Effizienz und zum Erreichen von mehr in Ihrem Studium und Ihrer Arbeit.",
+      "study-tips": "Finden Sie praktische Ratschläge zur Verbesserung Ihrer Lerntechniken und akademischen Leistung.",
+      "motivation": "Entdecken Sie Ansätze, um Begeisterung aufrechtzuerhalten und Herausforderungen auf Ihrem Lernweg zu überwinden."
+    },
 
     // Article
     article: {
