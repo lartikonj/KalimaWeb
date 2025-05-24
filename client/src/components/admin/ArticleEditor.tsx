@@ -589,37 +589,158 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   )}
                 />
                 
-                {/* Image URL */}
+                {/* Image URLs (Multiple) */}
                 <FormField
                   control={form.control}
-                  name="imageUrl"
+                  name="imageUrls"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("admin.featuredImage")}</FormLabel>
+                      <FormLabel>{t("admin.articleImages")}</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <div className="space-y-2">
+                          {field.value?.map((url, index) => (
+                            <div key={index} className="flex gap-2">
+                              <Input
+                                value={url}
+                                onChange={(e) => {
+                                  const newUrls = [...field.value];
+                                  newUrls[index] = e.target.value;
+                                  field.onChange(newUrls);
+                                }}
+                                placeholder="https://example.com/image.jpg"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => {
+                                  const newUrls = [...field.value];
+                                  newUrls.splice(index, 1);
+                                  field.onChange(newUrls);
+                                  
+                                  // Also remove the corresponding image description
+                                  const imageDescriptions = form.getValues("imageDescriptions") || [];
+                                  if (imageDescriptions.length > index) {
+                                    const newDescriptions = [...imageDescriptions];
+                                    newDescriptions.splice(index, 1);
+                                    form.setValue("imageDescriptions", newDescriptions);
+                                  }
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              field.onChange([...(field.value || []), ""]);
+                            }}
+                            className="gap-2"
+                          >
+                            <Plus className="h-4 w-4" />
+                            {t("admin.addImageUrl") || "Add Image"}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormDescription>
-                        {t("admin.featuredImageDescription")}
+                        {t("admin.articleImagesDescription") || "Add URLs for article images"}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 
-                {/* Image Preview */}
-                {form.watch("imageUrl") && (
+                {/* Legacy Image URL support */}
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("admin.featuredImage")} (Legacy)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        {t("admin.featuredImageDescription")} (For backward compatibility)
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Image Descriptions */}
+                {form.watch("imageUrls")?.length > 0 && (
+                  <FormField
+                    control={form.control}
+                    name="imageDescriptions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("admin.imageDescriptions") || "Image Descriptions"}</FormLabel>
+                        <FormControl>
+                          <div className="space-y-2">
+                            {form.watch("imageUrls").map((url, index) => {
+                              // Ensure we have an array for descriptions
+                              const descriptions = Array.isArray(field.value) ? field.value : [];
+                              
+                              return (
+                                <div key={index} className="flex gap-2 items-center">
+                                  <div className="w-12 h-12 flex-shrink-0">
+                                    <img 
+                                      src={url} 
+                                      alt={`Thumbnail ${index + 1}`}
+                                      className="w-full h-full object-cover rounded-md"
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/100?text=IMG";
+                                      }}
+                                    />
+                                  </div>
+                                  <Input
+                                    value={descriptions[index] || ""}
+                                    onChange={(e) => {
+                                      const newDescriptions = [...descriptions];
+                                      newDescriptions[index] = e.target.value;
+                                      field.onChange(newDescriptions);
+                                    }}
+                                    placeholder={`Description for image ${index + 1}`}
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          {t("admin.imageDescriptionsHelp") || "Add descriptive alt text for each image for better accessibility and SEO"}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                
+                {/* Image Previews */}
+                {form.watch("imageUrls")?.length > 0 && (
                   <div className="mt-2">
                     <p className="text-sm font-medium mb-2">{t("admin.imagePreview")}</p>
-                    <div className="border rounded-md overflow-hidden h-32">
-                      <img
-                        src={form.watch("imageUrl")}
-                        alt={t("admin.articlePreview")}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "https://via.placeholder.com/800x400?text=Image+Error";
-                        }}
-                      />
+                    <div className="grid grid-cols-2 gap-2">
+                      {form.watch("imageUrls").map((url, index) => {
+                        const descriptions = form.watch("imageDescriptions") || [];
+                        const altText = descriptions[index] || `Preview ${index + 1}`;
+                        
+                        return (
+                          <div key={index} className="border rounded-md overflow-hidden h-32">
+                            <img
+                              src={url}
+                              alt={altText}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "https://via.placeholder.com/800x400?text=Image+Error";
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
