@@ -20,7 +20,7 @@ import AdminArticles from "@/pages/admin/articles";
 import AdminCategories from "@/pages/admin/categories";
 import AdminStaticPages from "@/pages/admin/static-pages/index";
 import Suggestions from "@/pages/admin/suggestions";
-import EditArticle from "@/pages/admin/edit-article";
+import EditArticle from "@/pages/admin/articles/edit/[slug]";
 import CreateArticle from "@/pages/admin/create-article";
 import AllArticles from "@/pages/admin/all-articles";
 import Profile from "@/pages/profile";
