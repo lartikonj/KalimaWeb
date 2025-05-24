@@ -130,8 +130,13 @@ export default function Header() {
               </div>
             )}
             
+            {/* Mobile Search Button */}
+            <div className="md:hidden ml-2">
+              <SearchDialog />
+            </div>
+            
             {/* Mobile menu button */}
-            <div className="md:hidden ml-4">
+            <div className="md:hidden ml-2">
               <Button variant="ghost" size="sm" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
@@ -144,10 +149,6 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden bg-white dark:bg-neutral-800 shadow-md">
           <div className="pt-2 pb-3 space-y-1">
-            {/* Mobile Search */}
-            <div className="px-4 py-2 flex justify-center">
-              <SearchDialog />
-            </div>
 
             <MobileNavLink 
               href="/" 
