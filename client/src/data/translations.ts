@@ -4,7 +4,7 @@ const translations = {
   en: {
     // General
     general: {
-      appName: "Kalima",
+      appName: "Kalima Online",
       back: "Back",
       backToHome: "Back to Home",
       loading: "Loading...",
@@ -268,8 +268,8 @@ const translations = {
     // Home page
     home: {
       hero: {
-        title: "Learn in Multiple Languages",
-        subtitle: "Explore educational content in Arabic, English, French, Spanish, and German.",
+        title: "Kalima online, Your Window to the World",
+        subtitle: "Read, Learn, Share. Kalima Online connects global voices through knowledge without language barriers.",
         cta: "Get Started"
       },
       featuredCategories: "Featured Categories",
@@ -525,8 +525,8 @@ const translations = {
     // Home page
     home: {
       hero: {
-        title: "تعلم بلغات متعددة",
-        subtitle: "استكشف المحتوى التعليمي باللغات العربية والإنجليزية والفرنسية والإسبانية والألمانية.",
+        title: "كلمة أونلاين، نافذتك إلى العالم",
+        subtitle: "اقرأ، تعلّم، وشارك. كلمة أونلاين تربط بين الأصوات العالمية من خلال المعرفة بلا حواجز لغوية.",
         cta: "ابدأ الآن"
       },
       featuredCategories: "التصنيفات المميزة",
@@ -782,8 +782,8 @@ const translations = {
     // Home page
     home: {
       hero: {
-        title: "Apprenez en plusieurs langues",
-        subtitle: "Explorez du contenu éducatif en arabe, anglais, français, espagnol et allemand.",
+        title: "Kalima Online, votre fenêtre sur le monde",
+        subtitle: "Lisez. Apprenez. Partagez. Kalima connecte les voix du monde à travers le savoir sans barrières linguistiques.",
         cta: "Commencer"
       },
       featuredCategories: "Catégories en vedette",
@@ -1039,8 +1039,8 @@ const translations = {
     // Home page
     home: {
       hero: {
-        title: "Aprende en varios idiomas",
-        subtitle: "Explora contenido educativo en árabe, inglés, francés, español y alemán.",
+        title: "Kalima Online, tu ventana al mundo",
+        subtitle: "Lee. Aprende. Comparte. Kalima conecta voces globales a través del conocimiento sin barreras de idioma.",
         cta: "Comenzar"
       },
       featuredCategories: "Categorías destacadas",
@@ -1296,8 +1296,8 @@ const translations = {
     // Home page
     home: {
       hero: {
-        title: "Lernen in mehreren Sprachen",
-        subtitle: "Entdecke Bildungsinhalte auf Arabisch, Englisch, Französisch, Spanisch und Deutsch.",
+        title: "Kalima Online– Dein Fenster zur Welt",
+        subtitle: "Lies. Lerne. Teile. Kalima Online verbindet weltweite Stimmen durch Wissen — ohne Sprachbarrieren.",
         cta: "Loslegen"
       },
       featuredCategories: "Ausgewählte Kategorien",
