@@ -16,7 +16,8 @@ const translations = {
       delete: "Delete",
       cancel: "Cancel",
       confirm: "Confirm",
-      submit: "Submit"
+      submit: "Submit",
+      browseSubcategory: "Browse"
     },
     
     // Search
@@ -72,7 +73,26 @@ const translations = {
       "culture": "Culture",
       "science": "Science", 
       "stories": "Stories",
-      "tips-lifestyle": "Tips & Lifestyle"
+      "tips-lifestyle": "Tips & Lifestyle",
+      "history": "History",
+      "food": "Food",
+      "technology": "Technology",
+      "health": "Health",
+      "education": "Education"
+    
+    },
+    categoryDescriptions: {
+      "language-learning": "Learn new languages and improve your language skills.",
+      "culture": "Explore different cultures and traditions around the world.",
+      "science": "Discover fascinating scientific concepts and innovations.",
+      "stories": "Enjoy a variety of engaging stories and narratives.",
+      "tips-lifestyle": "Get practical tips and advice on improving your lifestyle.",
+      "education": "Educational content for students and learners.",
+      "technology": "Stay updated with the latest technology trends and gadgets.",
+      "health": "Learn about health and wellness, including fitness and nutrition.",
+      "history": "Explore historical events and figures from around the world.",
+      "food": "Discover delicious recipes and cooking tips from various cuisines."
+      
     },
 
     // Subcategories
