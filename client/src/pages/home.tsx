@@ -45,29 +45,31 @@ export default function Home() {
     <div className="container mx-auto px-4 py-8 space-y-12">
       {/* Hero Section */}
       <div className="bg-white dark:bg-neutral-800 rounded-xl overflow-hidden shadow-lg mb-8">
-        <div className="relative">
-          <img 
-            src="https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=500" 
-            alt="Students reading educational content" 
-            className="w-full h-64 object-cover sm:h-80 md:h-96"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-600/80 to-primary-800/50 flex items-center">
-            <div className="px-6 md:px-12 max-w-3xl">
-              <h1 className="text-3xl md:text-4xl font-bold text-white font-heading mb-4">
-                {t("home.hero.title")}
-              </h1>
-              <p className="text-white text-lg md:text-xl mb-6">
-                {t("home.hero.subtitle")}
-              </p>
-              <Button asChild size="lg" className="bg-white text-primary-600 hover:bg-neutral-100">
-                <Link href="/categories">
-                  {t("home.hero.cta")}
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
+  <div className="relative">
+    <img 
+      src="https://images.pexels.com/photos/8438951/pexels-photo-8438951.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+      alt="Students reading educational content" 
+      className="w-full object-cover max-h-[400px]"
+    />
+    <div className="absolute inset-0 bg-gradient-to-r from-primary-600/80 to-primary-800/50 flex items-center">
+      <div className="px-4 sm:px-6 md:px-12 py-6 max-w-3xl">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white font-heading mb-3">
+          {t("home.hero.title")}
+        </h1>
+        <p className="text-base sm:text-lg md:text-xl text-white mb-5">
+          {t("home.hero.subtitle")}
+        </p>
+        <Button asChild size="lg" className="bg-white text-primary-600 hover:bg-neutral-100">
+          <Link href="/categories">
+            {t("home.hero.cta")}
+          </Link>
+        </Button>
       </div>
+    </div>
+  </div>
+</div>
+
+
 
       {/* Featured Categories */}
       <div>

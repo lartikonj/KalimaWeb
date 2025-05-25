@@ -40,16 +40,13 @@ export default function Header() {
           <div className="flex items-center">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <svg className="h-8 w-auto text-primary-600 dark:text-primary-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 4L2 8L12 12L22 8L12 4Z" fill="currentColor"/>
-                <path d="M2 12L12 16L22 12" fill="currentColor"/>
-                <path d="M2 16L12 20L22 16" fill="currentColor"/>
-              </svg>
-              <span className={`ml-2 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary dark:from-primary dark:to-accent ${isRTL ? 'mr-2 ml-0' : 'ml-2'}`}>
-                Kalima
-              </span>
-            </Link>
-            
+  <img
+    src="/logo.png"
+    alt="Kalima Logo"
+    className="h-10 w-auto"
+  />
+</Link>
+
             {/* Desktop Navigation */}
             <nav className={`hidden md:flex md:space-x-6 ${isRTL ? 'md:space-x-reverse mr-6' : 'ml-6'}`}>
               <NavLink href="/" active={isActive('/')} label={t("nav.home")} />

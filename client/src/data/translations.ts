@@ -268,7 +268,7 @@ const translations = {
     // Home page
     home: {
       hero: {
-        title: "Kalima online, Your Window to the World",
+        title: "Your Window to the World",
         subtitle: "Read, Learn, Share. Kalima Online connects global voices through knowledge without language barriers.",
         cta: "Get Started"
       },

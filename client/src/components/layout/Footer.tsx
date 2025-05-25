@@ -75,9 +75,7 @@ export function Footer() {
         <div className="max-w-6xl mx-auto">
           {/* Main intro content for all screen sizes */}
           <div className="text-center mb-8">
-            <h3 className="text-xl font-bold mb-4 text-white">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-200">Kalima</span>
-            </h3>
+            <img src="/logo.png" alt="Kalima logo" className="w-24 mx-auto mb-4" />
             <p className="text-gray-100 text-sm max-w-2xl mx-auto backdrop-blur-sm bg-white/10 rounded-lg p-3">
               A multilingual educational platform providing valuable resources
               in multiple languages to support global learning.
