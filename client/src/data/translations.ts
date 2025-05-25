@@ -17,7 +17,13 @@ const translations = {
       cancel: "Cancel",
       confirm: "Confirm",
       submit: "Submit",
-      browseSubcategory: "Browse"
+      browseSubcategory: "Browse",
+      browseCategory: "Browse",
+      browseArticles: "Browse Articles",
+      articles: "Articles",
+      noArticles: "No articles found",
+      noArticlesInSubcategory: "No articles found in this subcategory"
+    
     },
     
     // Search
@@ -44,7 +50,15 @@ const translations = {
       profile: "Profile",
       suggestions: "Suggestions",
       admin: "Admin",
-      logout: "Logout"
+      logout: "Logout",
+      adminDashboard: "Dashboard",
+      adminArticles: "Articles",
+      adminSuggestions: "Suggestions",
+      adminUsers: "Users",
+      adminSettings: "Settings",
+      adminPanel: "Admin Panel",
+      adminCreateArticle: "Create Article"
+      
     },
 
     // Authentication
@@ -61,7 +75,14 @@ const translations = {
       hasAccount: "Already have an account?",
       createAccount: "Create an account",
       loginNow: "Login now",
-      loggedInAs: "Logged in as"
+      loggedInAs: "Logged in as",
+      loginDescription: "Login to your account",
+      registerDescription: "Create a new account",
+      displayNamePlaceholder: "Enter your display name",
+      passwordRequirements: "Password must be at least 6 characters long",
+      ORCONTINUEWITH: "OR CONTINUE WITH",
+      loginSuccess: "Login successful"
+      
     },
 
     // Categories
@@ -78,8 +99,9 @@ const translations = {
       "food": "Food",
       "technology": "Technology",
       "health": "Health",
-      "education": "Education"
-    
+      "education": "Education",
+      "travel": "Travel",
+      
     },
     categoryDescriptions: {
       "language-learning": "Learn new languages and improve your language skills.",
@@ -154,7 +176,10 @@ const translations = {
       memberSince: "Member since",
       updateProfile: "Update Profile",
       deleteAccount: "Delete Account",
-      confirmDeleteAccount: "Are you sure you want to delete your account? This action cannot be undone."
+      confirmDeleteAccount: "Are you sure you want to delete your account? This action cannot be undone.",
+      edit: "Edit",
+      stats: "Stats",
+      manageYourinfo: "Manage your personal information"
     },
 
     // Suggestions
@@ -163,6 +188,7 @@ const translations = {
       empty: "You haven't submitted any article suggestions yet.",
       new: "Suggest New Article",
       submitted: "Your suggestions",
+      submittedDescription: "Here are the article suggestions you have submitted.",
       form: {
         title: "Suggest an Article",
         titleLabel: "Article Title",
@@ -172,7 +198,10 @@ const translations = {
         contentPlaceholder: "Write your article content here...",
         submit: "Submit Suggestion",
         success: "Suggestion submitted",
-        successMessage: "Thank you for your contribution!"
+        successMessage: "Thank you for your contribution!",
+        description: "Suggest an article you would like to see on Kalime Online.",
+        languageDescription: "Select the language of your article suggestion.",
+        contentDescription: "Write the content of your article suggestion here."
       }
     },
 
@@ -192,6 +221,10 @@ const translations = {
       saving: "Saving...",
       saveArticle: "Save Article",
       publishArticle: "Publish Article",
+      articlesManagement: "Articles Management",
+      suggestionsManagement: "Suggestions Management",
+      categoriesManagement: "Categories Management",
+      staticPages: "Static Pages",
       article: {
         title: "Title",
         titlePlaceholder: "Enter article title",
