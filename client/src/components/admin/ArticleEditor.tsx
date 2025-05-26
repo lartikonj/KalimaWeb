@@ -1228,7 +1228,17 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   <FormItem>
                     <FormLabel>{t("admin.title")}</FormLabel>
                     <FormControl>
-                      <Input placeholder={t("admin.titlePlaceholder")} {...field} />
+                      <Input 
+                    placeholder={
+                      activeLanguage === 'en' ? t("admin.titlePlaceholder") :
+                      activeLanguage === 'fr' ? "Titre de l'article en français" :
+                      activeLanguage === 'es' ? "Título del artículo en español" :
+                      activeLanguage === 'de' ? "Artikeltitel auf Deutsch" :
+                      activeLanguage === 'ar' ? "عنوان المقال باللغة العربية" :
+                      t("admin.titlePlaceholder")
+                    }
+                    {...field} 
+                  />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

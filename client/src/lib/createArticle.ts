@@ -40,16 +40,20 @@ export async function createArticle(articleData: ArticleFormData) {
     
     // Check slug specifically before validation
     if (!articleData.slug || articleData.slug.trim() === '') {
-      // Generate a slug from the title if available, otherwise use timestamp
+      // Generate a slug from the title if available, prioritize any available language
+      const availableTranslations = Object.values(articleData.translations);
       const slugBase = articleData.title || 
-        (articleData.translations.en?.title) || 
-        Object.values(articleData.translations)[0]?.title || 
+        availableTranslations.find(t => t?.title)?.title ||
         `article-${Date.now()}`;
       
-      // Create a URL-friendly slug
+      // Create a URL-friendly slug that handles non-English characters
       articleData.slug = slugBase
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
+        .normalize('NFD') // Normalize Unicode characters
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks
+        .replace(/[^\w\s-]/g, '') // Remove special characters except word chars, spaces, and hyphens
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
         .replace(/^-+|-+$/g, '') || `article-${Date.now()}`;
       
       console.log("Generated slug:", articleData.slug);
@@ -91,9 +95,11 @@ export async function createArticle(articleData: ArticleFormData) {
     
     // Set main title field from translations if not specified
     if (!articleData.title) {
-      articleData.title = articleData.translations.en?.title || 
-        Object.values(articleData.translations)[0]?.title || 
-        "Untitled Article";
+      // Find the first available translation with a title
+      const firstTranslationWithTitle = Object.values(articleData.translations)
+        .find(translation => translation?.title && translation.title.trim() !== '');
+      
+      articleData.title = firstTranslationWithTitle?.title || "Untitled Article";
     }
     
     // Add featured and popular flags if missing
