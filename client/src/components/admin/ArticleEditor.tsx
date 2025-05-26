@@ -502,7 +502,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       };
 
       if (isEditMode) {
-        await updateArticle(initialData?.slug as string, articleData);
+        // Use the current slug from form data, not initialData
+        const currentSlug = articleData.slug || initialData?.slug;
+        if (!currentSlug) {
+          throw new Error("Article slug is required for updating");
+        }
+        
+        // Call updateArticle with the correct parameters
+        await updateArticle(currentSlug, articleData);
         toast({
           title: t("admin.articleUpdated"),
           description: t("admin.articleUpdatedDescription"),

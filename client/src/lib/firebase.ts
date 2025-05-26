@@ -685,6 +685,7 @@ export async function createArticle(inputData: {
 }
 
 export async function updateArticle(slug: string, articleData: {
+  slug?: string;
   title?: string;
   category: string;
   subcategory: string;
@@ -699,15 +700,14 @@ export async function updateArticle(slug: string, articleData: {
     summary: string;
     keywords?: string[];
     content: Array<{
-      title: string;
       paragraph: string;
-      references?: string[];
     }>;
   }>;
   draft: boolean;
   featured?: boolean;
   popular?: boolean;
   imageUrls?: string[];
+  imageDescriptions?: string[];
 }): Promise<FirestoreArticle> {
   try {
     // Find the article by slug
@@ -722,9 +722,36 @@ export async function updateArticle(slug: string, articleData: {
     
     const articleDoc = articlesSnapshot.docs[0];
     
+    // Clean up the article data for update
+    const cleanArticleData = { ...articleData };
+    
+    // Ensure we have the correct slug
+    cleanArticleData.slug = slug;
+    
+    // Clean up translations content structure
+    if (cleanArticleData.translations) {
+      Object.keys(cleanArticleData.translations).forEach(lang => {
+        const translation = cleanArticleData.translations[lang];
+        if (translation.content) {
+          // Ensure content has the simplified structure
+          translation.content = translation.content.map(item => ({
+            paragraph: item.paragraph || ""
+          }));
+        }
+      });
+    }
+    
+    // Set main title from translations if not provided
+    if (!cleanArticleData.title && cleanArticleData.translations) {
+      const firstTranslation = Object.values(cleanArticleData.translations)[0];
+      if (firstTranslation?.title) {
+        cleanArticleData.title = firstTranslation.title;
+      }
+    }
+    
     // Prepare the update data (keeping the original slug)
     const updateData = {
-      ...articleData,
+      ...cleanArticleData,
       slug // Ensure slug remains the same
     };
     
