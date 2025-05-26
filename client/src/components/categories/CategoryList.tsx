@@ -48,7 +48,10 @@ export function CategoryList() {
   };
   
   // Assign colors to categories
-  const colors = ["primary", "accent", "secondary", "purple", "teal"];
+  const colors = [
+    "primary", "accent", "secondary", "purple", "teal", 
+    "red", "gold", "pink", "indigo", "emerald", "rose", "cyan"
+  ];
   
   if (isLoading) {
     return (

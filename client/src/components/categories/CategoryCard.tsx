@@ -23,51 +23,93 @@ export function CategoryCard({ name, slug, color, subcategories }: CategoryCardP
   const getHeaderClass = () => {
     switch (color) {
       case "primary":
-        return "bg-primary-100 dark:bg-primary-900";
+        return "bg-blue-100 dark:bg-blue-900";
       case "accent":
-        return "bg-accent-100 dark:bg-accent-900";
+        return "bg-green-100 dark:bg-green-900";
       case "secondary":
-        return "bg-secondary-100 dark:bg-secondary-900";
+        return "bg-orange-100 dark:bg-orange-900";
       case "purple":
         return "bg-purple-100 dark:bg-purple-900";
       case "teal":
         return "bg-teal-100 dark:bg-teal-900";
+      case "red":
+        return "bg-red-100 dark:bg-red-900";
+      case "gold":
+        return "bg-yellow-100 dark:bg-yellow-900";
+      case "pink":
+        return "bg-pink-100 dark:bg-pink-900";
+      case "indigo":
+        return "bg-indigo-100 dark:bg-indigo-900";
+      case "emerald":
+        return "bg-emerald-100 dark:bg-emerald-900";
+      case "rose":
+        return "bg-rose-100 dark:bg-rose-900";
+      case "cyan":
+        return "bg-cyan-100 dark:bg-cyan-900";
       default:
-        return "bg-primary-100 dark:bg-primary-900";
+        return "bg-blue-100 dark:bg-blue-900";
     }
   };
   
   const getTitleClass = () => {
     switch (color) {
       case "primary":
-        return "text-primary-700 dark:text-primary-300";
+        return "text-blue-700 dark:text-blue-300";
       case "accent":
-        return "text-accent-700 dark:text-accent-300";
+        return "text-green-700 dark:text-green-300";
       case "secondary":
-        return "text-secondary-700 dark:text-secondary-300";
+        return "text-orange-700 dark:text-orange-300";
       case "purple":
         return "text-purple-700 dark:text-purple-300";
       case "teal":
         return "text-teal-700 dark:text-teal-300";
+      case "red":
+        return "text-red-700 dark:text-red-300";
+      case "gold":
+        return "text-yellow-700 dark:text-yellow-300";
+      case "pink":
+        return "text-pink-700 dark:text-pink-300";
+      case "indigo":
+        return "text-indigo-700 dark:text-indigo-300";
+      case "emerald":
+        return "text-emerald-700 dark:text-emerald-300";
+      case "rose":
+        return "text-rose-700 dark:text-rose-300";
+      case "cyan":
+        return "text-cyan-700 dark:text-cyan-300";
       default:
-        return "text-primary-700 dark:text-primary-300";
+        return "text-blue-700 dark:text-blue-300";
     }
   };
   
   const getLinkClass = () => {
     switch (color) {
       case "primary":
-        return "hover:text-primary-600 dark:hover:text-primary-400";
+        return "hover:text-blue-600 dark:hover:text-blue-400";
       case "accent":
-        return "hover:text-accent-600 dark:hover:text-accent-400";
+        return "hover:text-green-600 dark:hover:text-green-400";
       case "secondary":
-        return "hover:text-secondary-600 dark:hover:text-secondary-400";
+        return "hover:text-orange-600 dark:hover:text-orange-400";
       case "purple":
         return "hover:text-purple-600 dark:hover:text-purple-400";
       case "teal":
         return "hover:text-teal-600 dark:hover:text-teal-400";
+      case "red":
+        return "hover:text-red-600 dark:hover:text-red-400";
+      case "gold":
+        return "hover:text-yellow-600 dark:hover:text-yellow-400";
+      case "pink":
+        return "hover:text-pink-600 dark:hover:text-pink-400";
+      case "indigo":
+        return "hover:text-indigo-600 dark:hover:text-indigo-400";
+      case "emerald":
+        return "hover:text-emerald-600 dark:hover:text-emerald-400";
+      case "rose":
+        return "hover:text-rose-600 dark:hover:text-rose-400";
+      case "cyan":
+        return "hover:text-cyan-600 dark:hover:text-cyan-400";
       default:
-        return "hover:text-primary-600 dark:hover:text-primary-400";
+        return "hover:text-blue-600 dark:hover:text-blue-400";
     }
   };
   
