@@ -309,39 +309,50 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       const category = form.getValues("category") || "general";
       const subcategory = form.getValues("subcategory") || "other";
 
+      // Clean up translations - remove any category/subcategory that might have been added incorrectly
+      const cleanTranslations = { ...data.translations };
+      Object.keys(cleanTranslations).forEach(lang => {
+        if (cleanTranslations[lang]) {
+          // Remove category and subcategory from translations as they belong at article level
+          const { category: _, subcategory: __, ...cleanTranslation } = cleanTranslations[lang] as any;
+          cleanTranslations[lang] = {
+            title: cleanTranslation.title || "",
+            summary: cleanTranslation.summary || "",
+            keywords: cleanTranslation.keywords || [],
+            content: cleanTranslation.content || [{ paragraph: "" }]
+          };
+        }
+      });
+
       // Debug form values
       console.log("Form data submitted:", JSON.stringify({
         slug: slug,
         category: category,
         subcategory: subcategory,
-        fromData: data, 
         hasTranslations: !!data.translations,
         availableLanguages: data.availableLanguages,
-        formValues: form.getValues()
+        cleanedTranslationsKeys: Object.keys(cleanTranslations)
       }, null, 2));
 
-      // Add values to data explicitly
+      // Set the correct data structure
       data.slug = slug;
       data.category = category;
       data.subcategory = subcategory;
-
-      // Ensure we have category and subcategory values
-      if (!data.category) {
-        data.category = "general";
-      }
-
-      if (!data.subcategory) {
-        data.subcategory = "other";
-      }
+      data.translations = cleanTranslations;
 
       // Ensure we have valid category and subcategory values
       if (!data.category || !data.subcategory) {
-        throw new Error(t("admin.categorySubcategoryRequired"));
+        throw new Error(t("admin.categorySubcategoryRequired") || "Category and subcategory are required");
       }
 
-      // Ensure imageUrl exists
-      if (!data.imageUrl) {
-        throw new Error(t("admin.imageUrlRequired"));
+      // Ensure we have at least one image (either imageUrl or imageUrls)
+      const hasImages = (data.imageUrls && data.imageUrls.length > 0) || 
+                       (data.imageUrl && data.imageUrl.trim() !== "");
+      
+      if (!hasImages) {
+        // Auto-generate a placeholder image if none provided
+        data.imageUrls = ["https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop"];
+        console.log("Added placeholder image URL");
       }
 
       // Add createdAt timestamp if this is a new article
@@ -368,12 +379,39 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         imageDescriptions.push(`Image ${imageDescriptions.length + 1} for ${data.title || data.translations.en?.title || 'article'}`);
       }
 
-      // Make sure all translations have keywords array
-      const updatedTranslations = { ...data.translations };
+      // Validate and fix translation structure
+      const updatedTranslations = { ...cleanTranslations };
       Object.keys(updatedTranslations).forEach(lang => {
-        if (!updatedTranslations[lang].keywords) {
-          updatedTranslations[lang].keywords = [];
+        const translation = updatedTranslations[lang];
+        
+        // Ensure all required fields exist
+        if (!translation.title || translation.title.trim() === '') {
+          throw new Error(`Title is required for language: ${lang}`);
         }
+        
+        if (!translation.summary || translation.summary.trim() === '') {
+          throw new Error(`Summary is required for language: ${lang}`);
+        }
+        
+        // Ensure keywords array exists
+        if (!translation.keywords) {
+          translation.keywords = [];
+        }
+        
+        // Ensure content array exists and has proper structure
+        if (!translation.content || !Array.isArray(translation.content) || translation.content.length === 0) {
+          translation.content = [{ paragraph: "No content provided" }];
+        }
+        
+        // Clean up content structure
+        translation.content = translation.content.map(item => {
+          if (typeof item === 'string') {
+            return { paragraph: item };
+          }
+          return {
+            paragraph: item.paragraph || ""
+          };
+        });
       });
 
       // Set the main title from the English translation or first available translation
@@ -1254,7 +1292,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     <FormLabel>{t("admin.summary")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder={t("admin.summaryPlaceholder")}
+                        placeholder={
+                          activeLanguage === 'en' ? t("admin.summaryPlaceholder") :
+                          activeLanguage === 'fr' ? "Résumé de l'article en français..." :
+                          activeLanguage === 'es' ? "Resumen del artículo en español..." :
+                          activeLanguage === 'de' ? "Zusammenfassung des Artikels auf Deutsch..." :
+                          activeLanguage === 'ar' ? "ملخص المقال باللغة العربية..." :
+                          t("admin.summaryPlaceholder")
+                        }
                         className="min-h-20"
                         {...field}
                       />
@@ -1273,7 +1318,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     <FormLabel>{t("admin.keywords") || "Keywords"}</FormLabel>
                     <FormControl>
                       <Input 
-                        placeholder="e-learning, education, online (comma separated)"
+                        placeholder={
+                          activeLanguage === 'en' ? "e-learning, education, online (comma separated)" :
+                          activeLanguage === 'fr' ? "e-learning, éducation, en ligne (séparés par des virgules)" :
+                          activeLanguage === 'es' ? "e-learning, educación, en línea (separados por comas)" :
+                          activeLanguage === 'de' ? "e-learning, bildung, online (durch Kommas getrennt)" :
+                          activeLanguage === 'ar' ? "التعلم الإلكتروني، التعليم، عبر الإنترنت (مفصولة بفواصل)" :
+                          "e-learning, education, online (comma separated)"
+                        }
                         value={Array.isArray(field.value) ? field.value.join(", ") : ""}
                         onChange={(e) => {
                           const keywordsText = e.target.value;
@@ -1344,7 +1396,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                           <FormLabel>{t("admin.sectionContent")}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Use Markdown for formatting: # Heading, ## Subheading, **bold**, *italic*, \n\n for new paragraph"
+                              placeholder={
+                                activeLanguage === 'en' ? "Use Markdown for formatting: # Heading, ## Subheading, **bold**, *italic*, \\n\\n for new paragraph" :
+                                activeLanguage === 'fr' ? "Utilisez Markdown pour le formatage: # Titre, ## Sous-titre, **gras**, *italique*, \\n\\n pour nouveau paragraphe" :
+                                activeLanguage === 'es' ? "Use Markdown para formato: # Título, ## Subtítulo, **negrita**, *cursiva*, \\n\\n para nuevo párrafo" :
+                                activeLanguage === 'de' ? "Verwenden Sie Markdown für Formatierung: # Überschrift, ## Unterüberschrift, **fett**, *kursiv*, \\n\\n für neuen Absatz" :
+                                activeLanguage === 'ar' ? "استخدم Markdown للتنسيق: # عنوان، ## عنوان فرعي، **سميك**، *مائل*، \\n\\n لفقرة جديدة" :
+                                "Use Markdown for formatting: # Heading, ## Subheading, **bold**, *italic*, \\n\\n for new paragraph"
+                              }
                               className="min-h-48 font-mono"
                               {...field}
                             />
