@@ -56,9 +56,7 @@ export interface FirestoreArticle {
     summary: string;
     keywords: string[];
     content: Array<{
-      title: string;
       paragraph: string;
-      references?: string[];
     }>;
   }>;
 }

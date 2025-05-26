@@ -131,7 +131,6 @@ export function ArticleForm({
         summary: "",
         keywords: [],
         content: [{
-          title: "Introduction",
           paragraph: "",
           references: []
         }]
@@ -249,7 +248,6 @@ export function ArticleForm({
           summary: "",
           keywords: [],
           content: [{
-            title: "Introduction",
             paragraph: "",
             references: []
           }]

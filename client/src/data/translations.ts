@@ -22,7 +22,9 @@ const translations = {
       browseArticles: "Browse Articles",
       articles: "Articles",
       noArticles: "No articles found",
-      noArticlesInSubcategory: "No articles found in this subcategory"
+      noArticlesInSubcategory: "No articles found in this subcategory",
+      backToCategories: "Back to Categories",
+      backToSubcategory: "Back to Subcategory"
     
     },
     
@@ -101,7 +103,10 @@ const translations = {
       "health": "Health",
       "education": "Education",
       "travel": "Travel",
-      
+      "economics-and-business": "Economics & Business",
+      "sports": "Sports",
+      "entertainement": "Entertainment",
+      "arts-and-culture": "Arts & Culture",
     },
     categoryDescriptions: {
       "language-learning": "Learn new languages and improve your language skills.",
@@ -147,7 +152,8 @@ const translations = {
       availableIn: "Available in:",
       educationalContent: "Educational Content",
       linkCopied: "Link copied",
-      linkCopiedToClipboard: "Article link copied to clipboard"
+      linkCopiedToClipboard: "Article link copied to clipboard",
+      publishedOn: "Published on"
     },
 
     // Favorites

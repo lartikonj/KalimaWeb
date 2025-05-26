@@ -10,9 +10,7 @@ export interface ArticleTranslation {
   subcategory: string;
   keywords?: string[];
   content: Array<{
-    title: string;
     paragraph: string;
-    references?: string[];
   }>;
 }
 
@@ -54,12 +52,26 @@ export interface User {
 export interface Subcategory {
   name: string;
   slug: string;
+  titles: {
+    en: string;
+    ar: string;
+    fr: string;
+    es: string;
+    de: string;
+  };
 }
 
 export interface Category {
   name: string;
   slug: string;
   subcategories: Subcategory[];
+  titles: {
+    en: string;
+    ar: string;
+    fr: string;
+    es: string;
+    de: string;
+  };
 }
 
 // Filter types
