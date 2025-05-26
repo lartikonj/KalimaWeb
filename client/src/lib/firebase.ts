@@ -575,9 +575,7 @@ export async function createArticle(inputData: {
           summary: "This article was created without content.",
           keywords: ["article", "default"],
           content: [{
-            title: "Introduction",
-            paragraph: "This is a placeholder content for an article that was created without specific content.",
-            references: []
+            paragraph: "This is a placeholder content for an article that was created without specific content."
           }]
         }
       };
@@ -603,9 +601,7 @@ export async function createArticle(inputData: {
       if (!translations[langCode].content || !Array.isArray(translations[langCode].content) || translations[langCode].content.length === 0) {
         console.log(`Adding default content for language ${langCode} because it was missing`);
         translations[langCode].content = [{
-          title: "Content",
-          paragraph: "No content provided.",
-          references: []
+          paragraph: "No content provided."
         }];
       }
       
@@ -614,17 +610,13 @@ export async function createArticle(inputData: {
         // Handle the case where item might be a string instead of an object
         if (typeof item === 'string') {
           return {
-            title: "Section",
-            paragraph: item,
-            references: []
+            paragraph: item
           };
         }
         
-        // Ensure title and paragraph exist
+        // For the simplified structure, we only need paragraph
         return {
-          title: item.title || "Section",
-          paragraph: item.paragraph || "",
-          references: item.references || []
+          paragraph: item.paragraph || ""
         };
       });
     });

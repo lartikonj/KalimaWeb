@@ -13,9 +13,7 @@ const articleSchema = z.object({
     summary: z.string().min(1, "Summary is required"),
     keywords: z.array(z.string()).optional().default([]),
     content: z.array(z.object({
-      title: z.string().optional(),
-      paragraph: z.string().min(1, "Content paragraph is required"),
-      references: z.array(z.string()).optional()
+      paragraph: z.string().min(1, "Content paragraph is required")
     })).min(1, "At least one content section is required")
   })),
   draft: z.boolean().default(true),
@@ -114,31 +112,22 @@ export async function createArticle(articleData: ArticleFormData) {
       // Make sure content has proper structure
       if (!translation.content || !Array.isArray(translation.content)) {
         translation.content = [{
-          title: "Content",
-          paragraph: "No content provided",
-          references: []
+          paragraph: "No content provided"
         }];
       }
       
-      // Fix content items that might be missing title
+      // Fix content items that might be missing required fields
       translation.content = translation.content.map(item => {
         // If content is just a string, convert to proper format
         if (typeof item === 'string') {
           return {
-            title: "Content",
-            paragraph: item,
-            references: []
+            paragraph: item
           };
         }
         
-        // Create a new object with all required fields to ensure proper type
-        // Force title to be a string, not undefined
-        const title = (item.title !== undefined) ? item.title : "Content";
-        
+        // Create a new object with only the paragraph field
         return {
-          title: title,
-          paragraph: item.paragraph || "",
-          references: item.references || []
+          paragraph: item.paragraph || ""
         };
       });
     });
@@ -155,17 +144,13 @@ export async function createArticle(articleData: ArticleFormData) {
         translation.content = translation.content.map(item => {
           if (typeof item === 'string') {
             return {
-              title: "Content",
-              paragraph: item,
-              references: []
+              paragraph: item
             };
           }
           
-          // Ensure each section has a proper title (not undefined)
+          // Ensure each section has the required paragraph field
           return {
-            title: typeof item.title === 'string' ? item.title : "Content",
-            paragraph: typeof item.paragraph === 'string' ? item.paragraph : "",
-            references: Array.isArray(item.references) ? item.references : []
+            paragraph: typeof item.paragraph === 'string' ? item.paragraph : ""
           };
         });
       }

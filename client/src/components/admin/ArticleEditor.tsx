@@ -122,7 +122,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingImage, setIsFetchingImage] = useState(false);
-  
+
   // Initialize form with default values or initial data
   const form = useForm<ArticleFormValues>({
     resolver: zodResolver(articleFormSchema),
@@ -146,7 +146,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           title: "",
           summary: "",
           keywords: [], // SEO keywords
-          content: [{ title: "Introduction", paragraph: "", references: [] }],
+          content: [{ paragraph: "" }],
         },
       },
       draft: true,
@@ -156,7 +156,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
 
   // Get subcategories when category changes
   const watchCategory = form.watch("category");
-  
+
   // Set up fieldArrays for content sections of the active language
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -178,7 +178,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         });
       }
     };
-    
+
     fetchCategories();
   }, [t]);
 
@@ -188,13 +188,13 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       const selectedCategory = categories.find(cat => cat.slug === watchCategory);
       if (selectedCategory && selectedCategory.subcategories) {
         setSubcategories(selectedCategory.subcategories);
-        
+
         // If the currently selected subcategory doesn't belong to the new category, reset it
         const currentSubcategory = form.getValues("subcategory");
         const subcategoryExists = selectedCategory.subcategories.some(
           (sub: any) => sub.slug === currentSubcategory
         );
-        
+
         if (!subcategoryExists) {
           form.setValue("subcategory", "");
         }
@@ -209,7 +209,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
   // Handle language toggle
   const handleLanguageToggle = (lang: Language) => {
     setActiveLanguage(lang);
-    
+
     // Initialize the translation object for the selected language if it doesn't exist
     const translations = form.getValues("translations");
     if (!translations[lang]) {
@@ -217,10 +217,10 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         title: "",
         summary: "",
         keywords: [],
-        content: [{ title: "Introduction", paragraph: "", references: [] }],
+        content: [{ paragraph: "" }],
       });
     }
-    
+
     // Update available languages array if this language is not already included
     const availableLanguages = form.getValues("availableLanguages");
     if (!availableLanguages.includes(lang)) {
@@ -236,7 +236,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
   // Remove a language from available languages and its translations
   const removeLanguage = (lang: Language) => {
     const availableLanguages = form.getValues("availableLanguages");
-    
+
     // Don't allow removing the last language
     if (availableLanguages.length <= 1) {
       toast({
@@ -246,16 +246,16 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       });
       return;
     }
-    
+
     // Remove the language from available languages
     const updatedLanguages = availableLanguages.filter(l => l !== lang);
     form.setValue("availableLanguages", updatedLanguages);
-    
+
     // Get updated translations object without the removed language
     const translations = form.getValues("translations");
     const { [lang]: removed, ...updatedTranslations } = translations;
     form.setValue("translations", updatedTranslations);
-    
+
     // Switch to another language if the active one was removed
     if (activeLanguage === lang) {
       setActiveLanguage(updatedLanguages[0] as Language);
@@ -266,23 +266,23 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
   const generateFeaturedImage = async () => {
     try {
       setIsFetchingImage(true);
-      
+
       // Get all form values and access the nested properties safely
       const formValues = form.getValues();
       const activeTitle = formValues.translations?.[activeLanguage]?.title || '';
       const englishTitle = formValues.translations?.en?.title || '';
-      
+
       // Use the title in the active language or fallback to English for better search results
       const title = activeTitle || englishTitle || "";
-      
+
       const categoryName = categories.find(cat => cat.slug === watchCategory)?.titles?.en || "";
-      
+
       // Create a search query based on title and category
       const searchQuery = `${title} ${categoryName}`.trim() || "education";
-      
+
       const imageUrl = await getRandomPhoto(searchQuery);
       form.setValue("imageUrl", imageUrl);
-      
+
       toast({
         title: t("admin.imageFetched"),
         description: t("admin.imageFetchedDescription"),
@@ -303,12 +303,12 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
   const onSubmit = async (data: ArticleFormValues) => {
     try {
       setIsLoading(true);
-      
+
       // Extract values from form directly
       const slug = form.getValues("slug");
       const category = form.getValues("category") || "general";
       const subcategory = form.getValues("subcategory") || "other";
-      
+
       // Debug form values
       console.log("Form data submitted:", JSON.stringify({
         slug: slug,
@@ -319,31 +319,31 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         availableLanguages: data.availableLanguages,
         formValues: form.getValues()
       }, null, 2));
-      
+
       // Add values to data explicitly
       data.slug = slug;
       data.category = category;
       data.subcategory = subcategory;
-      
+
       // Ensure we have category and subcategory values
       if (!data.category) {
         data.category = "general";
       }
-      
+
       if (!data.subcategory) {
         data.subcategory = "other";
       }
-      
+
       // Ensure we have valid category and subcategory values
       if (!data.category || !data.subcategory) {
         throw new Error(t("admin.categorySubcategoryRequired"));
       }
-      
+
       // Ensure imageUrl exists
       if (!data.imageUrl) {
         throw new Error(t("admin.imageUrlRequired"));
       }
-      
+
       // Add createdAt timestamp if this is a new article
       // Make sure author has a uid field
       const author = data.author ? {
@@ -355,19 +355,19 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         displayName: "Kalima Author",
         photoURL: ""
       };
-      
+
       // Convert image to imageUrls array if needed
       const imageUrls = data.imageUrls && data.imageUrls.length > 0 
         ? data.imageUrls 
         : (data.imageUrl ? [data.imageUrl] : []);
-      
+
       // Ensure we have image descriptions for each image
       const imageDescriptions = data.imageDescriptions || [];
       // Add default descriptions if needed
       while (imageDescriptions.length < imageUrls.length) {
         imageDescriptions.push(`Image ${imageDescriptions.length + 1} for ${data.title || data.translations.en?.title || 'article'}`);
       }
-      
+
       // Make sure all translations have keywords array
       const updatedTranslations = { ...data.translations };
       Object.keys(updatedTranslations).forEach(lang => {
@@ -375,20 +375,20 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           updatedTranslations[lang].keywords = [];
         }
       });
-      
+
       // Set the main title from the English translation or first available translation
       const title = data.title || data.translations.en?.title || 
                    Object.values(data.translations)[0]?.title || "Untitled Article";
-      
+
       // Check if category exists, if not, create it
       const categoryExists = categories.some(c => c.slug === data.category && !c.id?.toString().startsWith('temp-'));
       const isNewCategory = !categoryExists;
-      
+
       if (isNewCategory) {
         // Find the temporary category to get its titles
         const tempCategory = categories.find(c => c.slug === data.category);
         const categoryTitles = tempCategory?.titles || { en: data.category };
-        
+
         try {
           // Create the category in Firestore
           await createCategory({
@@ -396,7 +396,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
             titles: categoryTitles,
             subcategories: []
           });
-          
+
           toast({
             title: "Category Created",
             description: `Created new category "${data.category}"`,
@@ -410,20 +410,20 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           });
         }
       }
-      
+
       // Check if subcategory exists in the category, if not, add it
       const categoryObj = categories.find(c => c.slug === data.category);
       if (categoryObj) {
         const subcategoryExists = categoryObj.subcategories?.some(
           (s: any) => s.slug === data.subcategory
         );
-        
+
         if (!subcategoryExists && data.subcategory) {
           try {
             // Find the temporary subcategory to get its titles
             const tempSubcategory = subcategories.find((s: any) => s.slug === data.subcategory);
             const subcategoryTitles = tempSubcategory?.titles || { en: data.subcategory };
-            
+
             // Add subcategory to the category (skip if category is new as it will be handled in createCategory)
             if (!isNewCategory && categoryObj.id) {
               await updateCategory(categoryObj.id, {
@@ -434,7 +434,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   { slug: data.subcategory, titles: subcategoryTitles }
                 ]
               });
-              
+
               toast({
                 title: "Subcategory Added",
                 description: `Added new subcategory "${data.subcategory}" to category "${data.category}"`,
@@ -450,7 +450,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           }
         }
       }
-        
+
       const articleData = {
         ...data,
         title, // Set main title explicitly
@@ -462,7 +462,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         popular: data.popular || false,
         createdAt: isEditMode ? undefined : Timestamp.now(),
       };
-      
+
       if (isEditMode) {
         await updateArticle(initialData?.slug as string, articleData);
         toast({
@@ -475,18 +475,18 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         if (existingArticle) {
           throw new Error(t("admin.slugAlreadyExists"));
         }
-        
+
         // Create the article with explicit values to avoid undefined
         // We don't need this duplicate object - we've already prepared all the data correctly above
         const newArticleData = articleData;
-        
+
         console.log("Creating article with processed data:", JSON.stringify({
           slug: newArticleData.slug,
           slugType: typeof newArticleData.slug,
           categoryType: typeof newArticleData.category,
           availableLanguagesLength: newArticleData.availableLanguages.length
         }, null, 2));
-        
+
         try {
           await createArticle(newArticleData);
         } catch (createError) {
@@ -498,7 +498,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           description: t("admin.articleCreatedDescription"),
         });
       }
-      
+
       // Redirect to articles list
       navigate("/admin/articles");
     } catch (error) {
@@ -524,7 +524,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           <ArrowLeft className="h-4 w-4" />
           {t("admin.backToArticles")}
         </Button>
-        
+
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -536,7 +536,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
             <ImageIcon className="h-4 w-4" />
             {isFetchingImage ? t("admin.fetchingImage") : t("admin.generateImage")}
           </Button>
-          
+
           <Button
             type="button"
             onClick={form.handleSubmit(onSubmit)}
@@ -548,7 +548,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           </Button>
         </div>
       </div>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -582,7 +582,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     </FormItem>
                   )}
                 />
-                
+
                 {/* Category with on-the-fly creation */}
                 <FormField
                   control={form.control}
@@ -657,14 +657,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                 onClick={() => {
                                   const slugInput = document.getElementById("new-category-slug") as HTMLInputElement;
                                   const titleInput = document.getElementById("new-category-title") as HTMLInputElement;
-                                  
+
                                   if (slugInput?.value && titleInput?.value) {
                                     const newSlug = slugInput.value;
                                     const newTitle = titleInput.value;
-                                    
+
                                     // Add to form
                                     field.onChange(newSlug);
-                                    
+
                                     // Add to categories list for display
                                     const newCategory = {
                                       id: `temp-${Date.now()}`,
@@ -672,13 +672,13 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                       titles: { [language]: newTitle, en: newTitle },
                                       subcategories: []
                                     };
-                                    
+
                                     setCategories([...categories, newCategory]);
-                                    
+
                                     // Reset inputs
                                     slugInput.value = "";
                                     titleInput.value = "";
-                                    
+
                                     toast({
                                       title: "Category Added",
                                       description: `New category "${newTitle}" will be created when you save the article.`,
@@ -696,7 +696,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     </FormItem>
                   )}
                 />
-                
+
                 {/* Subcategory with on-the-fly creation (only show if category is selected) */}
                 {watchCategory && (
                   <FormField
@@ -772,14 +772,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                   onClick={() => {
                                     const slugInput = document.getElementById("new-subcategory-slug") as HTMLInputElement;
                                     const titleInput = document.getElementById("new-subcategory-title") as HTMLInputElement;
-                                    
+
                                     if (slugInput?.value && titleInput?.value) {
                                       const newSlug = slugInput.value;
                                       const newTitle = titleInput.value;
-                                      
+
                                       // Add to form
                                       field.onChange(newSlug);
-                                      
+
                                       // Find current category and add new subcategory
                                       const categoryIndex = categories.findIndex(c => c.slug === watchCategory);
                                       if (categoryIndex !== -1) {
@@ -788,10 +788,10 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                           slug: newSlug,
                                           titles: { [language]: newTitle, en: newTitle }
                                         };
-                                        
+
                                         // Add to subcategories list for display
                                         setSubcategories([...subcategories, newSubcategory]);
-                                        
+
                                         // Add to category's subcategories
                                         const updatedCategories = [...categories];
                                         if (!updatedCategories[categoryIndex].subcategories) {
@@ -799,11 +799,11 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                         }
                                         updatedCategories[categoryIndex].subcategories.push(newSubcategory);
                                         setCategories(updatedCategories);
-                                        
+
                                         // Reset inputs
                                         slugInput.value = "";
                                         titleInput.value = "";
-                                        
+
                                         toast({
                                           title: "Subcategory Added",
                                           description: `New subcategory "${newTitle}" will be created when you save the article.`,
@@ -823,7 +823,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     )}
                   />
                 )}
-                
+
                 {/* Author */}
                 <FormField
                   control={form.control}
@@ -854,7 +854,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     </FormItem>
                   )}
                 />
-                
+
                 {/* Image URLs (Multiple) */}
                 <FormField
                   control={form.control}
@@ -883,7 +883,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                   const newUrls = [...field.value];
                                   newUrls.splice(index, 1);
                                   field.onChange(newUrls);
-                                  
+
                                   // Also remove the corresponding image description
                                   const imageDescriptions = form.getValues("imageDescriptions") || [];
                                   if (imageDescriptions.length > index) {
@@ -917,7 +917,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     </FormItem>
                   )}
                 />
-                
+
                 {/* Legacy Image URL support */}
                 <FormField
                   control={form.control}
@@ -935,7 +935,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     </FormItem>
                   )}
                 />
-                
+
                 {/* Image Descriptions */}
                 {form.watch("imageUrls")?.length > 0 && (
                   <FormField
@@ -949,7 +949,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                             {form.watch("imageUrls").map((url, index) => {
                               // Ensure we have an array for descriptions
                               const descriptions = Array.isArray(field.value) ? field.value : [];
-                              
+
                               return (
                                 <div key={index} className="flex gap-2 items-center">
                                   <div className="w-12 h-12 flex-shrink-0">
@@ -984,7 +984,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     )}
                   />
                 )}
-                
+
                 {/* Image Previews */}
                 {form.watch("imageUrls")?.length > 0 && (
                   <div className="mt-2">
@@ -993,7 +993,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                       {form.watch("imageUrls").map((url, index) => {
                         const descriptions = form.watch("imageDescriptions") || [];
                         const altText = descriptions[index] || `Preview ${index + 1}`;
-                        
+
                         return (
                           <div key={index} className="border rounded-md overflow-hidden h-32">
                             <img
@@ -1010,7 +1010,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     </div>
                   </div>
                 )}
-                
+
                 {/* Draft Status */}
                 <FormField
                   control={form.control}
@@ -1036,7 +1036,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                 />
               </CardContent>
             </Card>
-            
+
             {/* Language Selector and Available Languages */}
             <Card>
               <CardHeader>
@@ -1092,7 +1092,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                       </Button>
                     </div>
                   </div>
-                  
+
                   <div>
                     <FormLabel>{t("admin.availableLanguages")}</FormLabel>
                     <div className="mt-2">
@@ -1125,7 +1125,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                                     title: "",
                                                     summary: "",
                                                     keywords: [],
-                                                    content: [{ title: "Introduction", paragraph: "", references: [] }],
+                                                    content: [{ paragraph: "" }],
                                                   });
                                                 }
                                               }
@@ -1161,7 +1161,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                                       {t(`languages.${lang}`)}
                                     </label>
                                   </div>
-                                  
+
                                   {form.watch("availableLanguages").includes(lang) && (
                                     <div className="flex items-center space-x-1">
                                       <Button
@@ -1198,7 +1198,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Translation Content */}
           <Card>
             <CardHeader>
@@ -1234,7 +1234,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   </FormItem>
                 )}
               />
-              
+
               {/* Summary */}
               <FormField
                 control={form.control}
@@ -1253,7 +1253,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   </FormItem>
                 )}
               />
-              
+
               {/* Keywords */}
               <FormField
                 control={form.control}
@@ -1282,7 +1282,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                   </FormItem>
                 )}
               />
-              
+
               {/* Content Sections */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -1298,7 +1298,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                     {t("admin.addSection")}
                   </Button>
                 </div>
-                
+
                 {fields.map((field, index) => (
                   <div key={field.id} className="p-4 border rounded-md space-y-4">
                     <div className="flex justify-between items-center">
@@ -1317,14 +1317,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                         {t("admin.removeSection")}
                       </Button>
                     </div>
-                    
+
                     {/* Hidden Section Title - auto-filled with "Content" */}
                     <input 
                       type="hidden" 
                       {...form.register(`translations.${activeLanguage}.content.${index}.title`)} 
                       value="Content" 
                     />
-                    
+
                     {/* Section Content with Markdown Support */}
                     <FormField
                       control={form.control}
@@ -1339,7 +1339,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                               {...field}
                             />
                           </FormControl>
-                          
+
                           {/* Markdown Preview */}
                           {field.value && (
                             <div className="border rounded-md p-4 mt-2">
@@ -1351,7 +1351,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                               </div>
                             </div>
                           )}
-                          
+
                           <FormDescription>
                             You can use Markdown formatting in this field:
                             <ul className="list-disc list-inside mt-1 space-y-1 text-xs">
@@ -1367,7 +1367,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* References - Future implementation */}
                     {/* <FormField
                       control={form.control}
