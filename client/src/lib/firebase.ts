@@ -111,10 +111,10 @@ export const appleProvider = new OAuthProvider('apple.com');
 // Authentication functions
 export async function registerUser(email: string, password: string, displayName: string) {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  
+
   // Set the display name
   await updateProfile(userCredential.user, { displayName });
-  
+
   // Create a user document with initial data
   await setDoc(doc(db, "users", userCredential.user.uid), {
     uid: userCredential.user.uid,
@@ -125,7 +125,7 @@ export async function registerUser(email: string, password: string, displayName:
     isAdmin: false, // By default, new users are not admins
     createdAt: Timestamp.now()
   });
-  
+
   return userCredential.user;
 }
 
@@ -149,7 +149,7 @@ export async function signInWithGoogle() {
     // This gives you a Google Access Token. You can use it to access the Google API.
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const user = result.user;
-    
+
     // Check if user exists in our database, if not create a document
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists()) {
@@ -164,7 +164,7 @@ export async function signInWithGoogle() {
         createdAt: Timestamp.now()
       });
     }
-    
+
     return user;
   } catch (error) {
     console.error("Error signing in with Google:", error);
@@ -179,7 +179,7 @@ export async function signInWithApple() {
     const result = await signInWithPopup(auth, appleProvider);
     // You can get the Apple OAuth access token and ID token from result.user
     const user = result.user;
-    
+
     // Check if user exists in our database, if not create a document
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (!userDoc.exists()) {
@@ -194,7 +194,7 @@ export async function signInWithApple() {
         createdAt: Timestamp.now()
       });
     }
-    
+
     return user;
   } catch (error) {
     console.error("Error signing in with Apple:", error);
@@ -248,11 +248,11 @@ export async function getCategoryBySlug(slug: string): Promise<FirestoreCategory
       collection(db, "categories"), 
       where("slug", "==", slug)
     ));
-    
+
     if (categoriesSnapshot.empty) {
       return null;
     }
-    
+
     const categoryDoc = categoriesSnapshot.docs[0];
     return {
       id: categoryDoc.id,
@@ -278,14 +278,14 @@ export async function createCategory(categoryData: {
       collection(db, "categories"), 
       where("slug", "==", categoryData.slug)
     ));
-    
+
     if (!categoriesSnapshot.empty) {
       throw new Error(`Category with slug ${categoryData.slug} already exists`);
     }
-    
+
     // Add the category document to Firestore
     const docRef = await addDoc(collection(db, "categories"), categoryData);
-    
+
     // Return the created category with its ID
     return {
       id: docRef.id,
@@ -308,7 +308,7 @@ export async function updateCategory(categoryId: string, categoryData: {
   try {
     // Update the category document
     await updateDoc(doc(db, "categories", categoryId), categoryData);
-    
+
     // Return the updated category with its ID
     return {
       id: categoryId,
@@ -340,18 +340,18 @@ export async function getArticles(options?: {
 }): Promise<FirestoreArticle[]> {
   try {
     let articlesQuery = query(collection(db, "articles"));
-    
+
     // Add filters if specified - only add when values are defined
     if (options?.draft !== undefined) {
       articlesQuery = query(articlesQuery, where("draft", "==", options.draft));
     }
-    
+
     // For filtering by category/subcategory we need to look at translations
     // We'll get all articles and filter them in memory since Firestore doesn't allow
     // querying nested fields directly in the way we need
-    
+
     const articlesSnapshot = await getDocs(articlesQuery);
-    
+
     return articlesSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() } as FirestoreArticle))
       .filter(article => {
@@ -366,7 +366,7 @@ export async function getArticles(options?: {
           // Check both the top-level category and within translations
           const articleCategory = article.category;
           let matchesCategory = articleCategory === options.category;
-          
+
           // If no match at top level, check inside translations
           if (!matchesCategory && article.translations) {
             // Check if any translation has this category
@@ -374,18 +374,18 @@ export async function getArticles(options?: {
               (trans: any) => trans.category === options.category
             );
           }
-          
+
           if (!matchesCategory) {
             return false;
           }
         }
-        
+
         // Filter by subcategory if specified
         if (options?.subcategory && options.subcategory !== 'all') {
           // Check both the top-level subcategory and within translations
           const articleSubcategory = article.subcategory;
           let matchesSubcategory = articleSubcategory === options.subcategory;
-          
+
           // If no match at top level, check inside translations
           if (!matchesSubcategory && article.translations) {
             // Check if any translation has this subcategory
@@ -393,12 +393,12 @@ export async function getArticles(options?: {
               (trans: any) => trans.subcategory === options.subcategory
             );
           }
-          
+
           if (!matchesSubcategory) {
             return false;
           }
         }
-        
+
         return true;
       });
   } catch (error) {
@@ -414,11 +414,11 @@ export async function getArticleBySlug(slug: string): Promise<FirestoreArticle |
       collection(db, "articles"), 
       where("slug", "==", slug)
     ));
-    
+
     if (articlesSnapshot.empty) {
       return null;
     }
-    
+
     const articleDoc = articlesSnapshot.docs[0];
     return {
       id: articleDoc.id,
@@ -437,7 +437,7 @@ export async function getArticlesByCategory(category: string, language?: string)
       collection(db, "articles"), 
       where("category", "==", category)
     ));
-    
+
     return articlesSnapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() } as FirestoreArticle))
       .filter(article => {
@@ -460,15 +460,15 @@ export async function deleteArticle(slug: string): Promise<boolean> {
       collection(db, "articles"), 
       where("slug", "==", slug)
     ));
-    
+
     if (articlesSnapshot.empty) {
       throw new Error(`Article with slug ${slug} not found`);
     }
-    
+
     // Delete the article document
     const articleDoc = articlesSnapshot.docs[0];
     await deleteDoc(doc(db, "articles", articleDoc.id));
-    
+
     return true;
   } catch (error) {
     console.error("Error deleting article:", error);
@@ -511,13 +511,13 @@ export async function createArticle(inputData: {
       isSlugObject: typeof inputData.slug === 'object',
       hasCategory: !!inputData.category
     });
-    
+
     // Handle all inputData values with safety checks
     // For slug, use the provided string or generate one if needed
     const slug = typeof inputData.slug === 'string' && inputData.slug.trim() !== '' 
       ? inputData.slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-{2,}/g, '-')
       : `article-${Date.now()}`;
-      
+
     // Find a main title from translations if title is missing
     let title = inputData.title;
     if (!title && inputData.translations) {
@@ -532,39 +532,39 @@ export async function createArticle(inputData: {
         }
       }
     }
-    
+
     // Default title if still none found
     if (!title) {
       title = "Untitled Article";
     }
-        
+
     // Validate and set category/subcategory
     const category = typeof inputData.category === 'string' && inputData.category.trim() !== '' 
       ? inputData.category 
       : 'general';
-      
+
     const subcategory = typeof inputData.subcategory === 'string' && inputData.subcategory.trim() !== '' 
       ? inputData.subcategory 
       : 'other';
-    
+
     console.log("Processed article data:", {
       slug,
       category,
       hasTranslations: !!Object.keys(inputData.translations || {}).length
     });
-    
+
     console.log("Setting default category:", category);
     console.log("Setting default subcategory:", subcategory);
-    
+
     // Handle available languages
     const availableLanguages = Array.isArray(inputData.availableLanguages) && inputData.availableLanguages.length > 0
       ? inputData.availableLanguages
       : ['en'];
-      
+
     if (availableLanguages.length === 0) {
       throw new Error("At least one language must be available");
     }
-    
+
     // Check for translations and provide defaults if needed
     let translations = inputData.translations;
     if (!translations || Object.keys(translations).length === 0) {
@@ -580,7 +580,7 @@ export async function createArticle(inputData: {
         }
       };
       console.log("Created default translation for article");
-      
+
       // Ensure English is in availableLanguages
       if (!availableLanguages.includes('en')) {
         availableLanguages.push('en');
@@ -589,14 +589,14 @@ export async function createArticle(inputData: {
       // Use the provided translations as-is, don't overwrite with defaults
       console.log("Using provided translations:", Object.keys(translations));
     }
-    
+
     // Just ensure every translation has the required fields but don't replace content
     Object.keys(translations).forEach(langCode => {
       // Add keywords array if missing
       if (!translations[langCode].keywords) {
         translations[langCode].keywords = [];
       }
-      
+
       // Only add default content if content array is completely missing
       if (!translations[langCode].content || !Array.isArray(translations[langCode].content) || translations[langCode].content.length === 0) {
         console.log(`Adding default content for language ${langCode} because it was missing`);
@@ -604,7 +604,7 @@ export async function createArticle(inputData: {
           paragraph: "No content provided."
         }];
       }
-      
+
       // Ensure each content item has the required fields
       translations[langCode].content = translations[langCode].content.map(item => {
         // Handle the case where item might be a string instead of an object
@@ -613,40 +613,40 @@ export async function createArticle(inputData: {
             paragraph: item
           };
         }
-        
+
         // For the simplified structure, we only need paragraph
         return {
           paragraph: item.paragraph || ""
         };
       });
     });
-    
+
     // Set up author information
     const author = inputData.author || {
       uid: "system",
       displayName: "System"
     };
-    
+
     // Handle image URLs
     const imageUrls = Array.isArray(inputData.imageUrls) && inputData.imageUrls.length > 0
       ? inputData.imageUrls
       : ["https://images.unsplash.com/photo-1637332203993-ab33850d8b7b?q=80&w=1760&auto=format&fit=crop"];
-      
+
     if (!inputData.imageUrls || inputData.imageUrls.length === 0) {
       console.log("Using placeholder image URL");
     }
-    
+
     // Handle image descriptions
     let imageDescriptions: string[] = [];
     if (Array.isArray(inputData.imageDescriptions) && inputData.imageDescriptions.length > 0) {
       imageDescriptions = inputData.imageDescriptions;
     }
-    
+
     // Add default descriptions if needed
     while (imageDescriptions.length < imageUrls.length) {
       imageDescriptions.push(`Image ${imageDescriptions.length + 1} for ${title}`);
     }
-    
+
     // Create a clean copy of the article data with defaults for optional fields
     const cleanArticleData = {
       slug,
@@ -663,16 +663,16 @@ export async function createArticle(inputData: {
       imageUrls,
       imageDescriptions
     };
-    
+
     // Check if slug already exists
     const existingArticle = await getArticleBySlug(cleanArticleData.slug);
     if (existingArticle) {
       throw new Error(`Article with slug ${cleanArticleData.slug} already exists`);
     }
-    
+
     // Add the article to Firestore
     const docRef = await addDoc(collection(db, "articles"), cleanArticleData);
-    
+
     // Return the created article with its ID
     return {
       id: docRef.id,
@@ -712,28 +712,28 @@ export async function updateArticle(slug: string, articleData: {
   try {
     console.log("UpdateArticle called with slug:", slug);
     console.log("UpdateArticle data:", JSON.stringify(articleData, null, 2));
-    
+
     // Find the article by slug
     const articlesSnapshot = await getDocs(query(
       collection(db, "articles"), 
       where("slug", "==", slug)
     ));
-    
+
     if (articlesSnapshot.empty) {
       throw new Error(`Article with slug ${slug} not found`);
     }
-    
+
     const articleDoc = articlesSnapshot.docs[0];
     const existingData = articleDoc.data();
-    
+
     console.log("Found existing article:", existingData.id);
-    
+
     // Clean up the article data for update
     const cleanArticleData = { ...articleData };
-    
+
     // Ensure we have the correct slug
     cleanArticleData.slug = slug;
-    
+
     // Set main title from translations if not provided
     if (!cleanArticleData.title && cleanArticleData.translations) {
       const englishTranslation = cleanArticleData.translations.en;
@@ -746,12 +746,12 @@ export async function updateArticle(slug: string, articleData: {
         }
       }
     }
-    
+
     // Ensure we have a title
     if (!cleanArticleData.title) {
       cleanArticleData.title = "Untitled Article";
     }
-    
+
     // Clean up translations content structure
     if (cleanArticleData.translations) {
       Object.keys(cleanArticleData.translations).forEach(lang => {
@@ -767,25 +767,26 @@ export async function updateArticle(slug: string, articleData: {
             };
           });
         }
-        
+
         // Ensure keywords is an array
         if (!translation.keywords) {
           translation.keywords = [];
         }
       });
     }
-    
+
     // Ensure we have valid arrays
     cleanArticleData.availableLanguages = cleanArticleData.availableLanguages || [];
     cleanArticleData.imageUrls = cleanArticleData.imageUrls || [];
     cleanArticleData.imageDescriptions = cleanArticleData.imageDescriptions || [];
-    
+
     // Ensure boolean values are properly set
     cleanArticleData.draft = cleanArticleData.draft !== undefined ? cleanArticleData.draft : true;
     cleanArticleData.featured = cleanArticleData.featured !== undefined ? cleanArticleData.featured : false;
     cleanArticleData.popular = cleanArticleData.popular !== undefined ? cleanArticleData.popular : false;
-    
+
     // Preserve the original createdAt and author if not provided
+    // Prepare the update data (keeping the original slug)
     const updateData = {
       ...cleanArticleData,
       slug, // Ensure slug remains the same
@@ -795,14 +796,19 @@ export async function updateArticle(slug: string, articleData: {
         photoURL: ""
       }
     };
-    
-    console.log("Updating article with data:", JSON.stringify(updateData, null, 2));
-    
+
+    // Remove undefined values to prevent Firestore errors
+    const cleanUpdateData = Object.fromEntries(
+      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+    );
+
+    console.log("Updating article with data:", JSON.stringify(cleanUpdateData, null, 2));
+
     // Update the article
-    await updateDoc(doc(db, "articles", articleDoc.id), updateData);
-    
+    await updateDoc(doc(db, "articles", articleDoc.id), cleanUpdateData);
+
     console.log("Article updated successfully");
-    
+
     // Return the updated article
     return {
       id: articleDoc.id,
@@ -835,11 +841,11 @@ export async function getStaticPageBySlug(slug: string): Promise<FirestoreStatic
       collection(db, "staticPages"), 
       where("slug", "==", slug)
     ));
-    
+
     if (pagesSnapshot.empty) {
       return null;
     }
-    
+
     const pageDoc = pagesSnapshot.docs[0];
     return {
       id: pageDoc.id,
@@ -866,15 +872,15 @@ export async function createStaticPage(pageData: {
     if (existingPage) {
       throw new Error(`Static page with slug ${pageData.slug} already exists`);
     }
-    
+
     // Add the page to Firestore with a timestamp
     const data = {
       ...pageData,
       updatedAt: Timestamp.now()
     };
-    
+
     const docRef = await addDoc(collection(db, "staticPages"), data);
-    
+
     // Return the created page with its ID
     return {
       id: docRef.id,
@@ -901,16 +907,16 @@ export async function updateStaticPage(pageId: string, pageData: {
       ...pageData,
       updatedAt: Timestamp.now()
     };
-    
+
     await updateDoc(doc(db, "staticPages", pageId), updateData);
-    
+
     // Get the full updated document
     const updatedDocSnap = await getDoc(doc(db, "staticPages", pageId));
-    
+
     if (!updatedDocSnap.exists()) {
       throw new Error(`Static page with ID ${pageId} not found after update`);
     }
-    
+
     // Return the updated page
     return {
       id: pageId,

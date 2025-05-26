@@ -489,6 +489,7 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         }
       }
 
+      // Prepare article data and filter out undefined values
       const articleData = {
         ...data,
         title, // Set main title explicitly
@@ -500,6 +501,13 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
         popular: data.popular || false,
         createdAt: isEditMode ? undefined : Timestamp.now(),
       };
+
+      // Remove undefined fields to prevent Firestore errors
+      Object.keys(articleData).forEach(key => {
+        if (articleData[key] === undefined) {
+          delete articleData[key];
+        }
+      });
 
       if (isEditMode) {
         // Use the current slug from form data, not initialData
