@@ -133,17 +133,17 @@ export default function SubcategoryPage() {
         <ChevronRight className="h-4 w-4 mx-2 text-neutral-400" />
         <Link href={`/categories/${categorySlug}`}>
           <span className="text-neutral-500 hover:text-primary-600 cursor-pointer">
-            {t(`categories.${categorySlug}`)}
+            {category.titles?.[language] || category.titles?.en || categorySlug}
           </span>
         </Link>
         <ChevronRight className="h-4 w-4 mx-2 text-neutral-400" />
-        <span className="font-medium">{t(`subcategories.${subcategorySlug}`)}</span>
+        <span className="font-medium">{subcategory.titles?.[language] || subcategory.titles?.en || subcategorySlug}</span>
       </div>
 
       {/* Subcategory Title and Description */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100 mb-2">
-          {t(`subcategories.${subcategorySlug}`)}
+          {subcategory.titles?.[language] || subcategory.titles?.en || subcategorySlug}
         </h1>
         <p className="text-neutral-600 dark:text-neutral-300">
           {t(`subcategoryDescriptions.${subcategorySlug}`)}
