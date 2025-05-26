@@ -710,6 +710,9 @@ export async function updateArticle(slug: string, articleData: {
   imageDescriptions?: string[];
 }): Promise<FirestoreArticle> {
   try {
+    console.log("UpdateArticle called with slug:", slug);
+    console.log("UpdateArticle data:", JSON.stringify(articleData, null, 2));
+    
     // Find the article by slug
     const articlesSnapshot = await getDocs(query(
       collection(db, "articles"), 
@@ -721,6 +724,9 @@ export async function updateArticle(slug: string, articleData: {
     }
     
     const articleDoc = articlesSnapshot.docs[0];
+    const existingData = articleDoc.data();
+    
+    console.log("Found existing article:", existingData.id);
     
     // Clean up the article data for update
     const cleanArticleData = { ...articleData };
@@ -728,41 +734,80 @@ export async function updateArticle(slug: string, articleData: {
     // Ensure we have the correct slug
     cleanArticleData.slug = slug;
     
+    // Set main title from translations if not provided
+    if (!cleanArticleData.title && cleanArticleData.translations) {
+      const englishTranslation = cleanArticleData.translations.en;
+      if (englishTranslation?.title) {
+        cleanArticleData.title = englishTranslation.title;
+      } else {
+        const firstTranslation = Object.values(cleanArticleData.translations)[0];
+        if (firstTranslation?.title) {
+          cleanArticleData.title = firstTranslation.title;
+        }
+      }
+    }
+    
+    // Ensure we have a title
+    if (!cleanArticleData.title) {
+      cleanArticleData.title = "Untitled Article";
+    }
+    
     // Clean up translations content structure
     if (cleanArticleData.translations) {
       Object.keys(cleanArticleData.translations).forEach(lang => {
         const translation = cleanArticleData.translations[lang];
         if (translation.content) {
           // Ensure content has the simplified structure
-          translation.content = translation.content.map(item => ({
-            paragraph: item.paragraph || ""
-          }));
+          translation.content = translation.content.map((item: any) => {
+            if (typeof item === 'string') {
+              return { paragraph: item };
+            }
+            return {
+              paragraph: item.paragraph || ""
+            };
+          });
+        }
+        
+        // Ensure keywords is an array
+        if (!translation.keywords) {
+          translation.keywords = [];
         }
       });
     }
     
-    // Set main title from translations if not provided
-    if (!cleanArticleData.title && cleanArticleData.translations) {
-      const firstTranslation = Object.values(cleanArticleData.translations)[0];
-      if (firstTranslation?.title) {
-        cleanArticleData.title = firstTranslation.title;
-      }
-    }
+    // Ensure we have valid arrays
+    cleanArticleData.availableLanguages = cleanArticleData.availableLanguages || [];
+    cleanArticleData.imageUrls = cleanArticleData.imageUrls || [];
+    cleanArticleData.imageDescriptions = cleanArticleData.imageDescriptions || [];
     
-    // Prepare the update data (keeping the original slug)
+    // Ensure boolean values are properly set
+    cleanArticleData.draft = cleanArticleData.draft !== undefined ? cleanArticleData.draft : true;
+    cleanArticleData.featured = cleanArticleData.featured !== undefined ? cleanArticleData.featured : false;
+    cleanArticleData.popular = cleanArticleData.popular !== undefined ? cleanArticleData.popular : false;
+    
+    // Preserve the original createdAt and author if not provided
     const updateData = {
       ...cleanArticleData,
-      slug // Ensure slug remains the same
+      slug, // Ensure slug remains the same
+      author: cleanArticleData.author || existingData.author || {
+        uid: "system",
+        displayName: "Kalima Author",
+        photoURL: ""
+      }
     };
+    
+    console.log("Updating article with data:", JSON.stringify(updateData, null, 2));
     
     // Update the article
     await updateDoc(doc(db, "articles", articleDoc.id), updateData);
+    
+    console.log("Article updated successfully");
     
     // Return the updated article
     return {
       id: articleDoc.id,
       ...updateData,
-      createdAt: articleDoc.data().createdAt // Keep the original createdAt
+      createdAt: existingData.createdAt // Keep the original createdAt
     } as FirestoreArticle;
   } catch (error) {
     console.error("Error updating article:", error);

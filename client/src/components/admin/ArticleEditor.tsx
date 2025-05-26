@@ -508,6 +508,9 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
           throw new Error("Article slug is required for updating");
         }
         
+        console.log("Calling updateArticle with slug:", currentSlug);
+        console.log("Article data being sent:", JSON.stringify(articleData, null, 2));
+        
         // Call updateArticle with the correct parameters
         await updateArticle(currentSlug, articleData);
         toast({
@@ -548,9 +551,14 @@ export function ArticleEditor({ initialData, isEditMode = false }: ArticleEditor
       navigate("/admin/articles");
     } catch (error) {
       console.error("Error saving article:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      console.error("Detailed error:", errorMessage);
+      
       toast({
         title: t("admin.error"),
-        description: t("admin.errorSavingArticle"),
+        description: isEditMode 
+          ? `${t("admin.errorSavingArticle")}: ${errorMessage}`
+          : `${t("admin.errorCreatingArticle")}: ${errorMessage}`,
         variant: "destructive"
       });
     } finally {
