@@ -3,8 +3,49 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertArticleSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
+import { generateSitemap } from "./sitemap";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Sitemap route
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const protocol = req.get('x-forwarded-proto') || req.protocol;
+      const host = req.get('host');
+      const baseUrl = `${protocol}://${host}`;
+      
+      const sitemap = await generateSitemap(baseUrl);
+      
+      res.set({
+        'Content-Type': 'application/xml',
+        'Cache-Control': 'public, max-age=86400' // Cache for 24 hours
+      });
+      
+      res.send(sitemap);
+    } catch (error) {
+      console.error('Error generating sitemap:', error);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
+
+  // Robots.txt route
+  app.get("/robots.txt", (req, res) => {
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    const host = req.get('host');
+    const baseUrl = `${protocol}://${host}`;
+    
+    const robotsTxt = `User-agent: *
+Allow: /
+
+Sitemap: ${baseUrl}/sitemap.xml`;
+
+    res.set({
+      'Content-Type': 'text/plain',
+      'Cache-Control': 'public, max-age=86400'
+    });
+    
+    res.send(robotsTxt);
+  });
+
   // Users routes
   app.get("/api/users/:uid", async (req, res) => {
     try {
