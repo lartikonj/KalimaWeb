@@ -150,11 +150,6 @@ export default function ArticlePage() {
     );
   }
   
-  // Get category and subcategory information for breadcrumbs
-  const translation = article.translations[language] || 
-                     article.translations["en"] || 
-                     article.translations[article.availableLanguages[0]];
-  
   const articleCategorySlug = categorySlug || translation?.category;
   const articleSubcategorySlug = subcategorySlug || translation?.subcategory;
   
