@@ -4,6 +4,7 @@ import { getArticleBySlug, getArticles, getCategoryBySlug } from "@/lib/firebase
 import { ArticleDetail } from "@/components/articles/ArticleDetail";
 import { Article } from "@/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSEO } from "@/hooks/use-seo";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -90,6 +91,28 @@ export default function ArticlePage() {
     
     fetchArticle();
   }, [slug, categorySlug, subcategorySlug, language, t]);
+
+  // Get current translation for SEO
+  const translation = article && (
+    article.translations[language] || 
+    article.translations["en"] || 
+    article.translations[article.availableLanguages[0]]
+  );
+
+  // Use SEO hook
+  useSEO({
+    title: translation?.title,
+    description: translation?.summary,
+    keywords: translation?.keywords,
+    image: article?.imageUrls?.[0] || article?.imageUrl,
+    url: window.location.href,
+    type: 'article',
+    author: article?.author?.displayName,
+    publishedTime: article?.createdAt?.toDate?.()?.toISOString(),
+    modifiedTime: article?.createdAt?.toDate?.()?.toISOString(),
+    section: translation?.category,
+    language: language
+  });
   
   if (isLoading) {
     return (
