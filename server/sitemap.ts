@@ -1,5 +1,5 @@
 
-import { getArticles, getCategories, getStaticPages } from "../client/src/lib/firebase";
+import { getArticles, getCategories, getStaticPages } from "./firebase-admin";
 
 interface SitemapUrl {
   loc: string;
