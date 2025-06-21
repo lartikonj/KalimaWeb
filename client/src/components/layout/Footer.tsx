@@ -30,20 +30,7 @@ export function Footer() {
     }
 
     fetchStaticPages();
-    
-    // Add event listener for language changes
-    const handleLanguageChange = (event: CustomEvent) => {
-      if (event.detail && typeof event.detail === 'string') {
-        setLanguage(event.detail as any);
-      }
-    };
-    
-    window.addEventListener('setLanguage', handleLanguageChange as EventListener);
-    
-    return () => {
-      window.removeEventListener('setLanguage', handleLanguageChange as EventListener);
-    };
-  }, [setLanguage]);
+  }, []);
 
   // Get page title in current language or fallback to another available language
   const getPageTitle = (page: StaticPage) => {
@@ -149,6 +136,7 @@ export function Footer() {
                 <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                   <button 
                     onClick={() => { 
+                      console.log('Mobile footer language button clicked: en');
                       setLanguage('en'); 
                       document.getElementById('language-dropdown')?.classList.add('hidden');
                     }}
@@ -157,6 +145,7 @@ export function Footer() {
                   </button>
                   <button 
                     onClick={() => { 
+                      console.log('Mobile footer language button clicked: ar');
                       setLanguage('ar'); 
                       document.getElementById('language-dropdown')?.classList.add('hidden');
                     }}
@@ -165,6 +154,7 @@ export function Footer() {
                   </button>
                   <button 
                     onClick={() => { 
+                      console.log('Mobile footer language button clicked: fr');
                       setLanguage('fr'); 
                       document.getElementById('language-dropdown')?.classList.add('hidden');
                     }}
@@ -173,6 +163,7 @@ export function Footer() {
                   </button>
                   <button 
                     onClick={() => { 
+                      console.log('Mobile footer language button clicked: es');
                       setLanguage('es'); 
                       document.getElementById('language-dropdown')?.classList.add('hidden');
                     }}
@@ -181,6 +172,7 @@ export function Footer() {
                   </button>
                   <button 
                     onClick={() => { 
+                      console.log('Mobile footer language button clicked: de');
                       setLanguage('de'); 
                       document.getElementById('language-dropdown')?.classList.add('hidden');
                     }}
@@ -234,27 +226,42 @@ export function Footer() {
               <h3 className="text-lg font-bold mb-4 text-white">Languages</h3>
               <div className="grid grid-cols-2 gap-2">
                 <button 
-                  onClick={() => setLanguage('en')}
+                  onClick={() => {
+                    console.log('Footer language button clicked: en');
+                    setLanguage('en');
+                  }}
                   className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors text-left ${language === 'en' ? 'font-bold text-white' : ''}`}>
                   English
                 </button>
                 <button 
-                  onClick={() => setLanguage('ar')}
+                  onClick={() => {
+                    console.log('Footer language button clicked: ar');
+                    setLanguage('ar');
+                  }}
                   className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors text-left ${language === 'ar' ? 'font-bold text-white' : ''}`}>
                   العربية (Arabic)
                 </button>
                 <button 
-                  onClick={() => setLanguage('fr')}
+                  onClick={() => {
+                    console.log('Footer language button clicked: fr');
+                    setLanguage('fr');
+                  }}
                   className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors text-left ${language === 'fr' ? 'font-bold text-white' : ''}`}>
                   Français (French)
                 </button>
                 <button 
-                  onClick={() => setLanguage('es')}
+                  onClick={() => {
+                    console.log('Footer language button clicked: es');
+                    setLanguage('es');
+                  }}
                   className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors text-left ${language === 'es' ? 'font-bold text-white' : ''}`}>
                   Español (Spanish)
                 </button>
                 <button 
-                  onClick={() => setLanguage('de')}
+                  onClick={() => {
+                    console.log('Footer language button clicked: de');
+                    setLanguage('de');
+                  }}
                   className={`text-sm text-gray-300 hover:text-white hover:underline transition-colors text-left ${language === 'de' ? 'font-bold text-white' : ''}`}>
                   Deutsch (German)
                 </button>

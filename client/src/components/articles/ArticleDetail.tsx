@@ -189,6 +189,7 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
   };
   
   const handleLanguageChange = (lang: string) => {
+    console.log('Article language button clicked:', lang);
     setActiveLanguage(lang as any);
     // Also update the UI language if needed
     if (lang === "en" || lang === "ar" || lang === "fr" || lang === "es" || lang === "de") {
