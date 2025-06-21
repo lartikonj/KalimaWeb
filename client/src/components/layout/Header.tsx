@@ -1,12 +1,16 @@
-import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SearchDialog } from "@/components/ui/search-dialog";
-import { Menu, X, User, BookMarked, LayoutDashboard } from "lucide-react";
+import { Menu, X, Search, User, LogOut, Settings, BookOpen, Heart, MessageSquarePlus } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { useLanguageFromUrl } from "@/hooks/use-language-from-url";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,12 +18,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { t, isRTL, language } = useLanguage();
-  const { user, isAdmin, logout } = useAuth();
-  const [location] = useLocation();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { language, t, setLanguage } = useLanguage();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [location, setLocation] = useLocation();
+  const { pathWithoutLanguage, isLanguageInUrl } = useLanguageFromUrl();
 
   const isActive = (path: string) => {
     return location === path;
@@ -30,6 +38,24 @@ export default function Header() {
       await logout();
     } catch (error) {
       console.error("Logout failed:", error);
+    }
+  };
+
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage);
+
+    // Update URL to include new language
+    if (location === "/" || location === `/${language}`) {
+      // For home page, just go to new language home
+      setLocation(`/${newLanguage}`);
+    } else if (isLanguageInUrl) {
+      // Replace existing language in URL
+      const newPath = location.replace(`/${language}`, `/${newLanguage}`);
+      setLocation(newPath);
+    } else {
+      // Add language prefix to current path
+      const newPath = `/${newLanguage}${location}`;
+      setLocation(newPath);
     }
   };
 
@@ -65,7 +91,7 @@ export default function Header() {
 
             {/* Language Switcher */}
             <div className="hidden md:flex md:items-center">
-              <LanguageSwitcher />
+              <LanguageSwitcher onLanguageChange={handleLanguageChange} />
             </div>
 
             {/* Theme Toggle */}
@@ -176,7 +202,7 @@ export default function Header() {
                 <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
                   {t("language.selectLanguage")}
                 </p>
-                <LanguageSwitcher />
+                <LanguageSwitcher onLanguageChange={handleLanguageChange} />
               </div>
             </div>
           </div>

@@ -9,20 +9,24 @@ import {
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { Globe } from "lucide-react";
 
-export function LanguageSwitcher() {
-  const { language, setLanguage, t } = useLanguage();
+const languages = [
+  { code: "en", name: "English", flag: "🇺🇸" },
+  { code: "ar", name: "العربية", flag: "🇸🇦" },
+  { code: "fr", name: "Français", flag: "🇫🇷" },
+  { code: "es", name: "Español", flag: "🇪🇸" },
+  { code: "de", name: "Deutsch", flag: "🇩🇪" },
+];
 
-  const languages = [
-    { code: "en", label: "English" },
-    { code: "ar", label: "العربية" },
-    { code: "fr", label: "Français" },
-    { code: "es", label: "Español" },
-    { code: "de", label: "Deutsch" },
-  ];
+interface LanguageSwitcherProps {
+  onLanguageChange?: (language: string) => void;
+}
+
+export function LanguageSwitcher({ onLanguageChange }: LanguageSwitcherProps) {
+  const { language, setLanguage } = useLanguage();
 
   const getCurrentLanguageLabel = () => {
     const currentLang = languages.find(lang => lang.code === language);
-    return currentLang ? currentLang.label : "English";
+    return currentLang ? currentLang.name : "English";
   };
 
   return (
@@ -37,10 +41,10 @@ export function LanguageSwitcher() {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLanguage(lang.code as Language)}
+            onClick={() => onLanguageChange ? onLanguageChange(lang.code) : setLanguage(lang.code as Language)}
             className={language === lang.code ? "bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-300" : ""}
           >
-            {lang.label}
+            {lang.name}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

@@ -63,6 +63,16 @@ function RouterContent() {
           <Route path="/article/:slug" component={Article} />
           <Route path="/page/:slug" component={StaticPage} />
           <Route path="/search" component={SearchPage} />
+          
+          {/* Language-specific routes */}
+          <Route path="/:lang" component={Home} />
+          <Route path="/:lang/categories" component={Categories} />
+          <Route path="/:lang/categories/:categorySlug" component={CategoryPage} />
+          <Route path="/:lang/categories/:categorySlug/:subcategorySlug" component={SubcategoryPage} />
+          <Route path="/:lang/categories/:categorySlug/:subcategorySlug/:slug" component={Article} />
+          <Route path="/:lang/article/:slug" component={Article} />
+          <Route path="/:lang/page/:slug" component={StaticPage} />
+          <Route path="/:lang/search" component={SearchPage} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/favorites">
