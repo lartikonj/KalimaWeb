@@ -10,6 +10,7 @@ import { addFavorite, removeFavorite } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { LanguageBadge } from "./LanguageBadge";
 import { ArticleCard } from "./ArticleCard";
+import { useLanguageFromUrl } from "@/hooks/use-language-from-url";
 import ReactMarkdown from "react-markdown";
 
 interface ArticleTranslation {
@@ -76,7 +77,8 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
   const { language, t, setLanguage } = useLanguage();
   const { user, userData } = useAuth();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { pathWithoutLanguage, isLanguageInUrl } = useLanguageFromUrl();
   const [activeLanguage, setActiveLanguage] = useState<string>(language);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -188,12 +190,25 @@ export function ArticleDetail({ article, relatedArticles = [], isLoading = false
     }
   };
   
-  const handleLanguageChange = (lang: string) => {
-    console.log('Article language button clicked:', lang);
-    setActiveLanguage(lang as any);
+  const handleLanguageChange = (newLanguage: string) => {
+    setActiveLanguage(newLanguage as any);
     // Also update the UI language if needed
-    if (lang === "en" || lang === "ar" || lang === "fr" || lang === "es" || lang === "de") {
-      setLanguage(lang as Language);
+    if (newLanguage === "en" || newLanguage === "ar" || newLanguage === "fr" || newLanguage === "es" || newLanguage === "de") {
+      setLanguage(newLanguage as Language);
+    }
+
+    // Update URL to include new language
+    if (location === "/" || location === `/${language}`) {
+      // For home page, just go to new language home
+      setLocation(`/${newLanguage}`);
+    } else if (isLanguageInUrl) {
+      // Replace existing language in URL
+      const newPath = location.replace(`/${language}`, `/${newLanguage}`);
+      setLocation(newPath);
+    } else {
+      // Add language prefix to current path
+      const newPath = `/${newLanguage}${location}`;
+      setLocation(newPath);
     }
   };
   
