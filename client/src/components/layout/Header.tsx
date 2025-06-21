@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { SearchDialog } from "@/components/ui/search-dialog";
-import { Menu, X, Search, User, LogOut, Settings, BookOpen, Heart, MessageSquarePlus } from "lucide-react";
+import { Menu, X, Search, User, LogOut, Settings, BookOpen, Heart, MessageSquarePlus, LayoutDashboard } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { signOut } from "firebase/auth";
@@ -23,9 +23,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { language, t, setLanguage } = useLanguage();
-  const { user } = useAuth();
+  const { language, t, setLanguage, isRTL } = useLanguage();
+  const { user, logout } = useAuth();
   const { toast } = useToast();
+  const isAdmin = user?.role === 'admin';
   const [location, setLocation] = useLocation();
   const { pathWithoutLanguage, isLanguageInUrl } = useLanguageFromUrl();
 
