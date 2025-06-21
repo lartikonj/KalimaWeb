@@ -71,22 +71,6 @@ export default function Home() {
 
 
 
-      {/* Featured Categories */}
-      <div>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-heading font-bold text-neutral-800 dark:text-neutral-100">
-            {t("home.featuredCategories")}
-          </h2>
-          <Button asChild variant="ghost" className="group">
-            <Link href="/categories" className="flex items-center gap-1">
-              {t("general.viewAll")}
-              <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Button>
-        </div>
-        <CategoryList />
-      </div>
-
       {/* Latest Articles */}
       <div>
         <div className="flex justify-between items-center mb-6">
@@ -106,6 +90,22 @@ export default function Home() {
           isLoading={isLoading} 
           emptyMessage={t("article.noArticles")}
         />
+      </div>
+
+      {/* Featured Categories */}
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-heading font-bold text-neutral-800 dark:text-neutral-100">
+            {t("home.featuredCategories")}
+          </h2>
+          <Button asChild variant="ghost" className="group">
+            <Link href="/categories" className="flex items-center gap-1">
+              {t("general.viewAll")}
+              <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+        </div>
+        <CategoryList />
       </div>
     </div>
   );
