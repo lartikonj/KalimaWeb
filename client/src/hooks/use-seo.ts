@@ -13,6 +13,10 @@ interface SEOData {
   modifiedTime?: string;
   section?: string;
   language?: string;
+  alternateLanguages?: Array<{
+    hreflang: string;
+    href: string;
+  }>;
 }
 
 export function useSEO(seoData: SEOData) {
@@ -114,6 +118,31 @@ export function useSEO(seoData: SEOData) {
     // Update HTML lang attribute
     if (seoData.language) {
       document.documentElement.setAttribute('lang', seoData.language);
+    }
+
+    // Add alternate language links
+    if (seoData.alternateLanguages && seoData.alternateLanguages.length > 0) {
+      // Remove existing alternate links
+      const existingAlternates = document.querySelectorAll('link[hreflang]');
+      existingAlternates.forEach(link => link.remove());
+
+      // Add new alternate links
+      seoData.alternateLanguages.forEach(({ hreflang, href }) => {
+        const link = document.createElement('link');
+        link.setAttribute('rel', 'alternate');
+        link.setAttribute('hreflang', hreflang);
+        link.setAttribute('href', href);
+        document.head.appendChild(link);
+      });
+
+      // Add x-default for the main language version
+      if (seoData.url) {
+        const defaultLink = document.createElement('link');
+        defaultLink.setAttribute('rel', 'alternate');
+        defaultLink.setAttribute('hreflang', 'x-default');
+        defaultLink.setAttribute('href', seoData.url);
+        document.head.appendChild(defaultLink);
+      }
     }
 
     // Add structured data for articles

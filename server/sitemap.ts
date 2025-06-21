@@ -10,6 +10,7 @@ interface SitemapUrl {
 
 export async function generateSitemap(baseUrl: string): Promise<string> {
   const urls: SitemapUrl[] = [];
+  const languages = ['en', 'ar', 'fr', 'es', 'de'];
 
   // Add homepage
   urls.push({
@@ -18,13 +19,32 @@ export async function generateSitemap(baseUrl: string): Promise<string> {
     priority: 1.0
   });
 
-  // Add static pages
+  // Add language-specific homepages
+  languages.forEach(lang => {
+    urls.push({
+      loc: `${baseUrl}/${lang}`,
+      changefreq: 'daily',
+      priority: 1.0
+    });
+  });
+
+  // Add static pages (both legacy and language-specific)
   urls.push(
     { loc: `${baseUrl}/categories`, changefreq: 'weekly', priority: 0.9 },
     { loc: `${baseUrl}/search`, changefreq: 'monthly', priority: 0.6 },
     { loc: `${baseUrl}/login`, changefreq: 'yearly', priority: 0.3 },
     { loc: `${baseUrl}/register`, changefreq: 'yearly', priority: 0.3 }
   );
+
+  // Add language-specific static pages
+  languages.forEach(lang => {
+    urls.push(
+      { loc: `${baseUrl}/${lang}/categories`, changefreq: 'weekly', priority: 0.9 },
+      { loc: `${baseUrl}/${lang}/search`, changefreq: 'monthly', priority: 0.6 },
+      { loc: `${baseUrl}/${lang}/favorites`, changefreq: 'monthly', priority: 0.5 },
+      { loc: `${baseUrl}/${lang}/suggestions`, changefreq: 'monthly', priority: 0.4 }
+    );
+  });
 
   try {
     // Add dynamic static pages from Firestore
@@ -37,37 +57,72 @@ export async function generateSitemap(baseUrl: string): Promise<string> {
       });
     });
 
-    // Add categories and subcategories
+    // Add categories and subcategories (both legacy and language-specific)
     const categories = await getCategories();
     categories.forEach(category => {
-      // Add category page
+      // Add legacy category page
       urls.push({
         loc: `${baseUrl}/categories/${category.slug}`,
         changefreq: 'weekly',
         priority: 0.8
       });
 
+      // Add language-specific category pages
+      languages.forEach(lang => {
+        urls.push({
+          loc: `${baseUrl}/${lang}/categories/${category.slug}`,
+          changefreq: 'weekly',
+          priority: 0.8
+        });
+      });
+
       // Add subcategories
       if (category.subcategories) {
         category.subcategories.forEach(subcategory => {
+          // Legacy subcategory
           urls.push({
             loc: `${baseUrl}/categories/${category.slug}/${subcategory.slug}`,
             changefreq: 'weekly',
             priority: 0.7
           });
+
+          // Language-specific subcategories
+          languages.forEach(lang => {
+            urls.push({
+              loc: `${baseUrl}/${lang}/categories/${category.slug}/${subcategory.slug}`,
+              changefreq: 'weekly',
+              priority: 0.7
+            });
+          });
         });
       }
     });
 
-    // Add articles
+    // Add articles (both legacy and language-specific)
     const articles = await getArticles({ draft: false });
     articles.forEach(article => {
+      // Legacy article URL
       urls.push({
         loc: `${baseUrl}/articles/${article.slug}`,
         lastmod: article.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
         changefreq: 'monthly',
         priority: 0.8
       });
+
+      // Language-specific article URLs for each available language
+      if (article.availableLanguages && Array.isArray(article.availableLanguages)) {
+        article.availableLanguages.forEach(lang => {
+          const translation = article.translations && article.translations[lang];
+          if (translation && translation.category && translation.subcategory) {
+            urls.push({
+              loc: `${baseUrl}/${lang}/categories/${translation.category}/${translation.subcategory}/${article.slug}`,
+              lastmod: article.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+              changefreq: 'monthly',
+              priority: 0.9 // Higher priority for language-specific URLs
+            });
+          }
+        });
+      }
     });
 
   } catch (error) {

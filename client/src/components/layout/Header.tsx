@@ -17,7 +17,7 @@ import {
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
   const { user, isAdmin, logout } = useAuth();
   const [location] = useLocation();
 
@@ -49,30 +49,30 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className={`hidden md:flex md:space-x-6 ${isRTL ? 'md:space-x-reverse mr-6' : 'ml-6'}`}>
-              <NavLink href="/" active={isActive('/')} label={t("nav.home")} />
-              <NavLink href="/categories" active={isActive('/categories')} label={t("nav.categories")} />
+              <NavLink href={`/${language}`} active={isActive(`/${language}`)} label={t("nav.home")} />
+              <NavLink href={`/${language}/categories`} active={isActive(`/${language}/categories`)} label={t("nav.categories")} />
               {user && (
-                <NavLink href="/favorites" active={isActive('/favorites')} label={t("nav.favorites")} />
+                <NavLink href={`/${language}/favorites`} active={isActive(`/${language}/favorites`)} label={t("nav.favorites")} />
               )}
             </nav>
           </div>
-          
+
           <div className="flex items-center">
             {/* Search Button */}
             <div className="hidden md:flex md:items-center mr-2">
               <SearchDialog />
             </div>
-            
+
             {/* Language Switcher */}
             <div className="hidden md:flex md:items-center">
               <LanguageSwitcher />
             </div>
-            
+
             {/* Theme Toggle */}
             <div className="ml-2">
               <ThemeToggle />
             </div>
-            
+
             {/* Admin Panel Button */}
             {user && isAdmin && (
               <Link href="/admin" className={`${isRTL ? 'mr-4' : 'ml-4'}`}>
@@ -82,7 +82,7 @@ export default function Header() {
                 </Button>
               </Link>
             )}
-            
+
             {/* User Menu */}
             {user ? (
               <div className={`relative flex-shrink-0 ${isRTL ? 'mr-4' : 'ml-4'}`}>
@@ -126,12 +126,12 @@ export default function Header() {
                 </Link>
               </div>
             )}
-            
+
             {/* Mobile Search Button */}
             <div className="md:hidden ml-2">
               <SearchDialog />
             </div>
-            
+
             {/* Mobile menu button */}
             <div className="md:hidden ml-2">
               <Button variant="ghost" size="sm" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -141,34 +141,34 @@ export default function Header() {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white dark:bg-neutral-800 shadow-md">
           <div className="pt-2 pb-3 space-y-1">
 
             <MobileNavLink 
-              href="/" 
-              active={isActive('/')} 
+              href={`/${language}`}
+              active={isActive(`/${language}`)} 
               label={t("nav.home")} 
               onClick={() => setIsMenuOpen(false)} 
             />
             <MobileNavLink 
-              href="/categories" 
-              active={isActive('/categories')} 
+              href={`/${language}/categories`}
+              active={isActive(`/${language}/categories`)} 
               label={t("nav.categories")}
               onClick={() => setIsMenuOpen(false)}
             />
             {user && (
               <MobileNavLink 
-                href="/favorites" 
-                active={isActive('/favorites')} 
+                href={`/${language}/favorites`}
+                active={isActive(`/${language}/favorites`)} 
                 label={t("nav.favorites")}
                 onClick={() => setIsMenuOpen(false)}
               />
             )}
           </div>
-          
+
           {/* Language Switcher (Mobile) */}
           <div className="pt-4 pb-3 border-t border-neutral-200 dark:border-neutral-700">
             <div className="px-4">
@@ -235,12 +235,12 @@ interface MobileLanguageOptionProps {
 
 function MobileLanguageOption({ code, label, onClick }: MobileLanguageOptionProps) {
   const { language, setLanguage } = useLanguage();
-  
+
   const handleClick = () => {
     setLanguage(code as any);
     onClick();
   };
-  
+
   return (
     <Button 
       variant="ghost" 

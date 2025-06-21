@@ -4,14 +4,17 @@ import { getArticleBySlug, getArticles, getCategoryBySlug } from "@/lib/firebase
 import { ArticleDetail } from "@/components/articles/ArticleDetail";
 import { Article } from "@/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguageFromUrl } from "@/hooks/use-language-from-url";
 import { useSEO } from "@/hooks/use-seo";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ArticlePage() {
   const [, paramsOld] = useRoute("/article/:slug");
-  const [, paramsNew] = useRoute("/categories/:categorySlug/:subcategorySlug/:slug");
-  const { language, t } = useLanguage();
+  const [, paramsLegacy] = useRoute("/categories/:categorySlug/:subcategorySlug/:slug");
+  const [, paramsNew] = useRoute("/:lang/categories/:categorySlug/:subcategorySlug/:slug");
+  const { language, t, setLanguage } = useLanguage();
+  const { urlLanguage, isLanguageInUrl } = useLanguageFromUrl();
   const [article, setArticle] = useState<Article | null>(null);
   const [categoryData, setCategoryData] = useState<any>(null);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
@@ -19,9 +22,12 @@ export default function ArticlePage() {
   const [error, setError] = useState<string | null>(null);
   
   // Get slug from either route pattern
-  const slug = paramsNew?.slug || paramsOld?.slug;
-  const categorySlug = paramsNew?.categorySlug;
-  const subcategorySlug = paramsNew?.subcategorySlug;
+  const slug = paramsNew?.slug || paramsLegacy?.slug || paramsOld?.slug;
+  const categorySlug = paramsNew?.categorySlug || paramsLegacy?.categorySlug;
+  const subcategorySlug = paramsNew?.subcategorySlug || paramsLegacy?.subcategorySlug;
+  
+  // Get language from URL or context
+  const currentLanguage = paramsNew?.lang || urlLanguage;
   
   useEffect(() => {
     const fetchArticle = async () => {
@@ -35,9 +41,14 @@ export default function ArticlePage() {
         if (fetchedArticle && !fetchedArticle.draft) {
           setArticle(fetchedArticle as Article);
           
+          // Update language context if URL language is different
+          if (currentLanguage && currentLanguage !== language) {
+            setLanguage(currentLanguage);
+          }
+          
           // Get the category and subcategory to fetch related articles
           const translation = 
-            fetchedArticle.translations[language] || 
+            fetchedArticle.translations[currentLanguage] || 
             fetchedArticle.translations["en"] || 
             fetchedArticle.translations[fetchedArticle.availableLanguages[0]];
           
@@ -58,7 +69,7 @@ export default function ArticlePage() {
             const related = await getArticles({
               category: categorySlug || translation.category,
               subcategory: subcategorySlug || translation.subcategory,
-              language,
+              language: currentLanguage,
               draft: false
             });
             
@@ -69,10 +80,10 @@ export default function ArticlePage() {
             
             setRelatedArticles(filteredRelated as Article[]);
             
-            // If we're using the old URL pattern, redirect to the new URL pattern
-            if (!categorySlug && translation.category && translation.subcategory) {
+            // If we're using the old URL pattern, redirect to the new language-specific URL pattern
+            if (!isLanguageInUrl && translation.category && translation.subcategory) {
               // Use window.history to update the URL without reloading the page
-              const newPath = `/categories/${translation.category}/${translation.subcategory}/${slug}`;
+              const newPath = `/${currentLanguage}/categories/${translation.category}/${translation.subcategory}/${slug}`;
               window.history.replaceState(null, '', newPath);
             }
           }
@@ -90,16 +101,16 @@ export default function ArticlePage() {
     };
     
     fetchArticle();
-  }, [slug, categorySlug, subcategorySlug, language, t]);
+  }, [slug, categorySlug, subcategorySlug, currentLanguage, language, t, setLanguage, isLanguageInUrl]);
 
   // Get current translation for SEO
   const translation = article && (
-    article.translations[language] || 
+    article.translations[currentLanguage] || 
     article.translations["en"] || 
     article.translations[article.availableLanguages[0]]
   );
 
-  // Use SEO hook
+  // Use SEO hook with language-specific data
   useSEO({
     title: translation?.title,
     description: translation?.summary,
@@ -111,7 +122,11 @@ export default function ArticlePage() {
     publishedTime: article?.createdAt?.toDate?.()?.toISOString(),
     modifiedTime: article?.createdAt?.toDate?.()?.toISOString(),
     section: translation?.category,
-    language: language
+    language: currentLanguage,
+    alternateLanguages: article?.availableLanguages?.map(lang => ({
+      hreflang: lang,
+      href: `${window.location.origin}/${lang}/categories/${translation?.category}/${translation?.subcategory}/${slug}`
+    }))
   });
   
   if (isLoading) {
