@@ -1,4 +1,4 @@
-import { Switch, Route, Router } from "wouter";
+import { Switch, Route, Router, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -37,13 +37,20 @@ import { initializeFirestore } from "@/lib/firestoreInit";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation('/login');
+    }
+  }, [user, isLoading, setLocation]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   if (!user) {
-    return <Login />;
+    return null;
   }
 
   return <>{children}</>;
@@ -75,67 +82,19 @@ function RouterContent() {
           <Route path="/:lang/article/:slug" component={Article} />
           <Route path="/:lang/page/:slug" component={StaticPage} />
           <Route path="/:lang/search" component={SearchPage} />
-          <Route path="/favorites">
-            <ProtectedRoute>
-              <Favorites />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/profile">
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/suggestions">
-            <ProtectedRoute>
-              <UserSuggestions />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin">
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/articles">
-            <ProtectedRoute>
-              <AllArticles />
-            </ProtectedRoute>
-          </Route>
-
-          <Route path="/admin/categories">
-            <ProtectedRoute>
-              <AdminCategories />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/static-pages">
-            <ProtectedRoute>
-              <AdminStaticPages />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/static-pages/create">
-            <ProtectedRoute>
-              <CreateStaticPage />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/static-pages/edit/:id">
-            <ProtectedRoute>
-              <EditStaticPage />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/suggestions">
-            <ProtectedRoute>
-              <Suggestions />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/articles/edit/:slug">
-            <ProtectedRoute>
-              <EditArticle />
-            </ProtectedRoute>
-          </Route>
-          <Route path="/admin/articles/create">
-            <ProtectedRoute>
-              <CreateArticle />
-            </ProtectedRoute>
-          </Route>
+          <Route path="/favorites" component={() => <ProtectedRoute><Favorites /></ProtectedRoute>} />
+          <Route path="/profile" component={() => <ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/suggestions" component={() => <ProtectedRoute><UserSuggestions /></ProtectedRoute>} />
+          <Route path="/admin" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/admin/dashboard" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/admin/articles" component={() => <ProtectedRoute><AllArticles /></ProtectedRoute>} />
+          <Route path="/admin/categories" component={() => <ProtectedRoute><AdminCategories /></ProtectedRoute>} />
+          <Route path="/admin/static-pages" component={() => <ProtectedRoute><AdminStaticPages /></ProtectedRoute>} />
+          <Route path="/admin/static-pages/create" component={() => <ProtectedRoute><CreateStaticPage /></ProtectedRoute>} />
+          <Route path="/admin/static-pages/edit/:id" component={() => <ProtectedRoute><EditStaticPage /></ProtectedRoute>} />
+          <Route path="/admin/suggestions" component={() => <ProtectedRoute><Suggestions /></ProtectedRoute>} />
+          <Route path="/admin/articles/edit/:slug" component={() => <ProtectedRoute><EditArticle /></ProtectedRoute>} />
+          <Route path="/admin/articles/create" component={() => <ProtectedRoute><CreateArticle /></ProtectedRoute>} />
           <Route component={NotFound} />
         </Switch>
       </main>
