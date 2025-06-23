@@ -56,6 +56,8 @@ function RouterContent() {
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
           <Route path="/categories" component={Categories} />
           <Route path="/categories/:categorySlug" component={CategoryPage} />
           <Route path="/categories/:categorySlug/:subcategorySlug" component={SubcategoryPage} />
@@ -73,8 +75,6 @@ function RouterContent() {
           <Route path="/:lang/article/:slug" component={Article} />
           <Route path="/:lang/page/:slug" component={StaticPage} />
           <Route path="/:lang/search" component={SearchPage} />
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
           <Route path="/favorites">
             <ProtectedRoute>
               <Favorites />
