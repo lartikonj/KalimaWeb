@@ -82,9 +82,12 @@ function RouterContent() {
           <Route path="/:lang/article/:slug" component={Article} />
           <Route path="/:lang/page/:slug" component={StaticPage} />
           <Route path="/:lang/search" component={SearchPage} />
+          <Route path="/:lang/favorites" component={() => <ProtectedRoute><Favorites /></ProtectedRoute>} />
+          <Route path="/:lang/profile" component={() => <ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/:lang/suggestions" component={() => <ProtectedRoute><UserSuggestions /></ProtectedRoute>} />
           <Route path="/favorites" component={() => <ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/profile" component={() => <ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/suggestions" component={() => <ProtectedRoute><UserSuggestions /></ProtectedRoute>} />
+          <Route path="/suggestions" component={() => <ProtectedRoute><UserSuggestions /></ProtectedRoute>} /></Route>
           <Route path="/admin" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/admin/dashboard" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/admin/articles" component={() => <ProtectedRoute><AllArticles /></ProtectedRoute>} />
