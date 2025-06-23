@@ -10,32 +10,32 @@ import {
 
 export function AdminNav() {
   const [location] = useLocation();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const navItems = [
     {
       label: t("admin.dashboard"),
-      href: "/admin",
+      href: `/${language}/admin`,
       icon: <LayoutDashboard className="h-5 w-5" />
     },
     {
       label: t("admin.articlesManagement"),
-      href: "/admin/articles",
+      href: `/${language}/admin/articles`,
       icon: <FilePenLine className="h-5 w-5" />
     },
     {
       label: t("admin.categoriesManagement"),
-      href: "/admin/categories",
+      href: `/${language}/admin/categories`,
       icon: <FolderTree className="h-5 w-5" />
     },
     {
       label: t("admin.staticPages"),
-      href: "/admin/static-pages",
+      href: `/${language}/admin/static-pages`,
       icon: <FileText className="h-5 w-5" />
     },
     {
       label: t("admin.suggestions"),
-      href: "/admin/suggestions",
+      href: `/${language}/admin/suggestions`,
       icon: <Lightbulb className="h-5 w-5" />
     }
   ];

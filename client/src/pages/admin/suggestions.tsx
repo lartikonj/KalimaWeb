@@ -75,7 +75,7 @@ const MOCK_USERS: User[] = [
 ];
 
 export default function Suggestions() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [users, setUsers] = useState<User[]>([]);
@@ -194,7 +194,7 @@ export default function Suggestions() {
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center">
           <Button variant="outline" size="icon" asChild className="mr-4">
-            <Link href="/admin">
+            <Link href={`/${language}/admin`}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
@@ -208,13 +208,13 @@ export default function Suggestions() {
       <Tabs defaultValue="suggestions" className="space-y-8">
         <TabsList className="grid grid-cols-4 md:w-[600px]">
           <TabsTrigger value="overview" className="flex items-center" asChild>
-            <Link href="/admin">
+            <Link href={`/${language}/admin`}>
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.overview")}</span>
             </Link>
           </TabsTrigger>
           <TabsTrigger value="articles" className="flex items-center" asChild>
-            <Link href="/admin/articles">
+            <Link href={`/${language}/admin/articles`}>
               <FileText className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.articles")}</span>
             </Link>

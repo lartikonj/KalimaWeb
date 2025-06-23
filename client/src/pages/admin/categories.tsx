@@ -288,13 +288,13 @@ export default function CategoriesAdmin() {
       <Tabs defaultValue="categories" className="space-y-8">
         <TabsList className="grid grid-cols-4 md:w-[600px]">
           <TabsTrigger value="dashboard" className="flex items-center" asChild>
-            <Link href="/admin/dashboard">
+            <Link href={`/${language}/admin`}>
               <LayoutDashboard className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.dashboard")}</span>
             </Link>
           </TabsTrigger>
           <TabsTrigger value="articles" className="flex items-center" asChild>
-            <Link href="/admin/articles">
+            <Link href={`/${language}/admin/articles`}>
               <FileText className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.articles")}</span>
             </Link>
@@ -304,7 +304,7 @@ export default function CategoriesAdmin() {
             <span className="hidden sm:inline">{t("admin.categories")}</span>
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center" asChild>
-            <Link href="/admin/settings">
+            <Link href={`/${language}/admin/settings`}>
               <Settings className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">{t("admin.settings")}</span>
             </Link>
