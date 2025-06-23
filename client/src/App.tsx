@@ -100,6 +100,39 @@ function RouterContent() {
           <Route path="/suggestions">
             <ProtectedRoute><UserSuggestions /></ProtectedRoute>
           </Route>
+          {/* Language-specific admin routes */}
+          <Route path="/:lang/admin">
+            <ProtectedRoute><Dashboard /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/dashboard">
+            <ProtectedRoute><Dashboard /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/articles">
+            <ProtectedRoute><AllArticles /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/categories">
+            <ProtectedRoute><AdminCategories /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/static-pages">
+            <ProtectedRoute><AdminStaticPages /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/static-pages/create">
+            <ProtectedRoute><CreateStaticPage /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/static-pages/edit/:id">
+            <ProtectedRoute><EditStaticPage /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/suggestions">
+            <ProtectedRoute><Suggestions /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/articles/edit/:slug">
+            <ProtectedRoute><EditArticle /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/admin/articles/create">
+            <ProtectedRoute><CreateArticle /></ProtectedRoute>
+          </Route>
+          
+          {/* Non-language admin routes (fallback) */}
           <Route path="/admin">
             <ProtectedRoute><Dashboard /></ProtectedRoute>
           </Route>
