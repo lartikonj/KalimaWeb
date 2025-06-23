@@ -59,7 +59,7 @@ export default function Home() {
         <p className="text-base sm:text-lg md:text-xl text-white mb-5">
           {t("home.hero.subtitle")}
         </p>
-        <Button asChild size="lg" className="bg-white text-primary-600 hover:bg-neutral-100">
+        <Button asChild size="lg" className="bg-white text-primary-600 hover:bg-neutral-100 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200">
           <Link href="/categories">
             {t("home.hero.cta")}
           </Link>
