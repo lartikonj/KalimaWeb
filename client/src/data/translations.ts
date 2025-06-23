@@ -297,6 +297,14 @@ const translations = {
 
     // Admin
     admin: {
+      adminPanel: "Admin Panel",
+      welcomeMessage: "Welcome",
+      articlesTotal: "Total articles",
+      articlesManagementDescription: "Manage your articles here",
+      manageArticles: "Manage Articles",
+      suggestionsTotal: "Total suggestions",
+      categoriesTotal: "Total categories",
+      pagesTotal: "Total pages",
       dashboard: "Dashboard",
       articles: "Articles",
       suggestions: "User Suggestions",
