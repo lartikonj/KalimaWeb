@@ -304,6 +304,15 @@ const translations = {
       manageArticles: "Manage Articles",
       suggestionsTotal: "Total suggestions",
       categoriesTotal: "Total categories",
+      categoriesManagementDescription: "Manage your categories here",
+      manageCategories: "Manage Categories",
+      manageSuggestions: "Manage suggestions",
+      managePages: "Manage Pages",
+      suggestionsDescription: "Manage your suggestions here",
+      staticPagesDescription: "Manage your static pages here",
+      categoriesList: "Categories List",
+      userSuggetions: "User Suggestions",
+      manageYourContent: "Manage your content here",
       pagesTotal: "Total pages",
       dashboard: "Dashboard",
       articles: "Articles",
@@ -399,7 +408,12 @@ const translations = {
         drafts: "Drafts",
         users: "Registered Users",
         suggestions: "User Suggestions",
-        languages: "Languages"
+        languages: "Languages",
+        draftArticles: "Draft Articles",
+        draftsDescription: "Articles that are not published yet",
+        artilclesDescrition: "All the articles",
+        publishedDescription: "Articles that are published",
+        languagesDescription: "Languages that are available"
       }
     },
 
