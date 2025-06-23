@@ -82,22 +82,54 @@ function RouterContent() {
           <Route path="/:lang/article/:slug" component={Article} />
           <Route path="/:lang/page/:slug" component={StaticPage} />
           <Route path="/:lang/search" component={SearchPage} />
-          <Route path="/:lang/favorites" component={() => <ProtectedRoute><Favorites /></ProtectedRoute>} />
-          <Route path="/:lang/profile" component={() => <ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/:lang/suggestions" component={() => <ProtectedRoute><UserSuggestions /></ProtectedRoute>} />
-          <Route path="/favorites" component={() => <ProtectedRoute><Favorites /></ProtectedRoute>} />
-          <Route path="/profile" component={() => <ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/suggestions" component={() => <ProtectedRoute><UserSuggestions /></ProtectedRoute>} />
-          <Route path="/admin" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/admin/dashboard" component={() => <ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/admin/articles" component={() => <ProtectedRoute><AllArticles /></ProtectedRoute>} />
-          <Route path="/admin/categories" component={() => <ProtectedRoute><AdminCategories /></ProtectedRoute>} />
-          <Route path="/admin/static-pages" component={() => <ProtectedRoute><AdminStaticPages /></ProtectedRoute>} />
-          <Route path="/admin/static-pages/create" component={() => <ProtectedRoute><CreateStaticPage /></ProtectedRoute>} />
-          <Route path="/admin/static-pages/edit/:id" component={() => <ProtectedRoute><EditStaticPage /></ProtectedRoute>} />
-          <Route path="/admin/suggestions" component={() => <ProtectedRoute><Suggestions /></ProtectedRoute>} />
-          <Route path="/admin/articles/edit/:slug" component={() => <ProtectedRoute><EditArticle /></ProtectedRoute>} />
-          <Route path="/admin/articles/create" component={() => <ProtectedRoute><CreateArticle /></ProtectedRoute>} />
+          <Route path="/:lang/favorites">
+            <ProtectedRoute><Favorites /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/profile">
+            <ProtectedRoute><Profile /></ProtectedRoute>
+          </Route>
+          <Route path="/:lang/suggestions">
+            <ProtectedRoute><UserSuggestions /></ProtectedRoute>
+          </Route>
+          <Route path="/favorites">
+            <ProtectedRoute><Favorites /></ProtectedRoute>
+          </Route>
+          <Route path="/profile">
+            <ProtectedRoute><Profile /></ProtectedRoute>
+          </Route>
+          <Route path="/suggestions">
+            <ProtectedRoute><UserSuggestions /></ProtectedRoute>
+          </Route>
+          <Route path="/admin">
+            <ProtectedRoute><Dashboard /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/dashboard">
+            <ProtectedRoute><Dashboard /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/articles">
+            <ProtectedRoute><AllArticles /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/categories">
+            <ProtectedRoute><AdminCategories /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/static-pages">
+            <ProtectedRoute><AdminStaticPages /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/static-pages/create">
+            <ProtectedRoute><CreateStaticPage /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/static-pages/edit/:id">
+            <ProtectedRoute><EditStaticPage /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/suggestions">
+            <ProtectedRoute><Suggestions /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/articles/edit/:slug">
+            <ProtectedRoute><EditArticle /></ProtectedRoute>
+          </Route>
+          <Route path="/admin/articles/create">
+            <ProtectedRoute><CreateArticle /></ProtectedRoute>
+          </Route>
           <Route component={NotFound} />
         </Switch>
       </main>
