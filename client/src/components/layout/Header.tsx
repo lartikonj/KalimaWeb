@@ -24,9 +24,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { language, t, setLanguage, isRTL } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const { toast } = useToast();
-  const isAdmin = user?.role === 'admin';
   const [location, setLocation] = useLocation();
   const { pathWithoutLanguage, isLanguageInUrl } = useLanguageFromUrl();
 
@@ -43,7 +42,7 @@ export default function Header() {
   };
 
   const handleLanguageChange = (newLanguage: string) => {
-    setLanguage(newLanguage);
+    setLanguage(newLanguage as Language);
 
     // Update URL to include new language
     if (location === "/" || location === `/${language}`) {

@@ -115,6 +115,11 @@ export async function registerUser(email: string, password: string, displayName:
   // Set the display name
   await updateProfile(userCredential.user, { displayName });
 
+  // Check if this is the first user (make them admin)
+  const usersCollection = collection(db, "users");
+  const usersSnapshot = await getDocs(usersCollection);
+  const isFirstUser = usersSnapshot.empty;
+
   // Create a user document with initial data
   await setDoc(doc(db, "users", userCredential.user.uid), {
     uid: userCredential.user.uid,
@@ -122,7 +127,7 @@ export async function registerUser(email: string, password: string, displayName:
     email,
     favorites: [],
     suggestedArticles: [],
-    isAdmin: false, // By default, new users are not admins
+    isAdmin: isFirstUser, // First user becomes admin
     createdAt: Timestamp.now()
   });
 
