@@ -122,13 +122,13 @@ export default function Header() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem asChild>
-                      <Link href="/profile">{t("nav.profile")}</Link>
+                      <Link href={`/${language}/profile`}>{t("nav.profile")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/favorites">{t("nav.favorites")}</Link>
+                      <Link href={`/${language}/favorites`}>{t("nav.favorites")}</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/suggestions">{t("nav.suggestions")}</Link>
+                      <Link href={`/${language}/suggestions`}>{t("nav.suggestions")}</Link>
                     </DropdownMenuItem>
                     {isAdmin && (
                       <>
