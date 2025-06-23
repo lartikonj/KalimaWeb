@@ -300,6 +300,9 @@ const translations = {
       adminPanel: "Admin Panel",
       welcomeMessage: "Welcome",
       articlesTotal: "Total articles",
+      categories: "Categories",
+      manageCategoriesDescription: "Manage your categories here",
+      
       articlesManagementDescription: "Manage your articles here",
       manageArticles: "Manage Articles",
       suggestionsTotal: "Total suggestions",
@@ -411,9 +414,9 @@ const translations = {
         languages: "Languages",
         draftArticles: "Draft Articles",
         draftsDescription: "Articles that are not published yet",
-        artilclesDescrition: "All the articles",
+        artilclesDescription: "All the articles",
         publishedDescription: "Articles that are published",
-        languagesDescription: "Languages that are available"
+        languagesDescription: "Languages that are available",
       }
     },
 
